@@ -1,983 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Transport Tycoon – Passenger Edition</title>
-<meta name="description" content="Free online transport tycoon game. Build rail, road, ship, air, and metro networks.">
-<style>
-:root{--bg:#1a1a2e;--panel:#16213e;--panel-2:#0f3460;--border:#533483;--text:#e0e0e0;--muted:#a0a0b0;--gold:#f5c542;--accent:#4a90e2;--danger:#e74c3c;--success:#2ecc71}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:#0a0a1a;color:var(--text);font-family:'Courier New',monospace;user-select:none}
-#game{position:fixed;inset:0;cursor:grab;touch-action:none}
-#game.tool-cursor{cursor:crosshair}
-.brandfont{font-family:'Georgia',serif}
-#hud-top{position:fixed;top:0;left:0;right:0;height:58px;background:linear-gradient(180deg,#16213e 0%,#0f3460 100%);border-bottom:2px solid #533483;display:flex;align-items:center;padding:0 16px;gap:26px;z-index:20;box-shadow:0 4px 8px rgba(0,0,0,0.5)}
-.brand{font-weight:700;color:var(--gold);font-size:18px;display:flex;align-items:baseline;gap:8px;white-space:nowrap;text-shadow:2px 2px #000}
-.brand small{color:var(--muted);font-weight:400;font-size:11px}
-.hud-stat{display:flex;flex-direction:column;line-height:1.15;min-width:56px}
-.hud-stat span{font-size:10px;color:var(--muted);letter-spacing:.4px}
-.hud-stat b{font-size:15px;font-weight:600}
-#money-display{color:var(--gold);font-family:'Georgia',serif}
-.speed-group{display:flex;gap:5px;margin-left:auto}
-.speed-group button,#help-btn,#newmap-btn,#save-btn,#load-btn,#quest-btn,#loan-btn{background:var(--panel-2);border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:7px;cursor:pointer;font-size:13px;box-shadow:inset 0 0 5px rgba(0,0,0,0.3)}
-.speed-group button.active{background:var(--accent);border-color:#7fb0ff;color:#fff}
-.speed-group button:hover,#help-btn:hover,#newmap-btn:hover,#save-btn:hover,#load-btn:hover,#quest-btn:hover,#loan-btn:hover{background:#1a3a5a}
-#toolbar-left{position:fixed;top:76px;left:14px;display:flex;flex-direction:column;gap:8px;z-index:20}
-.tool-btn{width:52px;height:52px;background:var(--panel);border:1px solid var(--border);border-radius:11px;color:var(--text);font-size:21px;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 4px 6px rgba(0,0,0,0.4);transition:all .1s}
-.tool-btn:hover{background:var(--panel-2);transform:scale(1.05)}
-.tool-btn.active{background:var(--accent);border-color:#7fb0ff}
-.tool-btn .lbl{position:absolute;left:62px;top:50%;transform:translateY(-50%);background:#0d1620;padding:5px 9px;border-radius:5px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;border:1px solid var(--border)}
-.tool-btn:hover .lbl{opacity:1}
-#side-panel{position:fixed;top:76px;right:14px;width:320px;background:var(--panel);border:2px solid var(--border);border-radius:11px;padding:16px;z-index:20;transition:transform .22s,opacity .22s;box-shadow:0 10px 30px rgba(0,0,0,.6);max-height:80vh;overflow-y:auto;background-image:linear-gradient(145deg,#16213e 0%,#0f3460 100%)}
-#side-panel.hidden{transform:translateX(320px);opacity:0;pointer-events:none}
-#side-panel .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-#side-panel .panel-header h3{margin:0;font-size:15px;font-family:'Georgia',serif;color:var(--gold)}
-#side-panel .panel-header button{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px}
-#side-panel .panel-header button:hover{color:var(--text)}
-.stat-row{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.1);color:var(--muted)}
-.stat-row b{color:var(--text);font-weight:600}
-.danger-btn{margin-top:12px;width:100%;background:var(--danger);border:none;color:#fff;padding:9px;border-radius:7px;cursor:pointer;font-size:13px}
-.danger-btn:hover{filter:brightness(1.1)}
-.rename-btn{background:var(--accent);border:none;color:#fff;padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;margin-top:6px}
-.rename-btn:hover{filter:brightness(1.1)}
-.add-carriage-btn{background:var(--success);border:none;color:#fff;padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;margin-top:6px;margin-right:6px}
-.add-carriage-btn:hover{filter:brightness(1.1)}
-.remove-carriage-btn{background:var(--danger);border:none;color:#fff;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:11px;margin-left:6px}
-.remove-carriage-btn:hover{filter:brightness(1.1)}
-#line-draft-panel{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:12px 16px;display:flex;align-items:center;gap:10px;z-index:25;box-shadow:0 10px 30px rgba(0,0,0,.45);flex-wrap:wrap;max-width:90vw}
-#line-draft-panel.hidden{display:none}
-#line-draft-panel .hint{font-size:12px;color:var(--muted)}
-#line-draft-chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{background:var(--panel-2);padding:4px 9px;border-radius:12px;font-size:12px;border:1px solid var(--border)}
-#line-draft-panel button{background:var(--accent);border:none;color:#fff;padding:7px 14px;border-radius:7px;cursor:pointer;font-size:13px}
-#line-draft-panel button.cancel{background:var(--panel-2);color:var(--muted);border:1px solid var(--border)}
-#line-finish-btn:disabled{opacity:.4;cursor:not-allowed}
-.modal-overlay{position:fixed;inset:0;background:rgba(3,7,12,.7);display:flex;align-items:center;justify-content:center;z-index:50}
-.modal-overlay.hidden{display:none}
-.modal{background:var(--panel);border:2px solid var(--border);border-radius:15px;width:min(560px,92vw);max-height:82vh;overflow:auto;padding:22px 24px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
-.modal h2{margin:0 0 16px;display:flex;justify-content:space-between;align-items:center;font-size:18px;font-family:'Georgia',serif;color:var(--gold)}
-.modal h2 button{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:0 6px}
-.modal h2 button:hover{color:var(--text)}
-.card{background:var(--panel-2);border:1px solid var(--border);border-radius:11px;padding:14px 16px;margin-bottom:10px}
-.card-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.card .info{font-size:12px;color:var(--muted);margin-top:5px}
-.card button{background:var(--accent);border:none;color:#fff;padding:8px 16px;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap}
-.card button:hover{filter:brightness(1.12)}
-.badge{display:inline-block;padding:3px 9px;border-radius:10px;font-size:11px;color:#fff}
-#toast-container{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:8px;z-index:70;max-width:300px}
-.toast{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--accent);padding:11px 14px;border-radius:8px;font-size:13px;opacity:0;transform:translateY(10px);transition:all .25s;box-shadow:0 8px 22px rgba(0,0,0,.4)}
-.toast.show{opacity:1;transform:translateY(0)}
-.toast.error{border-left-color:var(--danger)}
-.toast.success{border-left-color:var(--success)}
-#tooltip{position:fixed;background:#0c1520ee;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .1s;z-index:40}
-#tooltip.show{opacity:1}
-#intro-overlay{position:fixed;inset:0;background:rgba(3,7,12,.9);display:flex;align-items:center;justify-content:center;z-index:100}
-#intro-overlay.hidden{display:none}
-.intro-box{background:var(--panel);border:2px solid var(--border);border-radius:18px;padding:34px 36px;max-width:500px;width:92vw;box-shadow:0 30px 90px rgba(0,0,0,.7)}
-.intro-box h1{color:var(--gold);margin:0 0 6px;font-size:23px;font-family:'Georgia',serif}
-.intro-box p{color:var(--muted);font-size:13.5px;line-height:1.6}
-.intro-box ol{text-align:left;font-size:13.5px;line-height:1.85;color:var(--muted);padding-left:20px;margin:14px 0}
-.intro-box ol b{color:var(--text)}
-.intro-box .difficulty-buttons{display:flex;gap:10px;margin-top:15px}
-.intro-box .difficulty-buttons button{flex:1;background:var(--accent);border:none;color:#fff;padding:11px 0;border-radius:9px;font-size:14px;cursor:pointer;font-weight:600}
-.intro-box .difficulty-buttons button:hover{filter:brightness(1.1)}
-.intro-box .difficulty-buttons button.easy{background:var(--success)}
-.intro-box .difficulty-buttons button.medium{background:var(--gold);color:#000}
-.intro-box .difficulty-buttons button.hard{background:var(--danger)}
-#fps-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;z-index:30;pointer-events:none}
-#fps-overlay.active{display:flex;align-items:center;justify-content:center;pointer-events:auto}
-#fps-view{width:100%;height:100%;position:relative;overflow:hidden}
-#fps-canvas{width:100%;height:100%;display:block}
-#fps-hud{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);padding:12px 24px;border-radius:8px;z-index:31;font-size:13px;min-width:320px;text-align:center;border:1px solid var(--border);backdrop-filter:blur(8px)}
-#fps-hud button{background:var(--accent);border:none;color:#fff;padding:6px 18px;border-radius:6px;cursor:pointer;font-size:12px;margin-top:5px}
-#fps-hud button:hover{filter:brightness(1.1)}
-#fps-hud .dashboard{display:flex;justify-content:space-around;margin:6px 0;font-size:12px;color:var(--muted)}
-::-webkit-scrollbar{width:9px}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px}
-.vehicle-icon{font-size:24px;line-height:1}
-.quest-progress{background:var(--panel-2);border-radius:6px;height:6px;width:100%;margin-top:4px}
-.quest-progress-bar{height:100%;background:var(--gold);border-radius:6px;transition:width .3s}
-.metro-badge{background:#7a3ab5;color:#fff;border-radius:4px;padding:2px 8px;font-size:10px;margin-left:6px}
-.carriage-list{margin:6px 0;padding:0;list-style:none}
-.carriage-list li{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:rgba(255,255,255,0.04);border-radius:4px;margin-bottom:3px;font-size:12px}
-.carriage-list li .cap{color:var(--muted);font-size:11px}
-#loan-overlay .modal{width:min(400px,92vw)}
-#loan-overlay .loan-info{margin:8px 0;font-size:14px}
-#loan-overlay input{width:100%;padding:8px;margin:6px 0;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:4px}
-#loan-overlay button{margin:4px}
-@media(max-width:900px),(pointer:coarse){
-#hud-top{height:52px;gap:10px;padding:0 8px;overflow-x:auto;overflow-y:hidden}
-#hud-top::-webkit-scrollbar{display:none}
-.brand{font-size:14px}
-.brand small{display:none}
-.hud-stat{min-width:42px}
-.hud-stat span{font-size:9px}
-.hud-stat b{font-size:12px}
-.speed-group{gap:4px}
-.speed-group button,#help-btn,#newmap-btn,#save-btn,#load-btn,#quest-btn,#loan-btn{width:38px;height:38px;font-size:14px}
-#toolbar-left{top:62px;left:6px;gap:6px}
-.tool-btn{width:48px;height:48px;font-size:20px}
-.tool-btn .lbl{display:none}
-#side-panel{top:62px;right:6px;width:min(320px,88vw);padding:14px}
-.modal{width:min(600px,96vw);padding:16px}
-.modal h2{font-size:16px}
-#line-draft-panel{bottom:10px;padding:10px 12px;gap:6px}
-#line-draft-panel .hint{font-size:11px}
-#line-draft-panel button{padding:6px 10px;font-size:12px}
-.card{padding:10px 12px}
-.card button{padding:7px 12px;font-size:12px}
-.stat-row{font-size:12px}}
-</style>
-</head>
-<body>
-<canvas id="game"></canvas>
-<div id="fps-overlay"><div id="fps-view"><canvas id="fps-canvas"></canvas><div id="fps-hud"></div></div></div>
-
-<div id="hud-top">
-<div class="brand brandfont">🚂 Transport Tycoon<small>PASSENGER</small></div>
-<div class="hud-stat"><span>FUNDS</span><b id="money-display">$0</b></div>
-<div class="hud-stat"><span>DEBT</span><b id="debt-display">$0</b></div>
-<div class="hud-stat"><span>DATE</span><b id="date-display">—</b></div>
-<div class="hud-stat"><span>POPULATION</span><b id="pop-display">0</b></div>
-<div class="hud-stat"><span>VEHICLES</span><b id="train-count-display">0</b></div>
-<div class="hud-stat"><span>YEAR</span><b id="year-display">1850</b></div>
-<div class="hud-stat"><span>LAND</span><b id="land-display">1</b></div>
-<div class="speed-group">
-<button id="pause-btn" title="Pause">⏸</button>
-<button id="speed1-btn" title="1×">1×</button>
-<button id="speed2-btn" title="2×">2×</button>
-<button id="speed4-btn" title="4×">4×</button>
-<button id="quest-btn" title="Quests">🎯</button>
-<button id="loan-btn" title="Loans">💳</button>
-<button id="save-btn" title="Save">💾</button>
-<button id="load-btn" title="Load">📂</button>
-<button id="newmap-btn" title="New map">↻</button>
-<button id="help-btn" title="Help">?</button>
-</div>
-</div>
-
-<div id="toolbar-left">
-<button class="tool-btn active" data-tool="select">👆<span class="lbl">Select (1)</span></button>
-<button class="tool-btn" data-tool="rail">🚂<span class="lbl">Rail (2)</span></button>
-<button class="tool-btn" data-tool="road">🚌<span class="lbl">Road (3)</span></button>
-<button class="tool-btn" data-tool="canal">🚢<span class="lbl">Canal (4)</span></button>
-<button class="tool-btn" data-tool="air">✈️<span class="lbl">Air (5)</span></button>
-<button class="tool-btn" data-tool="metro">🚇<span class="lbl">Metro (0)</span></button>
-<button class="tool-btn" data-tool="station">🏛️<span class="lbl">Station (6)</span></button>
-<button class="tool-btn" data-tool="remove">🗑️<span class="lbl">Remove (7)</span></button>
-<button class="tool-btn" data-tool="line">🔗<span class="lbl">Draw Line (8)</span></button>
-<button class="tool-btn" id="shop-btn">🛒<span class="lbl">Buy Vehicles</span></button>
-<button class="tool-btn" id="lines-btn">📋<span class="lbl">Manage Lines</span></button>
-<button class="tool-btn" id="fps-btn">🎥<span class="lbl">FPS Mode (F)</span></button>
-</div>
-
-<div id="side-panel" class="hidden">
-<div class="panel-header"><h3>Details</h3><button id="side-panel-close">✕</button></div>
-<div id="side-panel-body"></div>
-</div>
-
-<div id="line-draft-panel" class="hidden">
-<span class="hint">Click stations in order:</span>
-<div id="line-draft-chips"></div>
-<button id="line-finish-btn" disabled>Finish Line</button>
-<button class="cancel" id="line-cancel-btn">Cancel</button>
-</div>
-
-<div class="modal-overlay hidden" id="shop-overlay"><div class="modal"><h2><span class="brandfont">Vehicle Shop</span><button id="shop-close">✕</button></h2><div id="shop-body"></div></div></div>
-<div class="modal-overlay hidden" id="lines-overlay"><div class="modal"><h2><span class="brandfont">Line Manager</span><button id="lines-close">✕</button></h2><div id="lines-body"></div></div></div>
-<div class="modal-overlay hidden" id="quests-overlay"><div class="modal"><h2><span class="brandfont">🎯 Quests & Challenges</span><button id="quests-close">✕</button></h2><div id="quests-body"></div></div></div>
-<div class="modal-overlay hidden" id="help-overlay"><div class="modal"><h2><span class="brandfont">Complete Rulebook</span><button id="help-close">✕</button></h2><div style="font-size:13px;line-height:1.8;color:var(--muted);max-height:60vh;overflow-y:auto;padding-right:10px;">
-<h3 style="color:var(--gold);margin:10px 0 5px;">🚀 Game Features</h3>
-<p><b style="color:var(--text);">Multi-Modal Transport:</b> Rail, Road, Canal, Air, and Metro!</p>
-<p><b style="color:var(--text);">Realistic Vehicles:</b> Build custom trains with engines + coaches.</p>
-<p><b style="color:var(--text);">Dynamic Attachments:</b> Add coaches to any vehicle anytime.</p>
-<h3 style="color:var(--gold);margin:10px 0 5px;">🎮 Controls</h3>
-<ul style="padding-left:19px;margin:5px 0;">
-<li>Right-click + drag — pan (desktop)</li>
-<li>Scroll / pinch — zoom</li>
-<li>Drag — pan (mobile)</li>
-<li>1-8, 0 — Select tools</li>
-<li>F — Toggle FPS view</li>
-<li>Space — Pause</li>
-<li>Ctrl+S / Ctrl+L — Save / Load</li>
-</ul>
-<h3 style="color:var(--gold);margin:10px 0 5px;">🏙️ City Growth</h3>
-<ul style="padding-left:19px;margin:5px 0;">
-<li>Connected cities grow faster.</li>
-<li><b style="color:var(--success);">Metro</b> unlocks at 1,500 population!</li>
-<li><b style="color:var(--gold);">Land expansion</b> unlocks after quests or milestones!</li>
-</ul>
-<h3 style="color:var(--gold);margin:10px 0 5px;">💰 Economy</h3>
-<ul style="padding-left:19px;margin:5px 0;">
-<li>Passengers generate income.</li>
-<li>Vehicles have daily upkeep.</li>
-<li>Take loans (💳) but watch the interest!</li>
-</ul>
-</div></div></div>
-<div class="modal-overlay hidden" id="loan-overlay"><div class="modal"><h2><span class="brandfont">💳 Bank Loans</span><button id="loan-close">✕</button></h2>
-<div class="loan-info">
-<div>Current Debt: <b id="loan-debt">$0</b></div>
-<div>Credit Limit: <b id="loan-limit">$0</b></div>
-<div>Interest Rate: <b id="loan-rate">0%</b> per day</div>
-</div>
-<div><label>Amount to borrow:</label><input type="number" id="loan-amount" min="1000" step="1000" value="10000"><button id="loan-take-btn" class="card">Take Loan</button></div>
-<div style="margin-top:12px;"><label>Amount to repay:</label><input type="number" id="repay-amount" min="1000" step="1000" value="5000"><button id="loan-repay-btn" class="card">Repay</button></div>
-</div></div>
-
-<div class="modal-overlay hidden" id="boarding-overlay"><div class="modal"><h2><span class="brandfont">Custom Boarding</span><button id="boarding-close">✕</button></h2><div id="boarding-body"></div></div></div>
-
-<div id="toast-container"></div>
-<div id="tooltip"></div>
-
-<div id="intro-overlay"><div class="intro-box">
-<h1 class="brandfont">🚂 Transport Tycoon: Passenger</h1>
-<p>Build a passenger transport empire with <b>trains, buses, trams, ships, aircraft, and metro</b>.</p>
-<ol>
-<li>Build tracks/roads/canals/air routes (2-5, 0 for metro).</li>
-<li>Place stations on them (6).</li>
-<li>Draw a line (8) connecting stations.</li>
-<li>Buy vehicles for that line (Shop).</li>
-<li>Watch your cities grow and unlock new tech!</li>
-</ol>
-<p><b>Choose your difficulty:</b></p>
-<div class="difficulty-buttons">
-<button class="easy" id="diff-easy">Easy</button>
-<button class="medium" id="diff-medium">Medium</button>
-<button class="hard" id="diff-hard">Hard</button>
-</div>
-</div></div>
-
-<script>
-'use strict';
-const TILE_W=64,TILE_H=32,MAP_W=64,MAP_H=64,DAY_RATE=1.8,DWELL_TIME=0.9,CARRIAGE_SPACING=1.2;
-const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const TERRAIN={WATER:0,GRASS:1,FOREST:2,HILL:3};
-
-const POWER_UNITS={
-rail:[
-{id:'steam_engine',name:'Steam Locomotive',cost:12000,speed:3.2,capacity:40,upkeep:20,color:'#4a7fb5',icon:'🚂'},
-{id:'diesel_engine',name:'Diesel Locomotive',cost:20000,speed:5.0,capacity:60,upkeep:35,color:'#3a7fb5',icon:'🚂'},
-{id:'electric_engine',name:'Electric Locomotive',cost:35000,speed:7.0,capacity:80,upkeep:50,color:'#2a5f95',icon:'🚂'},
-{id:'high_speed_power',name:'High-Speed Power Unit',cost:50000,speed:9.0,capacity:100,upkeep:70,color:'#1a4f85',icon:'🚄'},
-{id:'maglev_power',name:'Maglev Power Unit',cost:65000,speed:12.0,capacity:120,upkeep:90,color:'#1a3f75',icon:'🚄'}],
-road:[
-{id:'motor_unit',name:'Motor Unit',cost:6000,speed:3.0,capacity:20,upkeep:12,color:'#c8a830',icon:'🚌'},
-{id:'diesel_motor',name:'Diesel Motor',cost:10000,speed:4.5,capacity:30,upkeep:20,color:'#b58a4a',icon:'🚌'},
-{id:'electric_motor',name:'Electric Motor',cost:18000,speed:5.5,capacity:40,upkeep:28,color:'#5aaa4a',icon:'🚌'}],
-canal:[
-{id:'canal_engine',name:'Canal Engine',cost:8000,speed:2.8,capacity:30,upkeep:18,color:'#3a7a8a',icon:'⛴️'},
-{id:'steam_boat_engine',name:'Steam Boat Engine',cost:12000,speed:3.5,capacity:45,upkeep:25,color:'#4a8aaa',icon:'⛴️'},
-{id:'motor_boat_engine',name:'Motor Boat Engine',cost:18000,speed:5.0,capacity:60,upkeep:35,color:'#3a8aaa',icon:'🚤'}],
-air:[
-{id:'propeller_unit',name:'Propeller Unit',cost:9000,speed:4.0,capacity:15,upkeep:22,color:'#7a8a5a',icon:'🛩️'},
-{id:'jet_unit',name:'Jet Unit',cost:25000,speed:8.0,capacity:30,upkeep:45,color:'#5a7a9a',icon:'✈️'},
-{id:'turbofan_unit',name:'Turbofan Unit',cost:40000,speed:10.0,capacity:45,upkeep:60,color:'#7a8ab5',icon:'✈️'}],
-metro:[
-{id:'metro_power',name:'Metro Power Unit',cost:35000,speed:6.0,capacity:100,upkeep:60,color:'#7a3ab5',icon:'🚇'},
-{id:'metro_high_power',name:'Metro High-Power',cost:50000,speed:7.5,capacity:140,upkeep:80,color:'#6a2a95',icon:'🚇'}]};
-
-const CARRIAGE_TYPES={
-rail:[
-{id:'passenger_coach',name:'Passenger Coach',cost:4000,capacity:40,upkeep:8,color:'#8a9a6a',icon:'🚃'},
-{id:'deluxe_coach',name:'Deluxe Coach',cost:7000,capacity:60,upkeep:12,color:'#c8b04a',icon:'🚃'},
-{id:'dining_coach',name:'Dining Coach',cost:5500,capacity:30,upkeep:10,color:'#b08050',icon:'🍽️'},
-{id:'sleeper_coach',name:'Sleeper Coach',cost:6000,capacity:35,upkeep:11,color:'#6a7a8a',icon:'🛏️'}],
-road:[
-{id:'passenger_comp',name:'Passenger Compartment',cost:2500,capacity:25,upkeep:6,color:'#c8b060',icon:'🚌'},
-{id:'deluxe_comp',name:'Deluxe Compartment',cost:4500,capacity:35,upkeep:9,color:'#d8c870',icon:'🚌'},
-{id:'luggage_comp',name:'Luggage Compartment',cost:2000,capacity:15,upkeep:4,color:'#a09870',icon:'🧳'}],
-canal:[
-{id:'passenger_cabin',name:'Passenger Cabin',cost:3500,capacity:30,upkeep:8,color:'#4a8a7a',icon:'🛏️'},
-{id:'deluxe_cabin',name:'Deluxe Cabin',cost:6000,capacity:45,upkeep:12,color:'#5a9a8a',icon:'🛏️'},
-{id:'observation_deck',name:'Observation Deck',cost:4000,capacity:20,upkeep:7,color:'#7a9a8a',icon:'🔭'}],
-air:[
-{id:'comfort_seat',name:'Comfort Seat',cost:3000,capacity:20,upkeep:7,color:'#8a9ab5',icon:'💺'},
-{id:'deluxe_seat',name:'Deluxe Seat',cost:5000,capacity:30,upkeep:10,color:'#9aaac5',icon:'💺'},
-{id:'first_class',name:'First Class',cost:8000,capacity:20,upkeep:14,color:'#c8b060',icon:'⭐'}],
-metro:[
-{id:'metro_car',name:'Metro Car',cost:5000,capacity:60,upkeep:12,color:'#8a5ab5',icon:'🚇'},
-{id:'metro_deluxe',name:'Metro Deluxe Car',cost:8000,capacity:80,upkeep:18,color:'#9a6ac5',icon:'🚇'}]};
-
-function getPowerUnits(m){return POWER_UNITS[m]||[]}
-function getCarriageTypes(m){return CARRIAGE_TYPES[m]||[]}
-
-const VEHICLE_TYPES={
-1850:[
-{id:'steam_train',name:'Steam Train',mode:'rail',cost:12000,speed:3.2,capacity:40,upkeep:20,color:'#4a7fb5',icon:'🚂'},
-{id:'horse_cart',name:'Horse Cart',mode:'road',cost:2000,speed:1.5,capacity:12,upkeep:5,color:'#8a6a3a',icon:'🐴'},
-{id:'horse_tram',name:'Horse Tram',mode:'road',cost:4000,speed:2.0,capacity:30,upkeep:10,color:'#6a8a4a',icon:'🚋'},
-{id:'paddle_steamer',name:'Paddle Steamer',mode:'canal',cost:7000,speed:2.8,capacity:50,upkeep:18,color:'#3a7a8a',icon:'⛴️'},
-{id:'hot_air_balloon',name:'Hot Air Balloon',mode:'air',cost:5000,speed:1.2,capacity:8,upkeep:12,color:'#c87a3a',icon:'🎈'}],
-1870:[
-{id:'steam_train2',name:'Improved Steam',mode:'rail',cost:15000,speed:4.0,capacity:60,upkeep:28,color:'#4a8fb5',icon:'🚂'},
-{id:'steam_tram',name:'Steam Tram',mode:'road',cost:6000,speed:2.5,capacity:35,upkeep:12,color:'#6a9a4a',icon:'🚋'},
-{id:'horse_bus',name:'Horse Bus',mode:'road',cost:3000,speed:2.0,capacity:20,upkeep:8,color:'#c8a830',icon:'🚌'},
-{id:'canal_barge',name:'Canal Barge',mode:'canal',cost:8000,speed:2.5,capacity:70,upkeep:16,color:'#4a6a7a',icon:'🚢'},
-{id:'glider',name:'Glider',mode:'air',cost:6000,speed:2.0,capacity:4,upkeep:10,color:'#8a9a6a',icon:'🪁'}],
-1890:[
-{id:'electric_tram',name:'Electric Tram',mode:'road',cost:8000,speed:3.5,capacity:50,upkeep:15,color:'#5aaa4a',icon:'🚋'},
-{id:'steamboat',name:'Steamboat',mode:'canal',cost:10000,speed:3.0,capacity:80,upkeep:20,color:'#3a7a9a',icon:'⛴️'},
-{id:'biplane',name:'Biplane',mode:'air',cost:9000,speed:4.0,capacity:12,upkeep:22,color:'#7a8a5a',icon:'🛩️'},
-{id:'steam_lorry',name:'Steam Lorry',mode:'road',cost:7000,speed:2.8,capacity:40,upkeep:14,color:'#8a6a4a',icon:'🚛'},
-{id:'canal_ferry',name:'Canal Ferry',mode:'canal',cost:9000,speed:3.2,capacity:60,upkeep:18,color:'#4a8a7a',icon:'⛴️'}],
-1910:[
-{id:'diesel_train',name:'Diesel Train',mode:'rail',cost:20000,speed:5.0,capacity:80,upkeep:38,color:'#3a7fb5',icon:'🚂'},
-{id:'diesel_bus',name:'Diesel Bus',mode:'road',cost:8000,speed:4.0,capacity:35,upkeep:18,color:'#d8b830',icon:'🚌'},
-{id:'diesel_tram',name:'Diesel Tram',mode:'road',cost:10000,speed:4.0,capacity:45,upkeep:20,color:'#6aaa4a',icon:'🚋'},
-{id:'canal_boat',name:'Motor Boat',mode:'canal',cost:12000,speed:4.5,capacity:60,upkeep:25,color:'#3a8aaa',icon:'🚤'},
-{id:'seaplane',name:'Seaplane',mode:'air',cost:14000,speed:6.0,capacity:20,upkeep:35,color:'#5a7a9a',icon:'🛩️'}],
-1930:[
-{id:'express_train',name:'Express Train',mode:'rail',cost:28000,speed:6.5,capacity:100,upkeep:50,color:'#2a6fa5',icon:'🚂'},
-{id:'trolleybus',name:'Trolleybus',mode:'road',cost:12000,speed:4.5,capacity:40,upkeep:22,color:'#e8c840',icon:'🚌'},
-{id:'truck',name:'Motor Truck',mode:'road',cost:10000,speed:4.0,capacity:50,upkeep:20,color:'#b56a4a',icon:'🚛'},
-{id:'freight_ship',name:'Freight Ship',mode:'canal',cost:18000,speed:4.0,capacity:150,upkeep:40,color:'#3a5a7a',icon:'🚢'},
-{id:'zeppelin',name:'Zeppelin',mode:'air',cost:22000,speed:5.0,capacity:40,upkeep:50,color:'#8a8a8a',icon:'🎈'}],
-1950:[
-{id:'electric_train',name:'Electric Train',mode:'rail',cost:35000,speed:7.0,capacity:120,upkeep:55,color:'#2a5f95',icon:'🚂'},
-{id:'metro_train',name:'Metro',mode:'metro',cost:35000,speed:6.0,capacity:180,upkeep:65,color:'#7a3ab5',icon:'🚇'},
-{id:'diesel_truck',name:'Diesel Truck',mode:'road',cost:15000,speed:5.0,capacity:60,upkeep:28,color:'#c87a4a',icon:'🚛'},
-{id:'ferry',name:'Ferry',mode:'canal',cost:20000,speed:5.5,capacity:100,upkeep:35,color:'#4a8a7a',icon:'⛴️'},
-{id:'propeller_plane',name:'Propeller Plane',mode:'air',cost:25000,speed:8.0,capacity:30,upkeep:45,color:'#7a8a9a',icon:'🛩️'}],
-1970:[
-{id:'high_speed',name:'High-Speed Train',mode:'rail',cost:50000,speed:9.0,capacity:160,upkeep:75,color:'#1a4f85',icon:'🚄'},
-{id:'articulated_bus',name:'Articulated Bus',mode:'road',cost:20000,speed:5.5,capacity:60,upkeep:35,color:'#e8c850',icon:'🚌'},
-{id:'container_ship',name:'Container Ship',mode:'canal',cost:30000,speed:5.0,capacity:200,upkeep:50,color:'#3a6a8a',icon:'🚢'},
-{id:'jet_plane',name:'Jet Plane',mode:'air',cost:35000,speed:10.0,capacity:60,upkeep:60,color:'#5a7a9a',icon:'✈️'},
-{id:'monorail',name:'Monorail',mode:'rail',cost:40000,speed:8.0,capacity:160,upkeep:70,color:'#2a7a8a',icon:'🚝'}],
-1990:[
-{id:'maglev',name:'Maglev',mode:'rail',cost:65000,speed:12.0,capacity:200,upkeep:95,color:'#1a3f75',icon:'🚄'},
-{id:'electric_bus',name:'Electric Bus',mode:'road',cost:25000,speed:6.0,capacity:50,upkeep:30,color:'#e8d860',icon:'🚌'},
-{id:'cargo_plane',name:'Cargo Plane',mode:'air',cost:40000,speed:10.0,capacity:100,upkeep:70,color:'#7a8ab5',icon:'✈️'},
-{id:'speedboat',name:'Speedboat',mode:'canal',cost:22000,speed:7.0,capacity:30,upkeep:30,color:'#4a9aaa',icon:'🚤'},
-{id:'double_decker',name:'Double Decker',mode:'road',cost:28000,speed:5.0,capacity:70,upkeep:35,color:'#d8b840',icon:'🚌'}],
-2010:[
-{id:'hyperloop',name:'Hyperloop',mode:'rail',cost:85000,speed:15.0,capacity:250,upkeep:115,color:'#0a2f65',icon:'🚄'},
-{id:'autonomous_bus',name:'Autonomous Bus',mode:'road',cost:30000,speed:7.0,capacity:55,upkeep:35,color:'#f0e070',icon:'🚌'},
-{id:'drone_freight',name:'Freight Drone',mode:'air',cost:50000,speed:12.0,capacity:80,upkeep:60,color:'#8a9ac5',icon:'🛸'},
-{id:'hydrofoil',name:'Hydrofoil',mode:'canal',cost:32000,speed:8.5,capacity:70,upkeep:45,color:'#4a8aaa',icon:'🛥️'},
-{id:'bullet_train',name:'Bullet Train',mode:'rail',cost:75000,speed:14.0,capacity:220,upkeep:105,color:'#1a4a7a',icon:'🚄'}]};
-
-const CITY_NAMES=['Ashford','Rivermill','Bridgeton','Hollowbrook','Fairhaven','Kingswell','Millport','Stonegate','Elmshire','Oakendale','Thornbury','Westfield','Norwood','Highgate','Sutterly','Brighton','Clifton','Dover','Exeter','Guildford','Hereford','Ipswich','Jersey','Kendal','Lancaster','Mansfield','Nottingham','Oxford','Plymouth','Queensbury','Richmond','Worcester','York','Bristol','Cambridge','Durham','Ely','Falmouth','Glasgow','Hull','Inverness'];
-
-let quests=[],questPhase=0;
-const QUEST_TEMPLATES={
-connect_cities:{name:'Connect 3 cities with a line',goal:3,reward:5000,check:()=>{let c=0;for(const ci of G.cities)if(ci.stationId)c++;return c>=3},getProgress:()=>{let c=0;for(const ci of G.cities)if(ci.stationId)c++;return c}},
-earn_money:{name:'Earn $50,000 total revenue',goal:50000,reward:10000,check:()=>G.stats.totalRevenue>=50000,getProgress:()=>Math.min(G.stats.totalRevenue,50000)},
-transport_passengers:{name:'Transport 5,000 passengers',goal:5000,reward:12000,check:()=>G.stats.passengersTransported>=5000,getProgress:()=>Math.min(G.stats.passengersTransported,5000)},
-build_stations:{name:'Build 8 stations',goal:8,reward:5000,check:()=>G.stations.length>=8,getProgress:()=>Math.min(G.stations.length,8)},
-grow_city:{name:'Grow one city to 10,000 population',goal:10000,reward:15000,check:()=>G.cities.some(c=>c.population>=10000),getProgress:()=>Math.max(...G.cities.map(c=>Math.min(c.population,10000)))},
-connect_all:{name:'Connect all cities with any line',goal:1,reward:20000,check:()=>G.cities.every(c=>c.stationId),getProgress:()=>G.cities.filter(c=>c.stationId).length/G.cities.length},
-metro_connect:{name:'Connect 2 metro-capable cities (1.5k+)',goal:2,reward:25000,check:()=>{const b=G.cities.filter(c=>c.population>=1500);return b.filter(c=>c.stationId).length>=2},getProgress:()=>G.cities.filter(c=>c.population>=1500&&c.stationId).length},
-mega_city:{name:'Grow a city to 100,000 population',goal:100000,reward:30000,check:()=>G.cities.some(c=>c.population>=100000),getProgress:()=>Math.max(...G.cities.map(c=>Math.min(c.population,100000)))},
-fleet_expansion:{name:'Own 20 vehicles',goal:20,reward:15000,check:()=>G.vehicles.length>=20,getProgress:()=>Math.min(G.vehicles.length,20)},
-land_expansion:{name:'Unlock 5 land expansions',goal:5,reward:40000,check:()=>G.unlockedLand>=5,getProgress:()=>Math.min(G.unlockedLand,5)}};
-
-function getQuestTemplate(t){return QUEST_TEMPLATES[t]}
-
-function generateQuests(force){
-if(quests.length>0&&!force)return;
-const base=['connect_cities','earn_money','transport_passengers','build_stations','grow_city','connect_all'];
-const adv=['metro_connect','mega_city','fleet_expansion','land_expansion'];
-let pool;
-if(questPhase<2)pool=base;
-else if(questPhase<4)pool=[...base,...adv.slice(0,3)];
-else pool=[...base,...adv];
-const sh=pool.sort(()=>Math.random()-0.5);
-const count=Math.min(4+Math.floor(questPhase/2),sh.length);
-quests=[];
-for(let i=0;i<count;i++){
-const type=sh[i],t=getQuestTemplate(type);
-if(!t)continue;
-const q={id:type+'_'+Date.now()+'_'+i,type:type,name:t.name,goal:t.goal,reward:Math.round(t.reward*(1+questPhase*0.15)),progress:0,completed:false,check:t.check,getProgress:t.getProgress};
-quests.push(q);}
-if(force)toast('📜 New quests generated!','success');}
-
-function reconstructQuests(saved,phase){
-questPhase=phase||0;
-if(!saved||saved.length===0){generateQuests(true);return}
-quests=saved.map(s=>{const t=getQuestTemplate(s.type);if(!t)return null;return{id:s.id,type:s.type,name:s.name||t.name,goal:s.goal||t.goal,reward:s.reward||t.reward,progress:s.progress||0,completed:!!s.completed,check:t.check,getProgress:t.getProgress}}).filter(q=>q!==null);
-if(quests.length===0)generateQuests(true);}
-
-function checkQuests(){
-let all=true;
-for(const q of quests){
-if(q.completed)continue;
-all=false;
-if(q.check()){q.completed=true;G.money+=q.reward;toast('🎉 Quest complete: '+q.name+'! Reward: '+fmtMoney(q.reward),'success');}
-else{q.progress=q.getProgress();}}
-if(all&&quests.length>0){questPhase++;G.unlockedLand=(G.unlockedLand||1)+1;toast('🏆 All quests complete! Land expanded to '+G.unlockedLand+'!','success');generateQuests(true);expandWorldWithCities();}}
-
-function expandWorldWithCities(){
-toast('🌍 New land unlocked!','success');
-G.landExpanded=(G.landExpanded||0)+1;
-const seed=Math.random()*1000;
-for(let y=0;y<MAP_H;y++)for(let x=0;x<MAP_W;x++){
-const edge=x<3||y<3||x>=MAP_W-3||y>=MAP_H-3;
-if(edge){const h=fbm(x,y,seed+G.landExpanded*100);let t;if(h<0.25)t=TERRAIN.WATER;else if(h<0.55)t=TERRAIN.GRASS;else if(h<0.75)t=TERRAIN.FOREST;else t=TERRAIN.HILL;G.terrain[y*MAP_W+x]=t;}}
-buildTerrainCache(0);
-addNewCities(3);}
-
-function addNewCities(count){
-const minDist=8;
-const names=CITY_NAMES.slice().sort(()=>Math.random()-0.5);
-let added=0,tries=0;
-while(added<count&&tries<500){
-tries++;
-const x=4+Math.floor(Math.random()*(MAP_W-8));
-const y=4+Math.floor(Math.random()*(MAP_H-8));
-if(terrainAt(x,y)!==TERRAIN.GRASS)continue;
-let ok=true;
-for(const c of G.cities)if(dist2(x,y,c.x,c.y)<minDist){ok=false;break}
-if(!ok)continue;
-const rnd=seededRand(2000+G.cities.length*97);
-const layout=[];
-for(let i=0;i<60;i++){
-const ang=rnd()*Math.PI*2,rad=0.35+rnd()*1.8;
-let type,hue;
-if(i<20){type='residential';hue=15+Math.floor(rnd()*25)}
-else if(i<40){type='commercial';hue=200+Math.floor(rnd()*30)}
-else{type='industrial';hue=30+Math.floor(rnd()*10)}
-layout.push({dx:Math.cos(ang)*rad,dy:Math.sin(ang)*rad,hue,type});}
-G.cities.push({id:'city'+G.cities.length,name:names[G.cities.length%names.length]||('New City '+G.cities.length),x,y,population:300+Math.floor(Math.random()*500),passengersWaiting:0,serviceScore:0,stationId:null,buildingLayout:layout,demand:50+Math.floor(Math.random()*100),metroConnected:false,milestoneUnlocked:false});
-added++;}
-if(added>0)toast('🏙️ '+added+' new cities discovered!','success');}
-
-function renderQuests(){
-const body=document.getElementById('quests-body');
-body.innerHTML='';
-if(quests.length===0){body.innerHTML='<p style="color:var(--muted);">No active quests.</p>';return}
-for(const q of quests){
-const div=document.createElement('div');
-div.className='card';
-const status=q.completed?'✅ Completed':'⏳ In progress';
-const pct=q.completed?100:Math.min(100,(q.progress/q.goal)*100);
-div.innerHTML=`<div class="card-row"><b>${q.name}</b><span style="color:${q.completed?'var(--success)':'var(--gold)'};">${status}</span></div><div class="info">Reward: ${fmtMoney(q.reward)}</div><div class="quest-progress"><div class="quest-progress-bar" style="width:${pct}%;"></div></div><div class="info" style="margin-top:4px;">${Math.min(q.progress,q.goal)} / ${q.goal}</div>`;
-body.appendChild(div);}
-const phaseInfo=document.createElement('p');
-phaseInfo.style.cssText='color:var(--muted);font-size:12px;margin-top:10px;';
-phaseInfo.textContent='Phase '+questPhase+' • Land: '+G.unlockedLand+' • Complete all quests to expand!';
-body.appendChild(phaseInfo);}
-
-function lerp(a,b,t){return a+(b-a)*t}
-function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
-function fmtMoney(n){const s=n<0?'-':'';return s+'$'+Math.round(Math.abs(n)).toLocaleString('en-US')}
-function tileKey(x,y){return x+','+y}
-function dist2(x1,y1,x2,y2){return Math.hypot(x1-x2,y1-y2)}
-function seededRand(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return function(){s=(s*16807)%2147483647;return(s-1)/2147483646}}
-function hash2(x,y,seed){let n=Math.sin(x*127.1+y*311.7+seed*74.7)*43758.5453123;return n-Math.floor(n)}
-function valueNoise(x,y,seed){const x0=Math.floor(x),y0=Math.floor(y),xf=x-x0,yf=y-y0;const v00=hash2(x0,y0,seed),v10=hash2(x0+1,y0,seed),v01=hash2(x0,y0+1,seed),v11=hash2(x0+1,y0+1,seed);const u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);return lerp(lerp(v00,v10,u),lerp(v01,v11,u),v)}
-function fbm(x,y,seed){return valueNoise(x/22,y/22,seed)*0.55+valueNoise(x/9,y/9,seed+11)*0.30+valueNoise(x/4,y/4,seed+22)*0.15}
-function shade(hex,amt){const c=hex.replace('#','');const num=parseInt(c,16);let r=(num>>16)+amt,g=((num>>8)&0xff)+amt,b=(num&0xff)+amt;r=clamp(r,0,255);g=clamp(g,0,255);b=clamp(b,0,255);return 'rgb('+r+','+g+','+b+')'}
-
-function isoX(x,y){return(x-y)*(TILE_W/2)}
-function isoY(x,y){return(x+y)*(TILE_H/2)}
-let LOCAL_MIN_X=0,LOCAL_MIN_Y=0,LOCAL_W=0,LOCAL_H=0;
-function computeLocalBounds(){
-const xs=[isoX(0,0),isoX(MAP_W-1,0),isoX(0,MAP_H-1),isoX(MAP_W-1,MAP_H-1)];
-LOCAL_MIN_X=Math.min.apply(null,xs)-TILE_W/2;
-const maxX=Math.max.apply(null,xs)+TILE_W/2;
-LOCAL_MIN_Y=-TILE_H/2;
-const maxY=isoY(MAP_W-1,MAP_H-1)+TILE_H;
-LOCAL_W=maxX-LOCAL_MIN_X;
-LOCAL_H=maxY-LOCAL_MIN_Y;}
-function worldToLocal(x,y){return{sx:isoX(x,y)-LOCAL_MIN_X,sy:isoY(x,y)-LOCAL_MIN_Y}}
-function screenToTile(mx,my){
-const localX=(mx-cam.panX)/cam.zoom+LOCAL_MIN_X;
-const localY=(my-cam.panY)/cam.zoom+LOCAL_MIN_Y;
-const a=localX/(TILE_W/2),b=localY/(TILE_H/2);
-return{x:Math.round((a+b)/2),y:Math.round((b-a)/2)};}
-
-const canvas=document.getElementById('game');
-const ctx=canvas.getContext('2d');
-const cam={panX:0,panY:0,zoom:1};
-let G={},labelQueue=[],fpsMode=false,fpsVehicle=null;
-const fpsCanvas=document.getElementById('fps-canvas');
-const fpsCtx=fpsCanvas.getContext('2d');
-
-function generateMap(){
-G.terrain=new Array(MAP_W*MAP_H);
-const seed=Math.random()*1000;
-for(let y=0;y<MAP_H;y++)for(let x=0;x<MAP_W;x++){
-const h=fbm(x,y,seed);let t;
-if(h<0.30)t=TERRAIN.WATER;else if(h<0.56)t=TERRAIN.GRASS;else if(h<0.74)t=TERRAIN.FOREST;else t=TERRAIN.HILL;
-G.terrain[y*MAP_W+x]=t;}}
-function terrainAt(x,y){if(x<0||y<0||x>=MAP_W||y>=MAP_H)return TERRAIN.WATER;return G.terrain[y*MAP_W+x]}
-
-function placeCities(){
-G.cities=[];
-const desired=16,minDist=8;
-const names=CITY_NAMES.slice().sort(()=>Math.random()-0.5);
-let tries=0;
-while(G.cities.length<desired&&tries<8000){
-tries++;
-const x=3+Math.floor(Math.random()*(MAP_W-6));
-const y=3+Math.floor(Math.random()*(MAP_H-6));
-if(terrainAt(x,y)!==TERRAIN.GRASS)continue;
-let ok=true;
-for(const c of G.cities)if(dist2(x,y,c.x,c.y)<minDist){ok=false;break}
-if(!ok)continue;
-const rnd=seededRand(1000+G.cities.length*97);
-const layout=[];
-for(let i=0;i<60;i++){
-const ang=rnd()*Math.PI*2,rad=0.35+rnd()*1.8;
-let type,hue;
-if(i<20){type='residential';hue=15+Math.floor(rnd()*25)}
-else if(i<40){type='commercial';hue=200+Math.floor(rnd()*30)}
-else{type='industrial';hue=30+Math.floor(rnd()*10)}
-layout.push({dx:Math.cos(ang)*rad,dy:Math.sin(ang)*rad,hue,type});}
-G.cities.push({id:'city'+G.cities.length,name:names[G.cities.length%names.length],x,y,population:300+Math.floor(Math.random()*500),passengersWaiting:0,serviceScore:0,stationId:null,buildingLayout:layout,demand:50+Math.floor(Math.random()*100),metroConnected:false,milestoneUnlocked:false});}}
-
-function terrainColor(t){
-switch(t){
-case TERRAIN.WATER:return{top:'#2a6f9e',water:true};
-case TERRAIN.GRASS:return{top:'#5a9c4c',water:false};
-case TERRAIN.FOREST:return{top:'#3f7a42',water:false};
-default:return{top:'#9a8a6a',water:false};}}
-
-function drawTerrainTile(c,x,y,time){
-const sx=isoX(x,y)-LOCAL_MIN_X,sy=isoY(x,y)-LOCAL_MIN_Y;
-const hw=TILE_W/2,hh=TILE_H/2;
-const t=terrainAt(x,y);
-const col=terrainColor(t);
-const grad=c.createLinearGradient(sx,sy-hh,sx,sy+hh);
-grad.addColorStop(0,col.top);
-grad.addColorStop(1,shade(col.top,-30));
-c.fillStyle=grad;
-c.beginPath();
-c.moveTo(sx,sy-hh);c.lineTo(sx+hw,sy);c.lineTo(sx,sy+hh);c.lineTo(sx-hw,sy);c.closePath();
-c.fill();
-c.strokeStyle='rgba(0,0,0,0.15)';c.lineWidth=1;c.stroke();
-if(t===TERRAIN.WATER){
-const wavePhase=time*2;
-c.strokeStyle='rgba(255,255,255,0.2)';c.lineWidth=1.5;
-for(let i=0;i<3;i++){
-const offX=Math.sin(wavePhase+i*1.7)*5,offY=Math.cos(wavePhase+i*1.3)*3;
-c.beginPath();c.moveTo(sx-15+offX,sy-5+offY);c.quadraticCurveTo(sx+offX,sy-12+offY,sx+15+offX,sy-5+offY);c.stroke();}
-c.fillStyle='rgba(255,255,255,0.3)';
-for(let i=0;i<4;i++){const px=sx-10+Math.random()*20,py=sy-5+Math.random()*15;c.beginPath();c.arc(px,py,1.5,0,Math.PI*2);c.fill();}
-}else if(t===TERRAIN.GRASS){
-c.fillStyle='rgba(50,120,50,0.3)';
-for(let i=0;i<5;i++){const gx=sx-12+Math.random()*24,gy=sy-8+Math.random()*16;c.beginPath();c.arc(gx,gy,2+Math.random()*2,0,Math.PI*2);c.fill();}
-}else if(t===TERRAIN.FOREST){
-const rnd=seededRand(x*928+y*13+7);
-for(let i=0;i<6;i++){
-const tx=sx-10+rnd()*20,ty=sy-5+rnd()*15,size=4+rnd()*6;
-c.fillStyle=i%2===0?'#1a5a2a':'#2d6a35';
-c.beginPath();c.moveTo(tx,ty-size);c.lineTo(tx-size*0.8,ty+size*0.6);c.lineTo(tx+size*0.8,ty+size*0.6);c.closePath();c.fill();
-c.fillStyle='#3a2a1a';c.fillRect(tx-1,ty+size*0.4,2,size*0.4);}
-}else if(t===TERRAIN.HILL){
-c.strokeStyle='rgba(140,120,80,0.4)';c.lineWidth=1.5;
-for(let i=0;i<3;i++){
-const hx=sx+(i-1)*12,hy=sy+(i%2)*5;
-c.beginPath();c.moveTo(hx-8,hy+3);c.lineTo(hx,hy-10);c.lineTo(hx+8,hy+3);c.stroke();}}}
-
-function buildTerrainCache(time){
-const cnv=document.createElement('canvas');
-cnv.width=Math.ceil(LOCAL_W)+2;
-cnv.height=Math.ceil(LOCAL_H)+2;
-const c=cnv.getContext('2d');
-for(let y=0;y<MAP_H;y++)for(let x=0;x<MAP_W;x++)drawTerrainTile(c,x,y,time||0);
-G.terrainCache=cnv;}
-
-let trackMaps={
-rail:{adj:new Map(),tiles:new Set()},
-road:{adj:new Map(),tiles:new Set()},
-canal:{adj:new Map(),tiles:new Set()},
-air:{adj:new Map(),tiles:new Set()},
-metro:{adj:new Map(),tiles:new Set()}};
-function getTrackMap(mode){return trackMaps[mode]||trackMaps.rail}
-function terrainCost(x,y){const t=terrainAt(x,y);if(t===TERRAIN.WATER)return 900;if(t===TERRAIN.HILL)return 500;if(t===TERRAIN.FOREST)return 180;return 110}
-function canPlaceTrackTile(x,y){return x>=0&&y>=0&&x<MAP_W&&y<MAP_H}
-function addTrackEdge(k1,k2,mode){const map=getTrackMap(mode);if(!map.adj.has(k1))map.adj.set(k1,new Set());if(!map.adj.has(k2))map.adj.set(k2,new Set());map.adj.get(k1).add(k2);map.adj.get(k2).add(k1);map.tiles.add(k1);map.tiles.add(k2)}
-function commitTrackPath(tilePath,mode){
-const map=getTrackMap(mode);
-let cost=0;
-for(const t of tilePath)if(!map.tiles.has(tileKey(t.x,t.y)))cost+=terrainCost(t.x,t.y);
-if(cost>G.money){toast('Not enough funds ('+fmtMoney(cost)+')','error');return false}
-if(cost>0){G.money-=cost;for(let i=0;i<tilePath.length-1;i++)addTrackEdge(tileKey(tilePath[i].x,tilePath[i].y),tileKey(tilePath[i+1].x,tilePath[i+1].y),mode);toast(mode.charAt(0).toUpperCase()+mode.slice(1)+' built for '+fmtMoney(cost),'success');}
-return true;}
-function isTileUsedByLine(x,y,mode){const key=tileKey(x,y);for(const ln of G.lines){if(ln.mode!==mode)continue;for(const p of ln.path)if(tileKey(p.x,p.y)===key)return true}return false}
-function removeAt(x,y){
-const st=G.stations.find(s=>s.x===x&&s.y===y);
-if(st){
-if(isTileUsedByLine(x,y,'rail')||isTileUsedByLine(x,y,'road')||isTileUsedByLine(x,y,'canal')||isTileUsedByLine(x,y,'air')||isTileUsedByLine(x,y,'metro')){toast('Delete the line using this station first','error');return}
-G.stations=G.stations.filter(s=>s.id!==st.id);
-const city=G.cities.find(c=>c.id===st.linkId);
-if(city)city.stationId=null;
-if(G.selected&&G.selected.obj===st)G.selected=null;
-toast('Station removed','success');
-return;}
-for(const mode of['rail','road','canal','air','metro']){
-const map=getTrackMap(mode);
-const key=tileKey(x,y);
-if(map.tiles.has(key)){
-if(isTileUsedByLine(x,y,mode)){toast('Delete the line using this track first','error');return}
-const neighbors=map.adj.get(key);
-if(neighbors)for(const n of Array.from(neighbors))map.adj.get(n).delete(key);
-map.adj.delete(key);
-map.tiles.delete(key);
-toast('Track removed','success');
-return;}}}
-
-function nearestLinkable(x,y){for(const c of G.cities)if(!c.stationId&&dist2(x,y,c.x,c.y)<=2.5)return{type:'city',obj:c};return null}
-function buildStation(x,y){
-let hasTrack=false;
-for(const mode of['rail','road','canal','air','metro']){const map=getTrackMap(mode);if(map.tiles.has(tileKey(x,y))){hasTrack=true;break}}
-if(!hasTrack){toast('Station must be built on a track/road/canal/air tile','error');return}
-if(G.stations.some(s=>s.x===x&&s.y===y)){toast('There is already a station here','error');return}
-const link=nearestLinkable(x,y);
-if(!link){toast('No unserved city nearby','error');return}
-const cost=2200;
-if(cost>G.money){toast('Not enough funds','error');return}
-G.money-=cost;
-const st={id:'st'+G.stations.length+'_'+Date.now().toString(36),x,y,name:link.obj.name,linkType:link.type,linkId:link.obj.id};
-G.stations.push(st);
-link.obj.stationId=st.id;
-toast('Station built at '+link.obj.name,'success');}
-
-function findPath(startKey,endKey,mode){
-const map=getTrackMap(mode);
-if(startKey===endKey)return[startKey];
-const dist=new Map([[startKey,0]]);
-const prev=new Map();
-const visited=new Set();
-while(true){
-let u=null,best=Infinity;
-for(const entry of dist){const k=entry[0],d=entry[1];if(!visited.has(k)&&d<best){best=d;u=k}}
-if(u===null)return null;
-if(u===endKey)break;
-visited.add(u);
-const neigh=map.adj.get(u);
-if(neigh){const uc=u.split(',').map(Number);for(const v of neigh){if(visited.has(v))continue;const vc=v.split(',').map(Number);const w=(uc[0]!==vc[0]&&uc[1]!==vc[1])?1.4142135:1;const nd=best+w;if(nd<(dist.has(v)?dist.get(v):Infinity)){dist.set(v,nd);prev.set(v,u)}}}}
-const path=[endKey];
-let cur=endKey;
-while(cur!==startKey){const p=prev.get(cur);if(!p)return null;cur=p;path.push(cur)}
-path.reverse();
-return path;}
-
-function buildLinePath(stopIds,mode){
-const stations=stopIds.map(id=>G.stations.find(s=>s.id===id));
-if(stations.some(s=>!s))return null;
-let fullPath=[{x:stations[0].x,y:stations[0].y}];
-const stopPathIdx=[0];
-const seq=stations.concat([stations[0]]);
-for(let i=0;i<seq.length-1;i++){
-const a=seq[i],b=seq[i+1];
-const p=findPath(tileKey(a.x,a.y),tileKey(b.x,b.y),mode);
-if(!p)return null;
-for(let j=1;j<p.length;j++){const c=p[j].split(',').map(Number);fullPath.push({x:c[0],y:c[1]})}
-if(i<seq.length-2)stopPathIdx.push(fullPath.length-1);}
-const cumDist=[0];
-for(let i=1;i<fullPath.length;i++){const a=fullPath[i-1],b=fullPath[i];const w=(a.x!==b.x&&a.y!==b.y)?1.4142135:1;cumDist.push(cumDist[i-1]+w)}
-const totalLength=cumDist[cumDist.length-1];
-const stopDist=stopPathIdx.map(i=>cumDist[i]);
-return{path:fullPath,cumDist,totalLength,stopPathIdx,stopDist};}
-
-function createLine(stopIds,name){
-if(stopIds.length<2){toast('Select at least 2 stations','error');return null}
-const lineName=(name&&name.trim())?name.trim():('Line '+(G.lines.length+1));
-if(G.lines.some(l=>l.name===lineName)){toast('A line named "'+lineName+'" already exists.','error');return null}
-let chosenMode=null,built=null;
-const modes=['rail','road','canal','air'];
-const allMetro=stopIds.every(id=>{const s=G.stations.find(x=>x.id===id);if(!s)return false;const city=G.cities.find(c=>c.id===s.linkId);return city&&city.population>=1500});
-if(allMetro){const result=buildLinePath(stopIds,'metro');if(result){chosenMode='metro';built=result}}
-if(!chosenMode){for(const mode of modes){const result=buildLinePath(stopIds,mode);if(result){chosenMode=mode;built=result;break}}}
-if(!chosenMode){toast('No transport route connects these stations','error');return null}
-const line=Object.assign({id:'line'+G.lines.length+'_'+Date.now().toString(36),name:lineName,stopIds:stopIds.slice(),mode:chosenMode,vehicles:[]},built);
-G.lines.push(line);
-toast(line.name+' created ('+chosenMode+')','success');
-return line;}
-
-function deleteLine(lineId){
-const line=G.lines.find(l=>l.id===lineId);
-if(!line)return;
-const vehicleIds=line.vehicles.slice();
-for(const vid of vehicleIds)sellVehicle(vid);
-G.lines=G.lines.filter(l=>l.id!==lineId);
-toast(line.name+' deleted','success');}
-
-function positionAlongPath(line,dist){
-const total=line.totalLength;
-const d=((dist%total)+total)%total;
-const cum=line.cumDist,path=line.path;
-for(let i=0;i<cum.length-1;i++){
-if(d>=cum[i]&&d<=cum[i+1]){
-const segLen=(cum[i+1]-cum[i])||1;
-const t=(d-cum[i])/segLen;
-const a=path[i],b=path[i+1];
-return{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};}}
-const last=path[path.length-1];
-return{x:last.x,y:last.y};}
-
-function getAvailableVehicleTypes(){
-const year=1850+Math.floor(G.simDay/360);
-let available=[];
-for(let y in VEHICLE_TYPES)if(parseInt(y)<=year)available=available.concat(VEHICLE_TYPES[y]);
-const hasMetroCity=G.cities.some(c=>c.population>=1500);
-if(!hasMetroCity)available=available.filter(t=>t.mode!=='metro');
-return available;}
-
-function buildVehicle(powerUnitId,carriageIds,lineId){
-const line=G.lines.find(l=>l.id===lineId);
-if(!line){toast('Line not found','error');return}
-const mode=line.mode;
-const powerUnits=getPowerUnits(mode);
-const carriageTypes=getCarriageTypes(mode);
-const power=powerUnits.find(p=>p.id===powerUnitId);
-if(!power){toast('Power unit not found for mode '+mode,'error');return}
-const carriages=[];
-let totalCarriageCost=0;
-for(const cid of carriageIds){
-const ct=carriageTypes.find(c=>c.id===cid);
-if(!ct){toast('Carriage type not found','error');return}
-carriages.push({...ct});
-totalCarriageCost+=ct.cost;}
-const totalCost=power.cost+totalCarriageCost;
-const totalCapacity=power.capacity+carriages.reduce((s,c)=>s+c.capacity,0);
-const totalUpkeep=power.upkeep+carriages.reduce((s,c)=>s+c.upkeep,0);
-if(totalCost>G.money){toast('Not enough funds ('+fmtMoney(totalCost)+')','error');return}
-G.money-=totalCost;
-const vehicle={
-id:'v'+(G.vehicleSeq++),mode:mode,lineId:lineId,
-powerUnit:{...power},carriages:carriages,
-distSinceStart:line.stopDist[0]||0,
-nextStopIdx:line.stopIds.length>1?1:0,
-dwellTimer:0,cargo:[],capacity:totalCapacity,speed:power.speed,
-upkeep:totalUpkeep,cost:totalCost,
-name:power.name+(carriages.length>0?' + '+carriages.length+' carr.':''),
-boardingMode:null,
-customBoarding:{},
-waitingForInstruction:false,
-notifiedWaiting:false};
-G.vehicles.push(vehicle);
-line.vehicles.push(vehicle.id);
-toast(vehicle.name+' built for '+fmtMoney(totalCost),'success');
-return vehicle;}
-
-function addCarriageToVehicle(vehicleId,carriageId){
-const vehicle=G.vehicles.find(v=>v.id===vehicleId);
-if(!vehicle){toast('Vehicle not found','error');return}
-const carriageTypes=getCarriageTypes(vehicle.mode);
-const ct=carriageTypes.find(c=>c.id===carriageId);
-if(!ct){toast('Carriage type not available','error');return}
-if(vehicle.carriages.length>=8){toast('Maximum 8 carriages','error');return}
-const cost=ct.cost;
-if(cost>G.money){toast('Not enough funds ('+fmtMoney(cost)+')','error');return}
-G.money-=cost;
-vehicle.carriages.push({...ct});
-vehicle.capacity+=ct.capacity;
-vehicle.upkeep+=ct.upkeep;
-vehicle.cost+=ct.cost;
-vehicle.name=vehicle.powerUnit.name+' + '+vehicle.carriages.length+' carr.';
-toast('Added '+ct.name+' for '+fmtMoney(cost),'success');
-if(G.selected&&G.selected.type==='vehicle'&&G.selected.obj.id===vehicleId)renderSidePanel();}
-
-function removeCarriageFromVehicle(vehicleId){
-const vehicle=G.vehicles.find(v=>v.id===vehicleId);
-if(!vehicle){toast('Vehicle not found','error');return}
-if(vehicle.carriages.length===0){toast('No carriages to remove','error');return}
-const removed=vehicle.carriages.pop();
-const refund=Math.round(removed.cost*0.5);
-G.money+=refund;
-vehicle.capacity-=removed.capacity;
-vehicle.upkeep-=removed.upkeep;
-vehicle.cost-=removed.cost;
-vehicle.name=vehicle.powerUnit.name+(vehicle.carriages.length>0?' + '+vehicle.carriages.length+' carr.':'');
-toast('Removed '+removed.name+' (refund '+fmtMoney(refund)+')','success');
-if(G.selected&&G.selected.type==='vehicle'&&G.selected.obj.id===vehicleId)renderSidePanel();}
-
-function buyStandardVehicle(typeId,lineId){
-const types=getAvailableVehicleTypes();
-const type=types.find(t=>t.id===typeId);
-const line=G.lines.find(l=>l.id===lineId);
-if(!type||!line){toast('Vehicle or line not found','error');return}
-if(type.mode!==line.mode){toast('Vehicle mode does not match line','error');return}
-if(type.cost>G.money){toast('Not enough funds','error');return}
-G.money-=type.cost;
-const powerUnits=getPowerUnits(type.mode);
-let power=powerUnits.find(p=>p.id===type.id);
-if(!power){power=powerUnits[0];if(!power){toast('No power unit','error');return}}
-const vehicle={
-id:'v'+(G.vehicleSeq++),mode:type.mode,lineId:lineId,
-powerUnit:{...power},carriages:[],
-distSinceStart:line.stopDist[0]||0,
-nextStopIdx:line.stopIds.length>1?1:0,
-dwellTimer:0,cargo:[],capacity:power.capacity,speed:power.speed,
-upkeep:power.upkeep,cost:power.cost,name:power.name,
-boardingMode:null,customBoarding:{},
-waitingForInstruction:false,notifiedWaiting:false};
-G.vehicles.push(vehicle);
-line.vehicles.push(vehicle.id);
-toast(type.name+' added to '+line.name,'success');}
-
-function sellVehicle(vehicleId){
-const vehicle=G.vehicles.find(t=>t.id===vehicleId);
-if(!vehicle)return;
-const refund=Math.round(vehicle.cost*0.4);
-G.money+=refund;
-const line=G.lines.find(l=>l.id===vehicle.lineId);
-if(line)line.vehicles=line.vehicles.filter(id=>id!==vehicleId);
-G.vehicles=G.vehicles.filter(t=>t.id!==vehicleId);
-if(G.selected&&G.selected.type==='vehicle'&&G.selected.obj.id===vehicleId)G.selected=null;
-if(fpsVehicle&&fpsVehicle.id===vehicleId){fpsMode=false;fpsVehicle=null;document.getElementById('fps-overlay').classList.remove('active')}
-toast('Vehicle sold for '+fmtMoney(refund),'success');}
-
-function moveVehicleToLine(vehicleId,newLineId){
-const vehicle=G.vehicles.find(v=>v.id===vehicleId);
-if(!vehicle){toast('Vehicle not found','error');return}
-const newLine=G.lines.find(l=>l.id===newLineId);
-if(!newLine){toast('Line not found','error');return}
-const oldLine=G.lines.find(l=>l.id===vehicle.lineId);
-if(oldLine&&oldLine.id===newLineId){toast('Vehicle already on this line','info');return}
-if(newLine.mode!==vehicle.mode){toast('Line mode mismatch','error');return}
-if(oldLine)oldLine.vehicles=oldLine.vehicles.filter(id=>id!==vehicleId);
-newLine.vehicles.push(vehicleId);
-vehicle.lineId=newLineId;
-vehicle.distSinceStart=newLine.stopDist[0]||0;
-vehicle.nextStopIdx=1;
-vehicle.dwellTimer=0;
-toast('Vehicle moved to '+newLine.name,'success');}
-
-function handleStationStop(vehicle,line,stationId){
-const station=G.stations.find(s=>s.id===stationId);
-if(!station)return;
-const city=G.cities.find(c=>c.id===station.linkId);
-if(!city)return;
-let rule='full';
-if(vehicle.boardingMode==='none')rule='none';
-else if(vehicle.boardingMode==='custom')rule=vehicle.customBoarding[stationId]||'full';
-else if(vehicle.boardingMode===null){
-if(!vehicle.waitingForInstruction){
-vehicle.waitingForInstruction=true;
-vehicle.notifiedWaiting=true;
-toast('⏸️ '+vehicle.name+' (Line '+line.name+') is waiting at '+station.name+' for boarding instructions.','info');}
-return;}
-let delivered=0;
-const remaining=[];
-for(const c of vehicle.cargo){
-if(c.originStationId===stationId)remaining.push(c);
-else delivered+=c.amount;}
-vehicle.cargo=remaining;
-if(delivered>0){
-const price=9;
-G.money+=delivered*price;
-G.stats.totalRevenue+=delivered*price;
-G.stats.passengersTransported=(G.stats.passengersTransported||0)+delivered;
-city.serviceScore+=delivered;}
-const used=vehicle.cargo.reduce((s,c)=>s+c.amount,0);
-const free=vehicle.capacity-used;
-let maxBoard=0;
-if(rule==='full')maxBoard=free;
-else if(rule==='half')maxBoard=Math.min(free,Math.floor(vehicle.capacity*0.5));
-if(maxBoard>0&&city.passengersWaiting>0){
-const amt=Math.min(maxBoard,Math.floor(city.passengersWaiting));
-if(amt>0){
-city.passengersWaiting-=amt;
-vehicle.cargo.push({type:'passengers',amount:amt,originStationId:station.id});}}
-vehicle.waitingForInstruction=false;}
-
-function updateVehicles(dt){
-for(const vehicle of G.vehicles){
-if(vehicle.waitingForInstruction&&vehicle.boardingMode===null)continue;
-const line=G.lines.find(l=>l.id===vehicle.lineId);
-if(!line)continue;
-if(vehicle.dwellTimer>0){vehicle.dwellTimer-=dt;continue}
-const travel=vehicle.speed*dt*G.speedMult;
-const stopIdx=vehicle.nextStopIdx;
-const stopStationId=line.stopIds[stopIdx];
-let targetDist=line.stopDist[stopIdx];
-let effectiveTarget=targetDist;
-if(effectiveTarget<=vehicle.distSinceStart-1e-6)effectiveTarget+=line.totalLength;
-const newDist=vehicle.distSinceStart+travel;
-if(newDist>=effectiveTarget){
-vehicle.distSinceStart=effectiveTarget%line.totalLength;
-handleStationStop(vehicle,line,stopStationId);
-if(!vehicle.waitingForInstruction)vehicle.dwellTimer=DWELL_TIME;
-vehicle.nextStopIdx=(stopIdx+1)%line.stopIds.length;
-}else{vehicle.distSinceStart=newDist%line.totalLength}}}
-
-function setVehicleBoardingMode(vehicleId,mode){
-const vehicle=G.vehicles.find(v=>v.id===vehicleId);
-if(!vehicle){toast('Vehicle not found','error');return}
-if(!['full','none','custom'].includes(mode)){toast('Invalid mode','error');return}
-vehicle.boardingMode=mode;
-vehicle.waitingForInstruction=false;
-vehicle.notifiedWaiting=false;
-vehicle.dwellTimer=DWELL_TIME;
-if(mode==='custom'){openCustomBoardingModal(vehicleId);}
-else{toast('✅ '+vehicle.name+' boarding mode: '+(mode==='full'?'Full Load':'No Boarding'),'success');}
-if(G.selected&&G.selected.type==='vehicle'&&G.selected.obj.id===vehicleId)renderSidePanel();}
-
-function openCustomBoardingModal(vehicleId){
-const vehicle=G.vehicles.find(v=>v.id===vehicleId);
-if(!vehicle)return;
-const line=G.lines.find(l=>l.id===vehicle.lineId);
-if(!line)return;
-const body=document.getElementById('boarding-body');
-body.innerHTML='';
-for(const stId of line.stopIds){
-const st=G.stations.find(s=>s.id===stId);
-if(!st)continue;
-const current=vehicle.customBoarding[stId]||'full';
-const container=document.createElement('div');
-container.className='card';
-container.style.display='flex';
-container.style.alignItems='center';
-container.style.justifyContent='space-between';
-container.innerHTML='<b>'+st.name+'</b>';
-const btnGroup=document.createElement('div');
-btnGroup.style.display='flex';
-btnGroup.style.gap='6px';
-for(const option of['full','half','none']){
-const btn=document.createElement('button');
-btn.textContent=option.charAt(0).toUpperCase()+option.slice(1);
-btn.style.background=current===option?'var(--success)':'var(--panel-2)';
-btn.style.border='1px solid var(--border)';
-btn.style.color='#fff';
-btn.style.padding='4px 10px';
-btn.style.borderRadius='6px';
-btn.style.cursor='pointer';
-btn.onclick=()=>{vehicle.customBoarding[stId]=option;openCustomBoardingModal(vehicleId)};
-btnGroup.appendChild(btn);}
-container.appendChild(btnGroup);
-body.appendChild(container);}
-const saveBtn=document.createElement('button');
-saveBtn.textContent='Save Configuration';
-saveBtn.className='rename-btn';
-saveBtn.style.marginTop='12px';
-saveBtn.onclick=()=>{closeModal('boarding-overlay');toast('Custom boarding saved.','success');};
-body.appendChild(saveBtn);
-openModal('boarding-overlay');}
-
-function dailyTick(){
-if(G.debt>0){
-const ir=G.difficulty==='easy'?0.001:G.difficulty==='medium'?0.002:0.004;
-const interest=G.debt*ir;
-G.debt+=interest;
-G.stats.totalInterest=(G.stats.totalInterest||0)+interest;}
-for(const c of G.cities){
-const genRate=c.population*0.018;
-c.passengersWaiting=Math.min(c.population*0.5,c.passengersWaiting+genRate);
-if(c.stationId&&c.serviceScore>0){
-const growth=1+clamp(c.serviceScore*0.0003,0,0.03);
-c.population=Math.round(c.population*growth);
-}else{c.population=Math.round(c.population*1.0008);}
-c.serviceScore=0;
-if(c.population>=1500&&!c.metroConnected){
-c.metroConnected=true;
-toast('🚇 '+c.name+' reached 1,500 population! Metro unlocked!','success');}
-if(c.population>=100000000&&!c.milestoneUnlocked){
-c.milestoneUnlocked=true;
-toast('🎉 CONGRATS! '+c.name+' reached 100,000,000 population!','success');
-G.unlockedLand=(G.unlockedLand||1)+1;
-expandWorldWithCities();}}
-let upkeep=0;
-for(const v of G.vehicles)upkeep+=v.upkeep||0;
-upkeep+=G.stations.length*8;
-G.money-=upkeep;
-G.stats.totalUpkeep+=upkeep;
-checkQuests();}
 
 function getLoanLimit(){
 const base=G.difficulty==='easy'?200000:G.difficulty==='medium'?100000:50000;
@@ -989,7 +9,7 @@ const limit=getLoanLimit();
 if(amount>limit){toast('Loan exceeds credit limit ('+fmtMoney(limit)+')','error');return}
 G.money+=amount;
 G.debt+=amount;
-toast('Loan taken: '+fmtMoney(amount)+' (new debt: '+fmtMoney(G.debt)+')','success');
+toast('💰 Loan taken: '+fmtMoney(amount)+' (new debt: '+fmtMoney(G.debt)+')','success');
 updateLoanModal();}
 function repayLoan(amount){
 amount=Math.floor(amount);
@@ -998,7 +18,7 @@ if(amount>G.money){toast('Not enough funds','error');return}
 if(amount>G.debt){toast('Cannot repay more than debt','error');return}
 G.money-=amount;
 G.debt-=amount;
-toast('Repaid '+fmtMoney(amount)+' (remaining: '+fmtMoney(G.debt)+')','success');
+toast('💸 Repaid '+fmtMoney(amount)+' (remaining: '+fmtMoney(G.debt)+')','success');
 updateLoanModal();}
 function updateLoanModal(){
 document.getElementById('loan-debt').textContent=fmtMoney(G.debt);
@@ -1074,26 +94,16 @@ G.difficulty=data.difficulty||'medium';
 reconstructQuests(data.quests,data.questPhase);
 for(const mode of['rail','road','canal','air','metro']){
 const md=data.trackMaps[mode];
-if(md){
-const map=getTrackMap(mode);
-map.tiles=new Set(md.tiles);
-map.adj=new Map();
-for(const[k,v]of md.adj)map.adj.set(k,new Set(v));}}
+if(md){const map=getTrackMap(mode);map.tiles=new Set(md.tiles);map.adj=new Map();for(const[k,v]of md.adj)map.adj.set(k,new Set(v));}}
 G.lastProcessedDay=Math.floor(G.simDay);
-fpsMode=false;
-fpsVehicle=null;
+fpsMode=false;fpsVehicle=null;
 document.getElementById('fps-overlay').classList.remove('active');
-G.selected=null;
-G.lineDraft=[];
-G.dragging=false;
-G.buildPathPreview=[];
+G.selected=null;G.lineDraft=[];G.dragging=false;G.buildPathPreview=[];
 setTool('select');
 document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.add('hidden'));
 document.getElementById('side-panel').classList.add('hidden');
 document.getElementById('line-draft-panel').classList.add('hidden');
-renderSidePanel();
-renderQuests();
-checkQuests();
+renderSidePanel();renderQuests();checkQuests();
 updateHUD(performance.now());
 toast('Game loaded successfully!','success');
 }catch(e){toast('Load failed: '+e.message,'error');console.error(e)}};
@@ -1102,8 +112,7 @@ input.click();}
 
 function drawRealisticUnit(ctx,sx,sy,unit,mode,isPower,scale,time){
 const s=scale||0.6;
-const hw=(TILE_W/2)*s;
-const hh=(TILE_H/2)*s;
+const hw=(TILE_W/2)*s,hh=(TILE_H/2)*s;
 const color=unit.color||'#4a7fb5';
 const icon=unit.icon||'🚂';
 ctx.save();
@@ -1112,7 +121,10 @@ ctx.fillStyle='rgba(0,0,0,0.25)';
 ctx.beginPath();
 ctx.ellipse(0,hh*0.55,hw*0.9,hh*0.15,0,0,Math.PI*2);
 ctx.fill();
-const w=hw*1.4,h=hh*0.5;
+// Non-carriage modes are drawn as one long vehicle (~1.6x length)
+const lengthMul=hasCarriages(mode)?1.0:1.65;
+const w=hw*1.4*lengthMul,h=hh*0.5;
+
 if(mode==='rail'){
 if(isPower){
 const grad=ctx.createLinearGradient(0,-h,0,h);
@@ -1121,26 +133,16 @@ grad.addColorStop(0.3,shade(color,15));
 grad.addColorStop(0.7,shade(color,0));
 grad.addColorStop(1,shade(color,-30));
 ctx.fillStyle=grad;
-ctx.beginPath();
-ctx.roundRect(-w*0.9,-h*0.45,w*1.8,h*0.9,4);
-ctx.fill();
-ctx.strokeStyle='rgba(0,0,0,0.25)';
-ctx.lineWidth=1.5;
-ctx.stroke();
+ctx.beginPath();ctx.roundRect(-w*0.9,-h*0.45,w*1.8,h*0.9,4);ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,0.25)';ctx.lineWidth=1.5;ctx.stroke();
 ctx.fillStyle=shade(color,10);
-ctx.beginPath();
-ctx.roundRect(w*0.2,-h*0.7,w*0.5,h*0.45,3);
-ctx.fill();
-ctx.strokeStyle='rgba(0,0,0,0.2)';
-ctx.lineWidth=1;
-ctx.stroke();
+ctx.beginPath();ctx.roundRect(w*0.2,-h*0.7,w*0.5,h*0.45,3);ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=1;ctx.stroke();
 ctx.fillStyle='rgba(150,220,255,0.5)';
 ctx.fillRect(w*0.3,-h*0.6,w*0.12,h*0.2);
 ctx.fillRect(w*0.48,-h*0.6,w*0.12,h*0.2);
 ctx.fillStyle=shade(color,-10);
-ctx.beginPath();
-ctx.roundRect(-w*0.7,-h*0.65,w*0.8,h*0.3,3);
-ctx.fill();
+ctx.beginPath();ctx.roundRect(-w*0.7,-h*0.65,w*0.8,h*0.3,3);ctx.fill();
 ctx.fillStyle='#2a2a2a';
 ctx.fillRect(-w*0.4,-h*0.85,w*0.12,h*0.25);
 ctx.fillRect(-w*0.45,-h*0.85,w*0.22,h*0.08);
@@ -1150,32 +152,17 @@ for(let i=0;i<3;i++){
 const px=-w*0.4+i*w*0.12+Math.sin(time*2+i*1.7)*4;
 const py=-h*1.0-i*h*0.15+Math.sin(time*1.5+i*2.1)*3;
 const r=3+i*3+Math.sin(time*2.5+i)*1.5;
-ctx.beginPath();
-ctx.arc(px,py,r,0,Math.PI*2);
-ctx.fill();}
+ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fill();}
 ctx.fillStyle='#1a1a1a';
-const wheelPositions=[-w*0.6,-w*0.2,w*0.15,w*0.5];
-for(const wx of wheelPositions){
-ctx.beginPath();
-ctx.arc(wx,h*0.4,6,0,Math.PI*2);
-ctx.fill();
-ctx.fillStyle='#333';
-ctx.beginPath();
-ctx.arc(wx,h*0.4,3.5,0,Math.PI*2);
-ctx.fill();
-ctx.fillStyle='#555';
-ctx.beginPath();
-ctx.arc(wx,h*0.4,1.5,0,Math.PI*2);
-ctx.fill();
+for(const wx of[-w*0.6,-w*0.2,w*0.15,w*0.5]){
+ctx.beginPath();ctx.arc(wx,h*0.4,6,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#333';ctx.beginPath();ctx.arc(wx,h*0.4,3.5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#555';ctx.beginPath();ctx.arc(wx,h*0.4,1.5,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#1a1a1a';}
 ctx.fillStyle='#ffdd44';
-ctx.beginPath();
-ctx.arc(-w*0.85,-h*0.05,3.5,0,Math.PI*2);
-ctx.fill();
+ctx.beginPath();ctx.arc(-w*0.85,-h*0.05,3.5,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='rgba(255,220,68,0.15)';
-ctx.beginPath();
-ctx.arc(-w*0.85,-h*0.05,10,0,Math.PI*2);
-ctx.fill();
+ctx.beginPath();ctx.arc(-w*0.85,-h*0.05,10,0,Math.PI*2);ctx.fill();
 }else{
 const grad=ctx.createLinearGradient(0,-h,0,h);
 grad.addColorStop(0,shade(color,30));
@@ -1183,34 +170,21 @@ grad.addColorStop(0.4,shade(color,5));
 grad.addColorStop(0.8,shade(color,-5));
 grad.addColorStop(1,shade(color,-25));
 ctx.fillStyle=grad;
-ctx.beginPath();
-ctx.roundRect(-w*0.85,-h*0.4,w*1.7,h*0.8,3);
-ctx.fill();
-ctx.strokeStyle='rgba(0,0,0,0.2)';
-ctx.lineWidth=1.5;
-ctx.stroke();
+ctx.beginPath();ctx.roundRect(-w*0.85,-h*0.4,w*1.7,h*0.8,3);ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=1.5;ctx.stroke();
 ctx.fillStyle=shade(color,-10);
-ctx.beginPath();
-ctx.roundRect(-w*0.75,-h*0.5,w*1.5,h*0.15,2);
-ctx.fill();
+ctx.beginPath();ctx.roundRect(-w*0.75,-h*0.5,w*1.5,h*0.15,2);ctx.fill();
 const windowColor='rgba(150,220,255,0.45)';
 for(let r=0;r<2;r++)for(let c=0;c<5;c++){
-const wx=-w*0.65+c*(w*0.28);
-const wy=-h*0.2+r*(h*0.25);
-ctx.fillStyle=windowColor;
-ctx.fillRect(wx,wy,w*0.15,h*0.15);}
+const wx=-w*0.65+c*(w*0.28),wy=-h*0.2+r*(h*0.25);
+ctx.fillStyle=windowColor;ctx.fillRect(wx,wy,w*0.15,h*0.15);}
 ctx.fillStyle=shade(color,-15);
 ctx.fillRect(w*0.65,-h*0.2,w*0.12,h*0.35);
 ctx.fillRect(-w*0.77,-h*0.2,w*0.12,h*0.35);
 ctx.fillStyle='#1a1a1a';
 for(const wx of[-w*0.5,-w*0.1,w*0.3,w*0.7]){
-ctx.beginPath();
-ctx.arc(wx,h*0.38,5.5,0,Math.PI*2);
-ctx.fill();
-ctx.fillStyle='#333';
-ctx.beginPath();
-ctx.arc(wx,h*0.38,3,0,Math.PI*2);
-ctx.fill();
+ctx.beginPath();ctx.arc(wx,h*0.38,5.5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#333';ctx.beginPath();ctx.arc(wx,h*0.38,3,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#1a1a1a';}}
 }else if(mode==='road'){
 const grad=ctx.createLinearGradient(0,-h,0,h);
@@ -1219,46 +193,23 @@ grad.addColorStop(0.4,shade(color,10));
 grad.addColorStop(0.8,shade(color,-5));
 grad.addColorStop(1,shade(color,-25));
 ctx.fillStyle=grad;
-ctx.beginPath();
-ctx.roundRect(-w*0.9,-h*0.4,w*1.8,h*0.8,4);
-ctx.fill();
-ctx.strokeStyle='rgba(0,0,0,0.2)';
-ctx.lineWidth=1.5;
-ctx.stroke();
+ctx.beginPath();ctx.roundRect(-w*0.9,-h*0.42,w*1.8,h*0.84,6);ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=1.5;ctx.stroke();
 ctx.fillStyle='rgba(150,220,255,0.4)';
-ctx.beginPath();
-ctx.roundRect(w*0.65,-h*0.35,w*0.2,h*0.3,3);
-ctx.fill();
-const wc='rgba(150,220,255,0.3)';
-for(let i=0;i<4;i++){
-const wx=-w*0.5+i*(w*0.25);
-ctx.fillStyle=wc;
-ctx.fillRect(wx,-h*0.25,w*0.15,h*0.2);}
+ctx.beginPath();ctx.roundRect(w*0.65,-h*0.35,w*0.2,h*0.32,3);ctx.fill();
+const wc='rgba(150,220,255,0.32)';
+// More windows on the longer bus
+for(let i=0;i<7;i++){
+const wx=-w*0.62+i*(w*0.18);
+ctx.fillStyle=wc;ctx.fillRect(wx,-h*0.26,w*0.13,h*0.22);}
 ctx.fillStyle='#1a1a1a';
-for(const wx of[-w*0.5,-w*0.1,w*0.3,w*0.7]){
-ctx.beginPath();
-ctx.arc(wx,h*0.42,5,0,Math.PI*2);
-ctx.fill();
-ctx.fillStyle='#333';
-ctx.beginPath();
-ctx.arc(wx,h*0.42,2.5,0,Math.PI*2);
-ctx.fill();
+for(const wx of[-w*0.6,-w*0.25,w*0.1,w*0.45,w*0.75]){
+ctx.beginPath();ctx.arc(wx,h*0.44,5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#333';ctx.beginPath();ctx.arc(wx,h*0.44,2.5,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#1a1a1a';}
 ctx.fillStyle='#ffdd44';
-ctx.beginPath();
-ctx.arc(w*0.85,-h*0.15,2.5,0,Math.PI*2);
-ctx.fill();
-ctx.beginPath();
-ctx.arc(w*0.85,h*0.15,2.5,0,Math.PI*2);
-ctx.fill();
-if(!isPower){
-ctx.fillStyle='#e05a5a';
-ctx.beginPath();
-ctx.arc(-w*0.85,-h*0.15,2,0,Math.PI*2);
-ctx.fill();
-ctx.beginPath();
-ctx.arc(-w*0.85,h*0.15,2,0,Math.PI*2);
-ctx.fill();}
+ctx.beginPath();ctx.arc(w*0.88,-h*0.15,2.5,0,Math.PI*2);ctx.fill();
+ctx.beginPath();ctx.arc(w*0.88,h*0.15,2.5,0,Math.PI*2);ctx.fill();
 }else if(mode==='canal'){
 const grad=ctx.createLinearGradient(0,-h,0,h);
 grad.addColorStop(0,shade(color,30));
@@ -1266,90 +217,67 @@ grad.addColorStop(0.5,shade(color,5));
 grad.addColorStop(1,shade(color,-20));
 ctx.fillStyle=grad;
 ctx.beginPath();
-ctx.moveTo(-w*1.0,0);
-ctx.quadraticCurveTo(-w*1.2,-h*0.25,-w*0.7,-h*0.5);
-ctx.lineTo(w*0.7,-h*0.5);
-ctx.quadraticCurveTo(w*1.2,-h*0.25,w*1.0,0);
-ctx.quadraticCurveTo(w*1.2,h*0.25,w*0.7,h*0.5);
-ctx.lineTo(-w*0.7,h*0.5);
-ctx.quadraticCurveTo(-w*1.2,h*0.25,-w*1.0,0);
-ctx.closePath();
-ctx.fill();
-ctx.strokeStyle='rgba(0,0,0,0.15)';
-ctx.lineWidth=1.5;
-ctx.stroke();
+ctx.moveTo(-w*1.05,0);
+ctx.quadraticCurveTo(-w*1.25,-h*0.28,-w*0.75,-h*0.55);
+ctx.lineTo(w*0.75,-h*0.55);
+ctx.quadraticCurveTo(w*1.25,-h*0.28,w*1.05,0);
+ctx.quadraticCurveTo(w*1.25,h*0.28,w*0.75,h*0.55);
+ctx.lineTo(-w*0.75,h*0.55);
+ctx.quadraticCurveTo(-w*1.25,h*0.28,-w*1.05,0);
+ctx.closePath();ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,0.15)';ctx.lineWidth=1.5;ctx.stroke();
+// Long cabin / deck
 ctx.fillStyle=shade(color,-10);
-ctx.beginPath();
-ctx.roundRect(-w*0.2,-h*0.6,w*0.4,h*0.2,2);
-ctx.fill();
+ctx.beginPath();ctx.roundRect(-w*0.4,-h*0.62,w*0.8,h*0.22,3);ctx.fill();
 ctx.fillStyle='rgba(150,220,255,0.4)';
-for(let i=-1;i<=1;i++)ctx.fillRect(i*w*0.12-3,-h*0.55,5,h*0.08);
+for(let i=-2;i<=2;i++)ctx.fillRect(i*w*0.14-3,-h*0.58,6,h*0.1);
 if(isPower){
 ctx.fillStyle='#2a2a2a';
-ctx.fillRect(w*0.1,-h*0.85,w*0.08,h*0.3);
-ctx.fillRect(w*0.05,-h*0.85,w*0.18,h*0.06);
+ctx.fillRect(w*0.1,-h*0.88,w*0.08,h*0.3);
+ctx.fillRect(w*0.05,-h*0.88,w*0.18,h*0.06);
 const puff2=Math.sin(time*2.5+0.8)*0.5+0.5;
 ctx.fillStyle='rgba(200,200,200,'+(0.1+puff2*0.12)+')';
 for(let i=0;i<3;i++){
 const px=w*0.1+i*w*0.08+Math.sin(time*1.8+i*1.3)*3;
 const py=-h*1.0-i*h*0.12+Math.sin(time*1.2+i*2.5)*2;
-ctx.beginPath();
-ctx.arc(px,py,2+i*2.5,0,Math.PI*2);
-ctx.fill();}}
+ctx.beginPath();ctx.arc(px,py,2+i*2.5,0,Math.PI*2);ctx.fill();}}
 ctx.fillStyle='rgba(255,255,255,0.08)';
-for(let i=0;i<3;i++){
-const wx=-w*1.0-i*w*0.15-Math.sin(time*1.5+i)*4;
+for(let i=0;i<4;i++){
+const wx=-w*1.05-i*w*0.15-Math.sin(time*1.5+i)*4;
 const wy=(i%2-0.5)*h*0.3;
-ctx.beginPath();
-ctx.ellipse(wx,wy+Math.sin(time*2+i*1.7)*3,w*0.1,h*0.06,0.2,0,Math.PI*2);
-ctx.fill();}
+ctx.beginPath();ctx.ellipse(wx,wy+Math.sin(time*2+i*1.7)*3,w*0.1,h*0.06,0.2,0,Math.PI*2);ctx.fill();}
 }else if(mode==='air'){
 const grad=ctx.createLinearGradient(0,-h,0,h);
 grad.addColorStop(0,shade(color,30));
 grad.addColorStop(0.5,shade(color,5));
 grad.addColorStop(1,shade(color,-20));
 ctx.fillStyle=grad;
+// Longer fuselage
 ctx.beginPath();
-ctx.moveTo(-w*0.9,0);
-ctx.quadraticCurveTo(-w*1.1,-h*0.2,-w*0.5,-h*0.5);
-ctx.lineTo(w*0.5,-h*0.5);
-ctx.quadraticCurveTo(w*1.1,-h*0.2,w*0.9,0);
-ctx.quadraticCurveTo(w*1.1,h*0.2,w*0.5,h*0.5);
-ctx.lineTo(-w*0.5,h*0.5);
-ctx.quadraticCurveTo(-w*1.1,h*0.2,-w*0.9,0);
-ctx.closePath();
-ctx.fill();
-ctx.strokeStyle='rgba(0,0,0,0.12)';
-ctx.lineWidth=1.5;
-ctx.stroke();
+ctx.moveTo(-w*0.95,0);
+ctx.quadraticCurveTo(-w*1.15,-h*0.22,-w*0.55,-h*0.5);
+ctx.lineTo(w*0.55,-h*0.5);
+ctx.quadraticCurveTo(w*1.15,-h*0.22,w*0.95,0);
+ctx.quadraticCurveTo(w*1.15,h*0.22,w*0.55,h*0.5);
+ctx.lineTo(-w*0.55,h*0.5);
+ctx.quadraticCurveTo(-w*1.15,h*0.22,-w*0.95,0);
+ctx.closePath();ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,0.12)';ctx.lineWidth=1.5;ctx.stroke();
 ctx.fillStyle=shade(color,-5);
 ctx.beginPath();
-ctx.moveTo(-w*0.3,-h*0.2);
-ctx.lineTo(-w*0.1,-h*1.2);
-ctx.lineTo(w*0.1,-h*1.2);
-ctx.lineTo(w*0.3,-h*0.2);
-ctx.closePath();
-ctx.fill();
+ctx.moveTo(-w*0.35,-h*0.22);ctx.lineTo(-w*0.1,-h*1.25);ctx.lineTo(w*0.1,-h*1.25);ctx.lineTo(w*0.35,-h*0.22);
+ctx.closePath();ctx.fill();
 ctx.beginPath();
-ctx.moveTo(-w*0.3,h*0.2);
-ctx.lineTo(-w*0.1,h*1.2);
-ctx.lineTo(w*0.1,h*1.2);
-ctx.lineTo(w*0.3,h*0.2);
-ctx.closePath();
-ctx.fill();
+ctx.moveTo(-w*0.35,h*0.22);ctx.lineTo(-w*0.1,h*1.25);ctx.lineTo(w*0.1,h*1.25);ctx.lineTo(w*0.35,h*0.22);
+ctx.closePath();ctx.fill();
 ctx.fillStyle=shade(color,-10);
 ctx.beginPath();
-ctx.moveTo(w*0.5,-h*0.1);
-ctx.lineTo(w*0.85,-h*0.6);
-ctx.lineTo(w*0.95,-h*0.1);
-ctx.closePath();
-ctx.fill();
+ctx.moveTo(w*0.55,-h*0.12);ctx.lineTo(w*0.9,-h*0.65);ctx.lineTo(w*1.0,-h*0.1);
+ctx.closePath();ctx.fill();
 ctx.fillStyle='rgba(150,220,255,0.35)';
-for(let i=0;i<6;i++){
-const wx=-w*0.5+i*w*0.15;
-ctx.beginPath();
-ctx.arc(wx,-h*0.05,3,0,Math.PI*2);
-ctx.fill();}
+for(let i=0;i<8;i++){
+const wx=-w*0.6+i*w*0.16;
+ctx.beginPath();ctx.arc(wx,-h*0.05,3,0,Math.PI*2);ctx.fill();}
 }else if(mode==='metro'){
 const grad=ctx.createLinearGradient(0,-h,0,h);
 grad.addColorStop(0,shade(color,40));
@@ -1357,53 +285,32 @@ grad.addColorStop(0.3,shade(color,10));
 grad.addColorStop(0.7,shade(color,0));
 grad.addColorStop(1,shade(color,-25));
 ctx.fillStyle=grad;
-ctx.beginPath();
-ctx.roundRect(-w*0.85,-h*0.45,w*1.7,h*0.9,3);
-ctx.fill();
-ctx.strokeStyle='rgba(0,0,0,0.2)';
-ctx.lineWidth=1.5;
-ctx.stroke();
+ctx.beginPath();ctx.roundRect(-w*0.85,-h*0.45,w*1.7,h*0.9,3);ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=1.5;ctx.stroke();
 ctx.fillStyle='rgba(255,215,0,0.25)';
 ctx.fillRect(-w*0.75,-h*0.05,w*1.5,4);
 const wc2='rgba(150,220,255,0.4)';
 for(let i=0;i<6;i++){
-const wx=-w*0.65+i*w*0.22;
-ctx.fillStyle=wc2;
-ctx.fillRect(wx,-h*0.2,w*0.12,h*0.25);}
+const wx=-w*0.65+i*w*0.22;ctx.fillStyle=wc2;ctx.fillRect(wx,-h*0.2,w*0.12,h*0.25);}
 ctx.fillStyle=shade(color,-15);
 ctx.fillRect(w*0.55,-h*0.25,w*0.1,h*0.35);
 ctx.fillRect(-w*0.65,-h*0.25,w*0.1,h*0.35);
 ctx.fillStyle='#ffdd44';
-ctx.beginPath();
-ctx.arc(w*0.85,-h*0.1,2.5,0,Math.PI*2);
-ctx.fill();
-ctx.beginPath();
-ctx.arc(w*0.85,h*0.1,2.5,0,Math.PI*2);
-ctx.fill();
+ctx.beginPath();ctx.arc(w*0.85,-h*0.1,2.5,0,Math.PI*2);ctx.fill();
+ctx.beginPath();ctx.arc(w*0.85,h*0.1,2.5,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#1a1a1a';
 for(const wx of[-w*0.5,-w*0.1,w*0.3,w*0.7]){
-ctx.beginPath();
-ctx.arc(wx,h*0.42,4.5,0,Math.PI*2);
-ctx.fill();
-ctx.fillStyle='#333';
-ctx.beginPath();
-ctx.arc(wx,h*0.42,2.5,0,Math.PI*2);
-ctx.fill();
-ctx.fillStyle='#1a1a1a';}
-if(!isPower){
-ctx.fillStyle='#2a2a2a';
-ctx.fillRect(-w*0.95,-h*0.05,w*0.1,2.5);}}
+ctx.beginPath();ctx.arc(wx,h*0.42,4.5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#333';ctx.beginPath();ctx.arc(wx,h*0.42,2.5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#1a1a1a';}}
 ctx.restore();
 if(isPower){
 ctx.save();
 ctx.translate(sx,sy-hh*1.3);
 ctx.font=(16*s+4)+'px sans-serif';
-ctx.textAlign='center';
-ctx.textBaseline='middle';
-ctx.fillStyle='rgba(0,0,0,0.3)';
-ctx.fillText(icon,1,1);
-ctx.fillStyle='#fff';
-ctx.fillText(icon,0,0);
+ctx.textAlign='center';ctx.textBaseline='middle';
+ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillText(icon,1,1);
+ctx.fillStyle='#fff';ctx.fillText(icon,0,0);
 ctx.restore();}}
 
 function drawVehicleWithCarriages(vehicle,line,time){
@@ -1425,39 +332,25 @@ if(i>0){
 const prevD=(vehicle.distSinceStart-(i-1)*spacing+line.totalLength*10)%line.totalLength;
 const prevP=positionAlongPath(line,prevD);
 const prevLoc=worldToLocal(prevP.x,prevP.y);
-ctx.strokeStyle='rgba(40,40,40,0.4)';
-ctx.lineWidth=1.5;
-ctx.beginPath();
-ctx.moveTo(prevLoc.sx,prevLoc.sy+2);
-ctx.lineTo(loc2.sx,loc2.sy+2);
-ctx.stroke();}}
+ctx.strokeStyle='rgba(40,40,40,0.4)';ctx.lineWidth=1.5;
+ctx.beginPath();ctx.moveTo(prevLoc.sx,prevLoc.sy+2);ctx.lineTo(loc2.sx,loc2.sy+2);ctx.stroke();}}
 const totalLoad=vehicle.cargo.reduce((s,c)=>s+c.amount,0);
 const loadFrac=vehicle.capacity>0?totalLoad/vehicle.capacity:0;
 drawBar(sx-16,sy+TILE_H/2*0.65+10,32,loadFrac,'#ffffff');
 if(fpsVehicle&&fpsVehicle.id===vehicle.id){
-ctx.strokeStyle='#ffd700';
-ctx.lineWidth=3;
-ctx.beginPath();
-ctx.arc(sx,sy,28,0,Math.PI*2);
-ctx.stroke();
+ctx.strokeStyle='#ffd700';ctx.lineWidth=3;
+ctx.beginPath();ctx.arc(sx,sy,28,0,Math.PI*2);ctx.stroke();
 ctx.strokeStyle='rgba(255,215,0,0.12)';
-ctx.beginPath();
-ctx.arc(sx,sy,34,0,Math.PI*2);
-ctx.stroke();}
+ctx.beginPath();ctx.arc(sx,sy,34,0,Math.PI*2);ctx.stroke();}
 if(G.selected&&G.selected.type==='vehicle'&&G.selected.obj.id===vehicle.id){
-ctx.strokeStyle='#fff';
-ctx.lineWidth=2;
-ctx.beginPath();
-ctx.arc(sx,sy,24,0,Math.PI*2);
-ctx.stroke();}
+ctx.strokeStyle='#fff';ctx.lineWidth=2;
+ctx.beginPath();ctx.arc(sx,sy,24,0,Math.PI*2);ctx.stroke();}
 if(cam.zoom>0.5){
 labelQueue.push({sx:sx,sy:sy-TILE_H/2*0.65-14,text:vehicle.name+' ('+Math.round(totalLoad)+'/'+vehicle.capacity+')',color:'#dbe6f0'});}}
 
 function drawBar(x,y,w,frac,color){
-ctx.fillStyle='rgba(0,0,0,0.5)';
-ctx.fillRect(x,y,w,4);
-ctx.fillStyle=color;
-ctx.fillRect(x,y,w*clamp(frac,0,1),4);}
+ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(x,y,w,4);
+ctx.fillStyle=color;ctx.fillRect(x,y,w*clamp(frac,0,1),4);}
 
 function drawTracks(){
 const modes=['rail','road','canal','air','metro'];
@@ -1479,28 +372,19 @@ if(seen.has(pairKey))continue;
 seen.add(pairKey);
 const c2=nk.split(',').map(Number);
 const p2=worldToLocal(c2[0],c2[1]);
-ctx.beginPath();
-ctx.moveTo(p1.sx,p1.sy);
-ctx.lineTo(p2.sx,p2.sy);
-ctx.stroke();
+ctx.beginPath();ctx.moveTo(p1.sx,p1.sy);ctx.lineTo(p2.sx,p2.sy);ctx.stroke();
 if(mode==='rail'&&cam.zoom>0.5){
 const dx=p2.sx-p1.sx,dy=p2.sy-p1.sy;
 const len=Math.hypot(dx,dy);
 const steps=Math.floor(len/12);
-ctx.strokeStyle='rgba(120,80,40,0.25)';
-ctx.lineWidth=2;
+ctx.strokeStyle='rgba(120,80,40,0.25)';ctx.lineWidth=2;
 for(let i=1;i<steps;i++){
 const t=i/steps;
 const x=p1.sx+dx*t,y=p1.sy+dy*t;
 const px=-dy/len*6,py=dx/len*6;
-ctx.beginPath();
-ctx.moveTo(x+px,y+py);
-ctx.lineTo(x-px,y-py);
-ctx.stroke();}}}}
+ctx.beginPath();ctx.moveTo(x+px,y+py);ctx.lineTo(x-px,y-py);ctx.stroke();}}}}
 if(mode==='metro'&&cam.zoom>0.4){
-ctx.strokeStyle='rgba(200,200,255,0.12)';
-ctx.lineWidth=1;
-ctx.setLineDash([2,6]);
+ctx.strokeStyle='rgba(200,200,255,0.12)';ctx.lineWidth=1;ctx.setLineDash([2,6]);
 for(const entry of map.adj){
 const k=entry[0],neighbors=entry[1];
 const c1=k.split(',').map(Number);
@@ -1508,20 +392,31 @@ const p1=worldToLocal(c1[0],c1[1]);
 for(const nk of neighbors){
 const c2=nk.split(',').map(Number);
 const p2=worldToLocal(c2[0],c2[1]);
-ctx.beginPath();
-ctx.moveTo(p1.sx,p1.sy-10);
-ctx.lineTo(p2.sx,p2.sy-10);
-ctx.stroke();}}
+ctx.beginPath();ctx.moveTo(p1.sx,p1.sy-10);ctx.lineTo(p2.sx,p2.sy-10);ctx.stroke();}}
 ctx.setLineDash([]);}}
 ctx.setLineDash([]);}
 
+// *** KEY CHANGE 2: City spreads outward – layout radius grows with population ***
+function getCitySpread(population){
+// 1.0 at start, up to ~2.6x by the time city is huge
+return Math.min(2.6, 1.0 + Math.log10(Math.max(10,population)/300)*1.1);
+}
+function getBuildingCountForCity(pop){
+if(pop<=2500)return 10+Math.floor(pop/500);
+const base=15;
+const extra=Math.floor((pop-2500)/2000);
+return Math.min(base+extra,60);}
+
 function drawCities(){
 for(const c of G.cities){
+const spread=getCitySpread(c.population);
 const count=Math.min(getBuildingCountForCity(c.population),c.buildingLayout.length);
 const modern=c.population>5000;
 for(let i=0;i<count;i++){
 const b=c.buildingLayout[i];
-const wx=c.x+b.dx,wy=c.y+b.dy;
+// Scale building layout outward with spread
+const wx=c.x+b.dx*spread;
+const wy=c.y+b.dy*spread;
 let h=14+((i%4)*4)+(c.population>3500?6:0)+(c.population>10000?8:0)+(c.population>50000?12:0);
 let top,left,right;
 if(modern&&i%2===0){
@@ -1537,32 +432,19 @@ drawIsoBuilding(wx,wy,0.42,h,top,left,right,true,modern);}
 const loc=worldToLocal(c.x,c.y);
 if(c.population>=1500){
 ctx.fillStyle='rgba(122,58,181,0.2)';
-ctx.beginPath();
-ctx.arc(loc.sx,loc.sy,24,0,Math.PI*2);
-ctx.fill();
+ctx.beginPath();ctx.arc(loc.sx,loc.sy,24,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#7a3ab5';
-ctx.font='10px sans-serif';
-ctx.textAlign='center';
+ctx.font='10px sans-serif';ctx.textAlign='center';
 ctx.fillText('🚇 METRO',loc.sx,loc.sy-50);}
 if(c.population>=100000000){
 ctx.fillStyle='rgba(255,215,0,0.25)';
-ctx.beginPath();
-ctx.arc(loc.sx,loc.sy,40,0,Math.PI*2);
-ctx.fill();
-ctx.fillStyle='#ffd700';
-ctx.font='20px Georgia';
-ctx.textAlign='center';
+ctx.beginPath();ctx.arc(loc.sx,loc.sy,40,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#ffd700';ctx.font='20px Georgia';ctx.textAlign='center';
 ctx.fillText('🏆',loc.sx,loc.sy-60);}
 labelQueue.push({sx:loc.sx,sy:loc.sy-46,text:c.name+' ('+Math.round(c.population)+')',color:c.population>=100000000?'#ffd700':c.population>=1500?'#d4a0ff':'#dbe6f0'});
 if(cam.zoom>0.6){
 const demand=c.demand||50;
 drawBar(loc.sx-20,loc.sy+30,40,demand/200,'#6fb8f5');}}}
-
-function getBuildingCountForCity(pop){
-if(pop<=2500)return 10+Math.floor(pop/500);
-const base=15;
-const extra=Math.floor((pop-2500)/2000);
-return base+extra;}
 
 function drawIsoBuilding(x,y,scale,h,cTop,cLeft,cRight,windows,modern){
 const loc=worldToLocal(x,y);
@@ -1572,45 +454,29 @@ const top={x:sx,y:sy-hh},right={x:sx+hw,y:sy},bottom={x:sx,y:sy+hh},left={x:sx-h
 const topE={x:top.x,y:top.y-h},rightE={x:right.x,y:right.y-h},bottomE={x:bottom.x,y:bottom.y-h},leftE={x:left.x,y:left.y-h};
 ctx.fillStyle='rgba(0,0,0,0.3)';
 ctx.beginPath();
-ctx.moveTo(left.x+4,left.y+4);
-ctx.lineTo(bottom.x+4,bottom.y+4);
-ctx.lineTo(bottomE.x+4,bottomE.y+4);
-ctx.lineTo(leftE.x+4,leftE.y+4);
-ctx.closePath();
-ctx.fill();
+ctx.moveTo(left.x+4,left.y+4);ctx.lineTo(bottom.x+4,bottom.y+4);
+ctx.lineTo(bottomE.x+4,bottomE.y+4);ctx.lineTo(leftE.x+4,leftE.y+4);
+ctx.closePath();ctx.fill();
 const leftGrad=ctx.createLinearGradient(left.x,left.y,bottom.x,bottom.y);
-leftGrad.addColorStop(0,cLeft);
-leftGrad.addColorStop(1,shade(cLeft,-30));
+leftGrad.addColorStop(0,cLeft);leftGrad.addColorStop(1,shade(cLeft,-30));
 ctx.fillStyle=leftGrad;
 ctx.beginPath();
-ctx.moveTo(left.x,left.y);
-ctx.lineTo(bottom.x,bottom.y);
-ctx.lineTo(bottomE.x,bottomE.y);
-ctx.lineTo(leftE.x,leftE.y);
-ctx.closePath();
-ctx.fill();
+ctx.moveTo(left.x,left.y);ctx.lineTo(bottom.x,bottom.y);
+ctx.lineTo(bottomE.x,bottomE.y);ctx.lineTo(leftE.x,leftE.y);
+ctx.closePath();ctx.fill();
 const rightGrad=ctx.createLinearGradient(right.x,right.y,bottom.x,bottom.y);
-rightGrad.addColorStop(0,cRight);
-rightGrad.addColorStop(1,shade(cRight,-30));
+rightGrad.addColorStop(0,cRight);rightGrad.addColorStop(1,shade(cRight,-30));
 ctx.fillStyle=rightGrad;
 ctx.beginPath();
-ctx.moveTo(right.x,right.y);
-ctx.lineTo(bottom.x,bottom.y);
-ctx.lineTo(bottomE.x,bottomE.y);
-ctx.lineTo(rightE.x,rightE.y);
-ctx.closePath();
-ctx.fill();
+ctx.moveTo(right.x,right.y);ctx.lineTo(bottom.x,bottom.y);
+ctx.lineTo(bottomE.x,bottomE.y);ctx.lineTo(rightE.x,rightE.y);
+ctx.closePath();ctx.fill();
 ctx.fillStyle=cTop;
 ctx.beginPath();
-ctx.moveTo(topE.x,topE.y);
-ctx.lineTo(rightE.x,rightE.y);
-ctx.lineTo(bottomE.x,bottomE.y);
-ctx.lineTo(leftE.x,leftE.y);
-ctx.closePath();
-ctx.fill();
-ctx.strokeStyle='rgba(0,0,0,0.3)';
-ctx.lineWidth=1;
-ctx.stroke();
+ctx.moveTo(topE.x,topE.y);ctx.lineTo(rightE.x,rightE.y);
+ctx.lineTo(bottomE.x,bottomE.y);ctx.lineTo(leftE.x,leftE.y);
+ctx.closePath();ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1;ctx.stroke();
 if(windows&&h>10){
 ctx.fillStyle=modern?'rgba(100,200,255,0.7)':'rgba(255,255,200,0.7)';
 const rows=Math.min(Math.floor(h/7),6);
@@ -1635,38 +501,27 @@ const px=loc.sx+Math.cos(angle)*dist;
 const py=loc.sy+6+Math.sin(angle)*dist*0.3+Math.sin(time*0.7+i*1.5+seed)*2;
 const hue=(station.id.charCodeAt(i%station.id.length)||50)+20;
 ctx.fillStyle='hsl('+hue+',40%,60%)';
-ctx.beginPath();
-ctx.arc(px,py-2,2.5,0,Math.PI*2);
-ctx.fill();
+ctx.beginPath();ctx.arc(px,py-2,2.5,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='hsl('+hue+20+',30%,40%)';
 ctx.fillRect(px-1.5,py+1,3,5);}}
 
 function drawStations(time){
 for(const st of G.stations){
 const loc=worldToLocal(st.x,st.y);
-ctx.fillStyle='#d9b25c';
-ctx.fillRect(loc.sx-20,loc.sy-4,40,8);
-ctx.strokeStyle='#7a5f2a';
-ctx.lineWidth=1.5;
-ctx.strokeRect(loc.sx-20,loc.sy-4,40,8);
-ctx.fillStyle='rgba(60,60,80,0.4)';
-ctx.fillRect(loc.sx-16,loc.sy-24,32,8);
-ctx.fillStyle='rgba(200,200,220,0.15)';
-ctx.fillRect(loc.sx-14,loc.sy-26,28,4);
-ctx.fillStyle='rgba(60,60,80,0.35)';
-ctx.fillRect(loc.sx-12,loc.sy-18,24,14);
+ctx.fillStyle='#d9b25c';ctx.fillRect(loc.sx-20,loc.sy-4,40,8);
+ctx.strokeStyle='#7a5f2a';ctx.lineWidth=1.5;ctx.strokeRect(loc.sx-20,loc.sy-4,40,8);
+ctx.fillStyle='rgba(60,60,80,0.4)';ctx.fillRect(loc.sx-16,loc.sy-24,32,8);
+ctx.fillStyle='rgba(200,200,220,0.15)';ctx.fillRect(loc.sx-14,loc.sy-26,28,4);
+ctx.fillStyle='rgba(60,60,80,0.35)';ctx.fillRect(loc.sx-12,loc.sy-18,24,14);
 ctx.fillStyle='rgba(200,200,220,0.2)';
-ctx.fillRect(loc.sx-8,loc.sy-16,5,5);
-ctx.fillRect(loc.sx+3,loc.sy-16,5,5);
+ctx.fillRect(loc.sx-8,loc.sy-16,5,5);ctx.fillRect(loc.sx+3,loc.sy-16,5,5);
 if(cam.zoom>0.55)labelQueue.push({sx:loc.sx,sy:loc.sy-28,text:'🚉 '+st.name,color:'#9fd1ff'});
 if(cam.zoom>0.5)drawStationPeople(st,time);
 const modesHere=['rail','road','canal','air','metro'].filter(m=>getTrackMap(m).tiles.has(tileKey(st.x,st.y)));
 const colors={rail:'#4a7fb5',road:'#b58a4a',canal:'#4a8aaa',air:'#8a9ab5',metro:'#7a3ab5'};
 for(let i=0;i<modesHere.length&&i<5;i++){
 ctx.fillStyle=colors[modesHere[i]]||'#fff';
-ctx.beginPath();
-ctx.arc(loc.sx+22+i*7-(modesHere.length-1)*3.5,loc.sy-6,2.5,0,Math.PI*2);
-ctx.fill();}}}
+ctx.beginPath();ctx.arc(loc.sx+22+i*7-(modesHere.length-1)*3.5,loc.sy-6,2.5,0,Math.PI*2);ctx.fill();}}}
 
 function drawBuildPreview(){
 if(G.dragging&&['rail','road','canal','air','metro'].includes(G.tool)){
@@ -1679,30 +534,19 @@ const loc=worldToLocal(t.x,t.y);
 const already=map.tiles.has(tileKey(t.x,t.y));
 ctx.fillStyle=already?'rgba(255,255,255,0.2)':col;
 ctx.beginPath();
-ctx.moveTo(loc.sx,loc.sy-TILE_H/2);
-ctx.lineTo(loc.sx+TILE_W/2,loc.sy);
-ctx.lineTo(loc.sx,loc.sy+TILE_H/2);
-ctx.lineTo(loc.sx-TILE_W/2,loc.sy);
-ctx.closePath();
-ctx.fill();
-if(!already){
-ctx.strokeStyle=strokeCol;
-ctx.lineWidth=2;
-ctx.stroke();}}}
+ctx.moveTo(loc.sx,loc.sy-TILE_H/2);ctx.lineTo(loc.sx+TILE_W/2,loc.sy);
+ctx.lineTo(loc.sx,loc.sy+TILE_H/2);ctx.lineTo(loc.sx-TILE_W/2,loc.sy);
+ctx.closePath();ctx.fill();
+if(!already){ctx.strokeStyle=strokeCol;ctx.lineWidth=2;ctx.stroke();}}}
 if(G.tool==='line'){
 for(const id of G.lineDraft){
 const s=G.stations.find(x=>x.id===id);
 if(!s)continue;
 const loc=worldToLocal(s.x,s.y);
-ctx.strokeStyle='#f0c260';
-ctx.lineWidth=2.5;
-ctx.beginPath();
-ctx.arc(loc.sx,loc.sy,20,0,Math.PI*2);
-ctx.stroke();
+ctx.strokeStyle='#f0c260';ctx.lineWidth=2.5;
+ctx.beginPath();ctx.arc(loc.sx,loc.sy,20,0,Math.PI*2);ctx.stroke();
 ctx.fillStyle='rgba(240,194,96,0.15)';
-ctx.beginPath();
-ctx.arc(loc.sx,loc.sy,16,0,Math.PI*2);
-ctx.fill();}}}
+ctx.beginPath();ctx.arc(loc.sx,loc.sy,16,0,Math.PI*2);ctx.fill();}}}
 
 function drawHoverHighlight(){
 if(!G.hoverTile)return;
@@ -1710,15 +554,11 @@ if(!['rail','road','canal','air','station','remove','metro'].includes(G.tool))re
 const t=G.hoverTile;
 if(!canPlaceTrackTile(t.x,t.y))return;
 const loc=worldToLocal(t.x,t.y);
-ctx.strokeStyle='rgba(255,255,255,0.5)';
-ctx.lineWidth=2;
+ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=2;
 ctx.beginPath();
-ctx.moveTo(loc.sx,loc.sy-TILE_H/2);
-ctx.lineTo(loc.sx+TILE_W/2,loc.sy);
-ctx.lineTo(loc.sx,loc.sy+TILE_H/2);
-ctx.lineTo(loc.sx-TILE_W/2,loc.sy);
-ctx.closePath();
-ctx.stroke();}
+ctx.moveTo(loc.sx,loc.sy-TILE_H/2);ctx.lineTo(loc.sx+TILE_W/2,loc.sy);
+ctx.lineTo(loc.sx,loc.sy+TILE_H/2);ctx.lineTo(loc.sx-TILE_W/2,loc.sy);
+ctx.closePath();ctx.stroke();}
 
 function drawVehicles(time){
 for(const vehicle of G.vehicles){
@@ -1727,34 +567,25 @@ if(!line)continue;
 drawVehicleWithCarriages(vehicle,line,time);}}
 
 function flushLabels(){
-ctx.font='12px Segoe UI, sans-serif';
-ctx.textAlign='center';
+ctx.font='12px Segoe UI, sans-serif';ctx.textAlign='center';
 for(const l of labelQueue){
 const x=cam.panX+l.sx*cam.zoom,y=cam.panY+l.sy*cam.zoom;
 const w=ctx.measureText(l.text).width+10;
 ctx.fillStyle='rgba(0,0,0,0.55)';
-ctx.beginPath();
-ctx.roundRect(x-w/2,y-17,w,18,4);
-ctx.fill();
-ctx.fillStyle=l.color||'#fff';
-ctx.fillText(l.text,x,y-4);}}
+ctx.beginPath();ctx.roundRect(x-w/2,y-17,w,18,4);ctx.fill();
+ctx.fillStyle=l.color||'#fff';ctx.fillText(l.text,x,y-4);}}
 
 function render(time){
 labelQueue=[];
 ctx.setTransform(1,0,0,1,0,0);
-ctx.fillStyle='#060d15';
-ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle='#060d15';ctx.fillRect(0,0,canvas.width,canvas.height);
 if(fpsMode&&fpsVehicle){renderFPSView();return}
 ctx.save();
 ctx.translate(cam.panX,cam.panY);
 ctx.scale(cam.zoom,cam.zoom);
 if(G.terrainCache)ctx.drawImage(G.terrainCache,0,0);
-drawTracks();
-drawCities();
-drawStations(time/1000);
-drawBuildPreview();
-drawVehicles(time/1000);
-drawHoverHighlight();
+drawTracks();drawCities();drawStations(time/1000);
+drawBuildPreview();drawVehicles(time/1000);drawHoverHighlight();
 ctx.restore();
 flushLabels();
 document.getElementById('land-display').textContent=G.unlockedLand||1;}
@@ -1765,24 +596,17 @@ const line=G.lines.find(l=>l.id===fpsVehicle.lineId);
 if(!line)return;
 const pos=positionAlongPath(line,fpsVehicle.distSinceStart);
 const w=canvas.width,h=canvas.height;
-fpsCtx.canvas.width=w;
-fpsCtx.canvas.height=h;
+fpsCtx.canvas.width=w;fpsCtx.canvas.height=h;
 const c=fpsCtx;
 const skyGrad=c.createLinearGradient(0,0,0,h*0.5);
-skyGrad.addColorStop(0,'#0a1a3a');
-skyGrad.addColorStop(0.4,'#2a5a7a');
-skyGrad.addColorStop(0.7,'#5a8a9a');
-skyGrad.addColorStop(1,'#8aaa8a');
-c.fillStyle=skyGrad;
-c.fillRect(0,0,w,h);
-const horizonY=h*0.45;
-const groundY=horizonY+10;
+skyGrad.addColorStop(0,'#0a1a3a');skyGrad.addColorStop(0.4,'#2a5a7a');
+skyGrad.addColorStop(0.7,'#5a8a9a');skyGrad.addColorStop(1,'#8aaa8a');
+c.fillStyle=skyGrad;c.fillRect(0,0,w,h);
+const horizonY=h*0.45,groundY=horizonY+10;
 const dirX=Math.cos(fpsVehicle.distSinceStart*0.08+0.5);
 const dirY=Math.sin(fpsVehicle.distSinceStart*0.08+0.5);
-const viewDist=45;
-const tileSize=14;
-for(let d=2;d<viewDist;d++){
-for(let side=-14;side<=14;side++){
+const viewDist=45,tileSize=14;
+for(let d=2;d<viewDist;d++)for(let side=-14;side<=14;side++){
 const depth=d/viewDist;
 const xOff=side*0.35*depth;
 const wx=pos.x+dirX*d*0.5+dirY*xOff;
@@ -1791,65 +615,39 @@ const tx=Math.round(wx),ty=Math.round(wy);
 if(tx<0||ty<0||tx>=MAP_W||ty>=MAP_H)continue;
 const terrain=terrainAt(tx,ty);
 const col=terrainColor(terrain);
-const baseY=groundY-depth*55;
-const scale=1-depth*0.5;
+const baseY=groundY-depth*55,scale=1-depth*0.5;
 const xPos=w/2+side*7*(1-depth*0.35)+depth*15*dirX*0.2;
 const yPos=baseY+depth*25;
 const sz=tileSize*scale*0.85;
 const hOff=terrain===TERRAIN.HILL?4:terrain===TERRAIN.FOREST?2:0;
-const alpha=0.7+depth*0.3;
-c.globalAlpha=alpha;
+c.globalAlpha=0.7+depth*0.3;
 c.fillStyle=col.top;
 c.beginPath();
-c.moveTo(xPos,yPos-sz*0.5-hOff);
-c.lineTo(xPos+sz*0.5,yPos-hOff);
-c.lineTo(xPos,yPos+sz*0.5-hOff);
-c.lineTo(xPos-sz*0.5,yPos-hOff);
-c.closePath();
-c.fill();
+c.moveTo(xPos,yPos-sz*0.5-hOff);c.lineTo(xPos+sz*0.5,yPos-hOff);
+c.lineTo(xPos,yPos+sz*0.5-hOff);c.lineTo(xPos-sz*0.5,yPos-hOff);
+c.closePath();c.fill();
 c.globalAlpha=1;
 const city=G.cities.find(ci=>Math.abs(ci.x-tx)<0.8&&Math.abs(ci.y-ty)<0.8);
 if(city&&depth<0.7){
+const spread=getCitySpread(city.population);
 const bldgCount=Math.min(city.buildingLayout.length,5);
 for(let i=0;i<bldgCount;i++){
 const b=city.buildingLayout[i];
-const bx=xPos+b.dx*5*scale;
-const by=yPos-sz*0.5+b.dy*3.5*scale-hOff;
+const bx=xPos+b.dx*5*scale*spread/1.5;
+const by=yPos-sz*0.5+b.dy*3.5*scale*spread/1.5-hOff;
 const bh=3+(i%3)*3+(city.population>5000?4:0);
 const bw=3+(i%2)*2;
 c.fillStyle='hsl('+b.hue+',45%,45%)';
-c.fillRect(bx-bw/2,by-bh,bw,bh);
-c.fillStyle='hsl('+b.hue+',45%,30%)';
-c.fillRect(bx-bw/2,by-bh,1.5,bh);
-c.fillStyle='hsl('+b.hue+',45%,55%)';
-c.fillRect(bx+bw/2-1.5,by-bh,1.5,bh);}}
-for(const mode of['rail','road','canal','air','metro']){
-if(getTrackMap(mode).tiles.has(tileKey(tx,ty))){
-const trackCol=mode==='rail'?'#4a4a4a':mode==='road'?'#6a6a6a':mode==='canal'?'#4a8aaa':mode==='air'?'#8a9ab5':'#7a3ab5';
-c.strokeStyle=trackCol;
-c.lineWidth=1.5*scale;
-c.globalAlpha=0.4+depth*0.3;
-c.beginPath();
-c.moveTo(xPos-sz*0.25,yPos-sz*0.1-hOff);
-c.lineTo(xPos+sz*0.25,yPos+sz*0.1-hOff);
-c.stroke();
-c.globalAlpha=1;}}
+c.fillRect(bx-bw/2,by-bh,bw,bh);}}
 const st=G.stations.find(s=>s.x===tx&&s.y===ty);
 if(st&&depth<0.6){
 c.fillStyle='#d9b25c';
-c.fillRect(xPos-3,yPos-sz*0.25-hOff,6,2);
-c.fillStyle='rgba(60,60,80,0.25)';
-c.fillRect(xPos-2.5,yPos-sz*0.5-hOff,5,3);}}}
+c.fillRect(xPos-3,yPos-sz*0.25-hOff,6,2);}}
 c.fillStyle='rgba(10,15,25,0.85)';
 c.beginPath();
-c.moveTo(0,h-40);
-c.quadraticCurveTo(w*0.1,h-70,w*0.3,h-50);
-c.lineTo(w*0.7,h-50);
-c.quadraticCurveTo(w*0.9,h-70,w,h-40);
-c.lineTo(w,h);
-c.lineTo(0,h);
-c.closePath();
-c.fill();
+c.moveTo(0,h-40);c.quadraticCurveTo(w*0.1,h-70,w*0.3,h-50);
+c.lineTo(w*0.7,h-50);c.quadraticCurveTo(w*0.9,h-70,w,h-40);
+c.lineTo(w,h);c.lineTo(0,h);c.closePath();c.fill();
 const fpsHud=document.getElementById('fps-hud');
 const loadF=fpsVehicle.cargo.reduce((s,c)=>s+c.amount,0);
 const pName=fpsVehicle.powerUnit?fpsVehicle.powerUnit.name:fpsVehicle.name||'Vehicle';
@@ -1865,8 +663,7 @@ fpsHud.innerHTML=`
 document.getElementById('fps-overlay').classList.add('active');}
 
 function exitFPS(){
-fpsMode=false;
-fpsVehicle=null;
+fpsMode=false;fpsVehicle=null;
 document.getElementById('fps-overlay').classList.remove('active');
 toast('Exited FPS view','info');}
 
@@ -1876,8 +673,7 @@ let vehicle=null;
 if(G.selected&&G.selected.type==='vehicle')vehicle=G.selected.obj;
 else if(G.vehicles.length>0)vehicle=G.vehicles[0];
 if(!vehicle){toast('No vehicle to view in FPS mode','error');return}
-fpsMode=true;
-fpsVehicle=vehicle;
+fpsMode=true;fpsVehicle=vehicle;
 toast('🎥 FPS mode activated!','success');}
 
 function pickAt(mx,my,filterTypes){
@@ -1919,10 +715,8 @@ const map=getTrackMap(G.tool);
 let cost=0,newTiles=0;
 for(const t of G.buildPathPreview)if(!map.tiles.has(tileKey(t.x,t.y))){cost+=terrainCost(t.x,t.y);newTiles++}
 tip.textContent=newTiles+' tiles • '+fmtMoney(cost)+' • '+G.tool.toUpperCase();
-tip.style.left=(e.clientX+16)+'px';
-tip.style.top=(e.clientY+16)+'px';
-tip.classList.add('show');
-return;}
+tip.style.left=(e.clientX+16)+'px';tip.style.top=(e.clientY+16)+'px';
+tip.classList.add('show');return;}
 if(G.tool==='select'){
 const hit=pickAt(e.clientX,e.clientY);
 if(hit){
@@ -1934,10 +728,8 @@ const v=hit.obj;
 const load=v.cargo.reduce((s,c)=>s+c.amount,0);
 label=(v.powerUnit?v.powerUnit.name:v.name)+' • '+load+'/'+v.capacity+' • '+v.carriages.length+' carr.';}
 tip.textContent=label;
-tip.style.left=(e.clientX+16)+'px';
-tip.style.top=(e.clientY+16)+'px';
-tip.classList.add('show');
-return;}}
+tip.style.left=(e.clientX+16)+'px';tip.style.top=(e.clientY+16)+'px';
+tip.classList.add('show');return;}}
 tip.classList.remove('show');}
 
 function renderSidePanel(){
@@ -1982,12 +774,14 @@ const boardingControls=`<div style="margin-top:8px;border-top:1px solid var(--bo
 <button class="remove-carriage-btn" onclick="setVehicleBoardingMode('${v.id}','none')">No Boarding</button>
 <button class="add-carriage-btn" onclick="setVehicleBoardingMode('${v.id}','custom')">Custom</button>
 </div>`;
-let carriageHtml='<ul class="carriage-list">';
+let carriageHtml='';
+if(hasCarriages(v.mode)){
+carriageHtml='<ul class="carriage-list">';
 for(let i=0;i<v.carriages.length;i++){
 const c=v.carriages[i];
 carriageHtml+=`<li><span>${c.icon||'🚃'} ${c.name}</span><span class="cap">+${c.capacity} seats</span></li>`;}
-carriageHtml+='</ul>';
-const carriageTypes=getCarriageTypes(v.mode);
+carriageHtml+='</ul>';}
+const carriageTypes=hasCarriages(v.mode)?getCarriageTypes(v.mode):[];
 let addCarriageHtml='';
 if(carriageTypes.length>0&&v.carriages.length<8){
 addCarriageHtml='<div style="margin-top:6px;"><span style="font-size:12px;color:var(--muted);">Add carriage:</span>';
@@ -2039,7 +833,7 @@ body.innerHTML='';
 const year=1850+Math.floor(G.simDay/360);
 const header=document.createElement('p');
 header.style.cssText='color:var(--muted);font-size:13px;';
-header.textContent='Year: '+year+' — Build vehicles with carriages';
+header.textContent='Year: '+year+' — Build vehicles';
 body.appendChild(header);
 const modes=['rail','road','canal','air','metro'];
 const modeLabels={rail:'🚂 Trains',road:'🚌 Road Vehicles',canal:'🚢 Ships',air:'✈️ Aircraft',metro:'🚇 Metro'};
@@ -2059,14 +853,15 @@ card.className='card';
 const defaultCarriage=carriageTypes.length>0?carriageTypes[0]:null;
 const baseCost=pu.cost+(defaultCarriage?defaultCarriage.cost:0);
 let carriageOptions='';
+if(carriageTypes.length>0){
 for(const ct of carriageTypes){
 carriageOptions+=`<button style="margin:2px;background:var(--panel-2);border:1px solid var(--border);padding:2px 8px;border-radius:3px;font-size:11px;cursor:pointer;" onclick="buildVehicleWithCarriage('${mode}','${pu.id}','${ct.id}')">+${ct.name} (${fmtMoney(ct.cost)})</button>`;}
+}else{
+carriageOptions='<span style="color:var(--muted);font-size:12px;">Single long vehicle (no carriages)</span>';}
 card.innerHTML=`
 <div class="card-row"><b>${pu.icon} ${pu.name}</b><span style="color:var(--gold);">${fmtMoney(baseCost)}</span></div>
-<div class="info">Speed ${pu.speed.toFixed(1)} • Base cap ${pu.capacity} • Upkeep ${fmtMoney(pu.upkeep)}/day</div>
-<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;">
-${carriageOptions||'<span style="color:var(--muted);font-size:12px;">No carriages available</span>'}
-</div>
+<div class="info">Speed ${pu.speed.toFixed(1)} • Capacity ${pu.capacity} • Upkeep ${fmtMoney(pu.upkeep)}/day</div>
+<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;">${carriageOptions}</div>
 <div style="margin-top:6px;">
 <button onclick="buildVehicleBasic('${mode}','${pu.id}')">Buy without carriages</button>
 </div>`;
@@ -2426,7 +1221,6 @@ updateHUD(now);
 }catch(e){console.error('Game loop error:',e)}
 requestAnimationFrame(frame);}
 
-// ========== MOBILE / TOUCH CONTROLS ==========
 (function setupTouchControls(){
 const gameCanvas=document.getElementById('game');
 const isTouchDevice=('ontouchstart' in window)||(navigator.maxTouchPoints>0);
@@ -2438,49 +1232,34 @@ let pinchCenter={x:0,y:0};
 let tapStartTime=0;
 let tapStartPos={x:0,y:0};
 let hasMoved=false;
-
 function touchPos(t){return{x:t.clientX,y:t.clientY}}
 function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
-function fakeMouse(type,x,y){
-return{clientX:x,clientY:y,button:0,preventDefault:function(){},stopPropagation:function(){}};}
-
+function fakeMouse(type,x,y){return{clientX:x,clientY:y,button:0,preventDefault:function(){},stopPropagation:function(){}};}
 gameCanvas.addEventListener('touchstart',function(e){
 e.preventDefault();
 if(e.touches.length===1){
 const t=touchPos(e.touches[0]);
 const isBuildTool=['rail','road','canal','air','metro'].includes(G.tool);
-if(isBuildTool){
-touchMode='build';
-hasMoved=true;
-handleLeftDown(fakeMouse('mousedown',t.x,t.y));
-}else{
-touchMode='pan';
-lastTouch=t;
-tapStartTime=Date.now();
-tapStartPos=t;
-hasMoved=false;}}else if(e.touches.length===2){
-touchMode='pinch';
-hasMoved=true;
+if(isBuildTool){touchMode='build';hasMoved=true;handleLeftDown(fakeMouse('mousedown',t.x,t.y));}
+else{touchMode='pan';lastTouch=t;tapStartTime=Date.now();tapStartPos=t;hasMoved=false;}}
+else if(e.touches.length===2){
+touchMode='pinch';hasMoved=true;
 const p1=touchPos(e.touches[0]);
 const p2=touchPos(e.touches[1]);
 pinchStartDist=distance(p1,p2)||1;
 pinchStartZoom=cam.zoom;
 pinchCenter={x:(p1.x+p2.x)/2,y:(p1.y+p2.y)/2};}},{passive:false});
-
 gameCanvas.addEventListener('touchmove',function(e){
 e.preventDefault();
 if(touchMode==='build'&&e.touches.length===1){
 const t=touchPos(e.touches[0]);
-handleMouseMove(fakeMouse('mousemove',t.x,t.y));
-}else if(touchMode==='pan'&&e.touches.length===1){
+handleMouseMove(fakeMouse('mousemove',t.x,t.y));}
+else if(touchMode==='pan'&&e.touches.length===1){
 const t=touchPos(e.touches[0]);
-const dx=t.x-lastTouch.x;
-const dy=t.y-lastTouch.y;
+const dx=t.x-lastTouch.x,dy=t.y-lastTouch.y;
 if(Math.abs(t.x-tapStartPos.x)>6||Math.abs(t.y-tapStartPos.y)>6)hasMoved=true;
-cam.panX+=dx;
-cam.panY+=dy;
-lastTouch=t;
-}else if(touchMode==='pinch'&&e.touches.length===2){
+cam.panX+=dx;cam.panY+=dy;lastTouch=t;}
+else if(touchMode==='pinch'&&e.touches.length===2){
 const p1=touchPos(e.touches[0]);
 const p2=touchPos(e.touches[1]);
 const newDist=distance(p1,p2)||1;
@@ -2492,40 +1271,27 @@ const localYBefore=(my-cam.panY)/cam.zoom;
 cam.zoom=newZoom;
 cam.panX=mx-localXBefore*cam.zoom;
 cam.panY=my-localYBefore*cam.zoom;}},{passive:false});
-
 gameCanvas.addEventListener('touchend',function(e){
 e.preventDefault();
-if(touchMode==='build'){
-handleLeftUp();
-touchMode='none';
-}else if(touchMode==='pan'){
+if(touchMode==='build'){handleLeftUp();touchMode='none';}
+else if(touchMode==='pan'){
 const wasQuickTap=(!hasMoved)&&(Date.now()-tapStartTime<350);
 if(wasQuickTap){
 handleLeftDown(fakeMouse('mousedown',tapStartPos.x,tapStartPos.y));
 handleLeftUp();}}
-if(e.touches.length===0){
-touchMode='none';
-lastTouch=null;
-}else if(e.touches.length===1&&touchMode==='pinch'){
-touchMode='pan';
-lastTouch=touchPos(e.touches[0]);
-tapStartPos=lastTouch;
-tapStartTime=Date.now();
-hasMoved=true;}},{passive:false});
-
+if(e.touches.length===0){touchMode='none';lastTouch=null;}
+else if(e.touches.length===1&&touchMode==='pinch'){
+touchMode='pan';lastTouch=touchPos(e.touches[0]);
+tapStartPos=lastTouch;tapStartTime=Date.now();hasMoved=true;}},{passive:false});
 gameCanvas.addEventListener('touchcancel',function(e){
 if(touchMode==='build')handleLeftUp();
-touchMode='none';
-lastTouch=null;},{passive:false});
-
+touchMode='none';lastTouch=null;},{passive:false});
 let lastTouchEnd=0;
 gameCanvas.addEventListener('touchend',function(e){
 const now=Date.now();
 if(now-lastTouchEnd<=320)e.preventDefault();
 lastTouchEnd=now;},false);
-
 gameCanvas.addEventListener('contextmenu',function(e){e.preventDefault()});
-
 if(isTouchDevice){
 const tt=document.getElementById('tooltip');
 if(tt)tt.style.display='none';}})();
