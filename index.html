@@ -963,6 +963,7 @@ upkeep+=G.stations.length*8;
 G.money-=upkeep;
 G.stats.totalUpkeep+=upkeep;
 checkQuests();}
+
 function getLoanLimit(){
 const base=G.difficulty==='easy'?200000:G.difficulty==='medium'?100000:50000;
 return Math.max(0,base-G.debt);}
