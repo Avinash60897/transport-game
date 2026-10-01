@@ -135,10 +135,7 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   animation:advisorBob 3s ease-in-out infinite;
 }
 @keyframes advisorBob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-3px) rotate(2deg)}}
-#advisorName{
-  font-family:'Cinzel',serif;font-size:11px;font-weight:700;
-  letter-spacing:2px;text-transform:uppercase;color:var(--gold);
-}
+#advisorName{font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
 #advisorRank{font-size:9.5px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase;}
 #advisorMood{margin-left:auto;font-size:18px;transition:all .3s;}
 #advisorBody{padding:12px 16px 14px;font-size:13px;line-height:1.55;color:var(--parch);}
@@ -196,22 +193,27 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
 #cinemaBarsTop.on, #cinemaBarsBot.on { height: 70px; }
 
 #speechBubble{
-  position:absolute;z-index:47;padding:10px 16px;border-radius:14px;
-  background:rgba(255,245,220,.96);color:#2a1a0a;
-  font-family:'Spectral',serif;font-size:14px;font-weight:600;
-  box-shadow:0 6px 24px rgba(0,0,0,.7);
+  position:absolute;z-index:47;padding:12px 18px;border-radius:14px;
+  background:rgba(255,245,220,.97);color:#2a1a0a;
+  font-family:'Spectral',serif;font-size:15px;font-weight:600;
+  box-shadow:0 8px 30px rgba(0,0,0,.8);
   opacity:0;transform:scale(.6);transform-origin:bottom center;
   transition:opacity .3s, transform .4s cubic-bezier(.34,1.56,.64,1);
-  pointer-events:none;max-width:280px;line-height:1.4;
+  pointer-events:none;max-width:320px;line-height:1.45;
+  border:2px solid rgba(120,80,40,.5);
 }
 #speechBubble.on{opacity:1;transform:scale(1);}
 #speechBubble::after{
-  content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
-  width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;
-  border-top:10px solid rgba(255,245,220,.96);
+  content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;
+  border-top:11px solid rgba(255,245,220,.97);
 }
-#speechBubble.dark{background:rgba(40,26,16,.95);color:#f3e6cc;border:1px solid rgba(224,180,100,.5);}
-#speechBubble.dark::after{border-top-color:rgba(40,26,16,.95);}
+#speechBubble.dark{background:rgba(40,26,16,.96);color:#f3e6cc;border-color:rgba(224,180,100,.6);}
+#speechBubble.dark::after{border-top-color:rgba(40,26,16,.96);}
+#speechBubble .speaker{
+  display:block;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--gold);margin-bottom:4px;font-weight:700;
+}
 
 #flash{position:fixed;inset:0;pointer-events:none;z-index:8;opacity:0;}
 #vignette{position:fixed;inset:0;pointer-events:none;z-index:6;
@@ -319,6 +321,7 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   #advisor{max-width:92vw;min-width:0;bottom:74px;}
   .avatarPicker{grid-template-columns:repeat(6,1fr);}
   #clue{font-size:22px;letter-spacing:5px;}
+  #speechBubble{max-width:80vw;font-size:13px;}
 }
 </style>
 </head>
@@ -403,7 +406,7 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
       <button class="cover-btn ghost" id="covLogin">🔑 Sign In</button>
     </div>
   </div>
-  <div id="cover-footer">v1.2 · The Oracle Awaits</div>
+  <div id="cover-footer">v1.3 · The Oracle Awaits</div>
 </div>
 
 <div id="screen-login" class="screen">
@@ -501,6 +504,9 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   </div>
 </div>
 
+<!-- ============================================================
+     CHESS ENGINE
+     ============================================================ -->
 <script id="engineSrc" type="text/x-engine">
 const WHITE = 1, BLACK = -1;
 const P=1, N=2, B=3, R=4, Q=5, K=6;
@@ -735,84 +741,64 @@ const THRONE_BLACK = 4;
 const SACRED = [27, 28, 35, 36];
 
 const BOT_LEVELS = [
-  { name:'Peasant', rating:400, depth:1, timeMs:80, blunder:0.55,
-    avatar:'🧑‍🌾', rank:'Village Dweller', mood:'😄', tier:'low',
+  { name:'Peasant', rating:400, depth:1, timeMs:80, blunder:0.55, avatar:'🧑‍🌾', rank:'Village Dweller', mood:'😄', tier:'low',
     taunt:['Oi! I just learned the rules!','Don\'t go easy on me... actually, please do.','My cow plays better than me.'],
     praise:['Wow, you got me there!','That were a right good smack!','Ooh, sneaky!'] },
-  { name:'Farmer', rating:500, depth:1, timeMs:120, blunder:0.48,
-    avatar:'👨‍🌾', rank:'Tiller of Fields', mood:'😅', tier:'low',
+  { name:'Farmer', rating:500, depth:1, timeMs:120, blunder:0.48, avatar:'👨‍🌾', rank:'Tiller of Fields', mood:'😅', tier:'low',
     taunt:['I\'ve been practicing on scarecrows!','My turnips are tougher than my knights.','Ready or not, here I plow!'],
     praise:['Well struck!','Aye, that were clever!','You move like the wind!'] },
-  { name:'Militia', rating:600, depth:1, timeMs:180, blunder:0.42,
-    avatar:'🪖', rank:'Conscripted Guard', mood:'😬', tier:'low',
+  { name:'Militia', rating:600, depth:1, timeMs:180, blunder:0.42, avatar:'🪖', rank:'Conscripted Guard', mood:'😬', tier:'low',
     taunt:['I only signed up for the pay!','Is it too late to go home?','Charge... or maybe stroll.'],
     praise:['Not bad, not bad!','You fight well, stranger!','Gah, you saw that coming!'] },
-  { name:'Squire', rating:700, depth:2, timeMs:220, blunder:0.35,
-    avatar:'🧒', rank:'Knight\'s Apprentice', mood:'🤨', tier:'low',
+  { name:'Squire', rating:700, depth:2, timeMs:220, blunder:0.35, avatar:'🧒', rank:'Knight\'s Apprentice', mood:'🤨', tier:'low',
     taunt:['I polish swords AND capture pawns!','My master taught me this one trick...','For honor! And a snack!'],
     praise:['You have skill!','A fine maneuver!','I must improve my stance.'] },
-  { name:'Footman', rating:800, depth:2, timeMs:280, blunder:0.30,
-    avatar:'💂', rank:'Frontline Soldier', mood:'😐', tier:'low',
+  { name:'Footman', rating:800, depth:2, timeMs:280, blunder:0.30, avatar:'💂', rank:'Frontline Soldier', mood:'😐', tier:'low',
     taunt:['I hold the line here.','You shall not pass — wait, wrong story.','My boots are heavier than my brain.'],
     praise:['Solid strike, soldier!','You earned that one.','By the flag, well played!'] },
-  { name:'Knight', rating:950, depth:2, timeMs:350, blunder:0.24,
-    avatar:'⚔️', rank:'Sworn Knight', mood:'😏', tier:'mid',
+  { name:'Knight', rating:950, depth:2, timeMs:350, blunder:0.24, avatar:'⚔️', rank:'Sworn Knight', mood:'😏', tier:'mid',
     taunt:['My blade sings for battle!','Few can match my gallop.','Prepare yourself, challenger.'],
     praise:['A worthy opponent!','Your blade is sharp, friend!','You fight with honor!'] },
-  { name:'Cavalry', rating:1050, depth:3, timeMs:420, blunder:0.18,
-    avatar:'🐎', rank:'Rider Captain', mood:'😎', tier:'mid',
+  { name:'Cavalry', rating:1050, depth:3, timeMs:420, blunder:0.18, avatar:'🐎', rank:'Rider Captain', mood:'😎', tier:'mid',
     taunt:['We ride at dawn — or, you know, now.','The ground shakes beneath my hooves.','Catch me if you can!'],
     praise:['Swift and deadly!','Your tactics serve you well!','The wind favors you!'] },
-  { name:'Sergeant', rating:1150, depth:3, timeMs:520, blunder:0.12,
-    avatar:'🎖️', rank:'Battle Sergeant', mood:'😤', tier:'mid',
+  { name:'Sergeant', rating:1150, depth:3, timeMs:520, blunder:0.12, avatar:'🎖️', rank:'Battle Sergeant', mood:'😤', tier:'mid',
     taunt:['Formation! On me!','I\'ve broken stronger wills than yours.','Ten years in the field, friend.'],
     praise:['You have discipline!','A textbook attack!','Well-executed.'] },
-  { name:'Captain', rating:1250, depth:3, timeMs:620, blunder:0.08,
-    avatar:'🛡️', rank:'Company Captain', mood:'😌', tier:'mid',
+  { name:'Captain', rating:1250, depth:3, timeMs:620, blunder:0.08, avatar:'🛡️', rank:'Company Captain', mood:'😌', tier:'mid',
     taunt:['My men follow me to the end.','Let\'s see what you\'re made of.','Fifty battles — all victories.'],
     praise:['You command respect!','A fine assault!','Perhaps you deserve that rank.'] },
-  { name:'Commander', rating:1350, depth:4, timeMs:750, blunder:0.05,
-    avatar:'🗡️', rank:'Field Commander', mood:'🤔', tier:'mid',
+  { name:'Commander', rating:1350, depth:4, timeMs:750, blunder:0.05, avatar:'🗡️', rank:'Field Commander', mood:'🤔', tier:'mid',
     taunt:['Every move has consequence.','I\'ve studied a thousand battles.','You play well — for a novice.'],
     praise:['Impressive!','Your plans show cunning.','I underestimated you.'] },
-  { name:'Warlord', rating:1450, depth:4, timeMs:900, blunder:0.03,
-    avatar:'🐺', rank:'Warlord of the North', mood:'😈', tier:'high',
+  { name:'Warlord', rating:1450, depth:4, timeMs:900, blunder:0.03, avatar:'🐺', rank:'Warlord of the North', mood:'😈', tier:'high',
     taunt:['I smell fear on you.','The wolves are hungry tonight.','Bow, or be broken.'],
     praise:['You have the wolf\'s instinct!','A cunning strike — rare.','You grow stronger.'] },
-  { name:'Baron', rating:1550, depth:4, timeMs:1100, blunder:0.02,
-    avatar:'🏰', rank:'Baron of the Marches', mood:'😐', tier:'high',
+  { name:'Baron', rating:1550, depth:4, timeMs:1100, blunder:0.02, avatar:'🏰', rank:'Baron of the Marches', mood:'😐', tier:'high',
     taunt:['My lands stretch beyond your sight.','Wealth buys many blades.','Kneel, peasant.'],
     praise:['A surprise, I admit.','You have ambition.','Impressive for a commoner.'] },
-  { name:'Viscount', rating:1650, depth:5, timeMs:1300, blunder:0.01,
-    avatar:'🦅', rank:'Viscount of the Sky', mood:'😏', tier:'high',
+  { name:'Viscount', rating:1650, depth:5, timeMs:1300, blunder:0.01, avatar:'🦅', rank:'Viscount of the Sky', mood:'😏', tier:'high',
     taunt:['My eye sees every opening.','Precision is my art.','You will fall elegantly.'],
     praise:['Keen eyes, warrior.','Your precision matches mine.','Interesting.'] },
-  { name:'Count', rating:1750, depth:5, timeMs:1500, blunder:0.005,
-    avatar:'👑', rank:'Count of the Realm', mood:'🧐', tier:'high',
+  { name:'Count', rating:1750, depth:5, timeMs:1500, blunder:0.005, avatar:'👑', rank:'Count of the Realm', mood:'🧐', tier:'high',
     taunt:['I have dissected your position.','Every line, every variation.','You play into my hand.'],
     praise:['A clever deviation!','You think like a Count.','Rare talent.'] },
-  { name:'Duke', rating:1850, depth:5, timeMs:1750, blunder:0.002,
-    avatar:'⚜️', rank:'Duke of the Empire', mood:'😤', tier:'high',
+  { name:'Duke', rating:1850, depth:5, timeMs:1750, blunder:0.002, avatar:'⚜️', rank:'Duke of the Empire', mood:'😤', tier:'high',
     taunt:['My position has never fallen.','I dictate the tempo.','You are already lost.'],
     praise:['Remarkable.','You have earned my respect.','A worthy foe.'] },
-  { name:'Prince', rating:1950, depth:6, timeMs:2000, blunder:0,
-    avatar:'👑', rank:'Heir to the Throne', mood:'😤', tier:'elite',
+  { name:'Prince', rating:1950, depth:6, timeMs:2000, blunder:0, avatar:'👑', rank:'Heir to the Throne', mood:'😤', tier:'elite',
     taunt:['I was bred for this.','The crown demands victory.','Your defeat is written.'],
     praise:['You fight with royal spirit!','A crown-worthy blow!','You surprise me.'] },
-  { name:'Archduke', rating:2050, depth:6, timeMs:2300, blunder:0,
-    avatar:'🦁', rank:'Archduke of the East', mood:'😠', tier:'elite',
+  { name:'Archduke', rating:2050, depth:6, timeMs:2300, blunder:0, avatar:'🦁', rank:'Archduke of the East', mood:'😠', tier:'elite',
     taunt:['I have conquered nations.','You are merely a stepping stone.','Feel the weight of history.'],
     praise:['You fight like a legend!','A dangerous mind.','I feel challenged.'] },
-  { name:'King', rating:2150, depth:6, timeMs:2600, blunder:0,
-    avatar:'🤴', rank:'Sovereign King', mood:'😤', tier:'elite',
+  { name:'King', rating:2150, depth:6, timeMs:2600, blunder:0, avatar:'🤴', rank:'Sovereign King', mood:'😤', tier:'elite',
     taunt:['My rule has never been questioned.','Kneel before your king.','You challenge a monarch.'],
     praise:['Well fought, subject.','You have earned a title.','I am impressed.'] },
-  { name:'Emperor', rating:2300, depth:7, timeMs:3000, blunder:0,
-    avatar:'🦁', rank:'Emperor of All', mood:'😠', tier:'legend',
+  { name:'Emperor', rating:2300, depth:7, timeMs:3000, blunder:0, avatar:'🦁', rank:'Emperor of All', mood:'😠', tier:'legend',
     taunt:['Empires tremble at my name.','I have ruled for a hundred years.','You are a speck of dust.'],
     praise:['You fight beyond your station.','A worthy general.','You have my attention.'] },
-  { name:'Grandmaster', rating:2500, depth:8, timeMs:3500, blunder:0,
-    avatar:'🌟', rank:'Grandmaster of Ages', mood:'🧙', tier:'legend',
+  { name:'Grandmaster', rating:2500, depth:8, timeMs:3500, blunder:0, avatar:'🌟', rank:'Grandmaster of Ages', mood:'🧙', tier:'legend',
     taunt:['I have seen the end of this game.','Every variation has a name — and yours is defeat.','Show me something new, child.'],
     praise:['You have touched greatness.','A move worthy of the archives.','You surprise even me.'] }
 ];
@@ -1499,6 +1485,8 @@ let currentEnvId = 'kingdom';
 let currentBotIdx = 5;
 let advisorComputeToken = 0;
 let cinematicActive = false;
+let timeScale = 1.0;
+let billboardMesh = null;
 
 /* ============================================================
    TWEENS
@@ -1547,6 +1535,8 @@ function sfx(kind){
     else if(kind === 'battlecry'){ o.type='sawtooth'; o.frequency.setValueAtTime(180,t); o.frequency.exponentialRampToValueAtTime(420,t+0.3); o.frequency.exponentialRampToValueAtTime(120,t+0.9); g.gain.setValueAtTime(0.14,t); g.gain.exponentialRampToValueAtTime(0.001,t+1.0); o.start(t); o.stop(t+1.05); }
     else if(kind === 'death'){ o.type='sawtooth'; o.frequency.setValueAtTime(220,t); o.frequency.exponentialRampToValueAtTime(40,t+1.6); g.gain.setValueAtTime(0.15,t); g.gain.exponentialRampToValueAtTime(0.001,t+1.7); o.start(t); o.stop(t+1.75); }
     else if(kind === 'victory'){ o.type='sine'; o.frequency.setValueAtTime(440,t); o.frequency.setValueAtTime(660,t+0.15); o.frequency.setValueAtTime(880,t+0.3); g.gain.setValueAtTime(0.10,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.9); o.start(t); o.stop(t+1.0); }
+    else if(kind === 'rumble'){ const n = noise(1.2); const ng = actx.createGain(); n.connect(ng); ng.connect(actx.destination); ng.gain.setValueAtTime(0.20,t); ng.gain.exponentialRampToValueAtTime(0.001,t+1.2); n.start(t); o.type='sawtooth'; o.frequency.setValueAtTime(80,t); o.frequency.exponentialRampToValueAtTime(30,t+1.0); g.gain.setValueAtTime(0.12,t); g.gain.exponentialRampToValueAtTime(0.001,t+1.1); o.start(t); o.stop(t+1.15); }
+    else if(kind === 'soul'){ o.type='sine'; o.frequency.setValueAtTime(320,t); o.frequency.exponentialRampToValueAtTime(660,t+1.2); o.frequency.exponentialRampToValueAtTime(440,t+2.4); g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.001,t+2.6); o.start(t); o.stop(t+2.7); }
   } catch(e){}
 }
 
@@ -1592,6 +1582,20 @@ function sparkBurst(pos, count, color, power=1){
       const d = spd*p*life;
       m.position.set(pos.x+dir.x*d, pos.y+dir.y*d-6*p*p*life*life, pos.z+dir.z*d);
       m.rotation.x += 0.4; m.rotation.y += 0.5; mat.opacity = 1-p; m.scale.setScalar(1-p*0.8);
+    }, () => { scene.remove(m); mat.dispose(); });
+  }
+}
+function bloodBurst(pos, count, power=1){
+  for (let i = 0; i < count; i++) {
+    const mat = new THREE.MeshBasicMaterial({ color: 0x8a0000, transparent:true, opacity:0.95 });
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 6), mat);
+    m.position.copy(pos); scene.add(m);
+    const dir = new THREE.Vector3(Math.random()-0.5, Math.random()*1.0+0.2, Math.random()-0.5).normalize();
+    const spd = (1.5 + Math.random()*3)*power; const life = 0.8 + Math.random()*0.9;
+    addTween(life, p => {
+      const d = spd*p*life;
+      m.position.set(pos.x+dir.x*d, pos.y+dir.y*d-8*p*p*life*life, pos.z+dir.z*d);
+      mat.opacity = 0.95*(1-p);
     }, () => { scene.remove(m); mat.dispose(); });
   }
 }
@@ -1878,34 +1882,28 @@ function updateStatus(){
 }
 
 /* ============================================================
-   AI ADVISOR (BOT COMMENTARY)
+   AI ADVISOR
    ============================================================ */
 function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
-
 function setAdvisorIdentity(bot){
   advisorAvatar.textContent = bot.avatar || '🧙';
   advisorName.textContent = bot.name;
   advisorRank.textContent = bot.rank || 'Voice of the Ancients';
   advisorMood.textContent = bot.mood || '😐';
 }
-
 function showAdvisor(type, text, mood){
   advisorEl.className = 'on ' + (type || 'speech');
   if (mood) advisorMood.textContent = mood;
   advisorBody.innerHTML = text;
   clearTimeout(advisorEl._hideTimer);
-  advisorEl._hideTimer = setTimeout(() => {
-    advisorEl.classList.remove('on');
-  }, type === 'taunt' ? 4500 : 6500);
+  advisorEl._hideTimer = setTimeout(() => { advisorEl.classList.remove('on'); }, type === 'taunt' ? 4500 : 6500);
 }
-
 function botOpeningSpeech(){
   const bot = BOT_LEVELS[currentBotIdx] || BOT_LEVELS[5];
   setAdvisorIdentity(bot);
   const line = pick(bot.taunt);
   showAdvisor('taunt', `<strong>${bot.name} speaks:</strong> <em>"${line}"</em>`, bot.mood);
 }
-
 async function analyzeMoveAsync(preSnapshot, playedMove, legal){
   const token = ++advisorComputeToken;
   await new Promise(r => setTimeout(r, 60));
@@ -1930,66 +1928,35 @@ async function analyzeMoveAsync(preSnapshot, playedMove, legal){
     const diff = best.sc - playedScore;
     const bestSan = toSAN(preSnapshot, best.m, legal);
     const bot = BOT_LEVELS[currentBotIdx] || BOT_LEVELS[5];
-
     if (token !== advisorComputeToken) return;
-
     if (diff <= 30 && playedEntry) {
-      if (Math.abs(best.sc) > 600) {
-        showAdvisor('excellent',
-          `<strong>${bot.name}:</strong> <em>"${pick(bot.praise)}"</em> Brilliant move — you found the strongest continuation.`,
-          '😲');
-      } else {
-        showAdvisor('excellent',
-          `<strong>${bot.name}:</strong> <em>"${pick(bot.praise)}"</em> That is exactly the best move.`,
-          '😮');
-      }
+      showAdvisor('excellent',
+        `<strong>${bot.name}:</strong> <em>"${pick(bot.praise)}"</em> That is exactly the best move.`, '😮');
       return;
     }
-
     if (diff > 260) {
-      showAdvisor('bad',
-        `<strong>${bot.name} laughs:</strong> <em>"Blunder!"</em><br>You should have played <strong>${bestSan}</strong> — that would have been much stronger.`,
-        '😂');
+      showAdvisor('bad', `<strong>${bot.name} laughs:</strong> <em>"Blunder!"</em><br>You should have played <strong>${bestSan}</strong> — much stronger.`, '😂');
       return;
     }
     if (diff > 130) {
-      showAdvisor('bad',
-        `<strong>${bot.name}:</strong> <em>"A costly mistake."</em><br>Better was <strong>${bestSan}</strong>.`,
-        '😏');
+      showAdvisor('bad', `<strong>${bot.name}:</strong> <em>"A costly mistake."</em><br>Better was <strong>${bestSan}</strong>.`, '😏');
       return;
     }
     if (diff > 60) {
-      showAdvisor('good',
-        `<strong>${bot.name}:</strong> <em>"Hmm, an inaccuracy."</em><br>A stronger idea was <strong>${bestSan}</strong>.`,
-        '🤔');
+      showAdvisor('good', `<strong>${bot.name}:</strong> <em>"Hmm, an inaccuracy."</em><br>A stronger idea was <strong>${bestSan}</strong>.`, '🤔');
       return;
     }
-
-    const genericGood = [
-      'A reasonable move. Nothing spectacular, but solid.',
-      'Decent choice. Keep the pressure up.',
-      'That works — though I saw a slightly sharper line.',
-      'Solid, if unambitious.'
-    ];
-    showAdvisor('good', `<strong>${bot.name}:</strong> ${pick(genericGood)}`, bot.mood);
-  } catch(e) { /* ignore analysis errors */ }
+    showAdvisor('good', `<strong>${bot.name}:</strong> A reasonable move.`, bot.mood);
+  } catch(e) {}
 }
-
 function commentOnCapture(isPlayer, pieceType, capturedType){
   const bot = BOT_LEVELS[currentBotIdx] || BOT_LEVELS[5];
   const pName = { [P]:'pawn', [N]:'knight', [B]:'bishop', [R]:'rook', [Q]:'queen', [K]:'king' }[capturedType] || 'piece';
-  if (isPlayer) {
-    const lines = [
-      `Ouch. My ${pName} is gone.`,
-      `You took my ${pName}! Bold.`,
-      `My ${pName} has fallen...`,
-      `A painful loss — my ${pName}.`,
-      `Ha! You will pay for my ${pName}.`
-    ];
-    if (bot.tier === 'low') showAdvisor('good', `<strong>${bot.name}:</strong> <em>"${pick(lines)}"</em>`, '😟');
+  if (isPlayer && bot.tier === 'low') {
+    const lines = [`Ouch. My ${pName} is gone.`, `You took my ${pName}! Bold.`, `My ${pName} has fallen...`, `A painful loss — my ${pName}.`];
+    showAdvisor('good', `<strong>${bot.name}:</strong> <em>"${pick(lines)}"</em>`, '😟');
   }
 }
-
 let clueTimer = 0;
 function showClue(text, sub){
   clueMain.textContent = 'CLUE!';
@@ -2022,7 +1989,7 @@ function scanForCheckmateInOne(st, forColor){
 }
 
 /* ============================================================
-   WALK / ATTACK ANIMATIONS
+   WALK / ATTACK
    ============================================================ */
 async function animateWalk(obj, from, to, move){
   const start = squarePos(from), end = squarePos(to);
@@ -2161,15 +2128,18 @@ function fxThroneSeized(sq, winner){
 }
 
 /* ============================================================
-   CINEMATIC CHECKMATE
+   CINEMATIC — LONG CHECKMATE
    ============================================================ */
 const cinemaEl = document.getElementById('cinema');
 const cinemaBarsTop = document.getElementById('cinemaBarsTop');
 const cinemaBarsBot = document.getElementById('cinemaBarsBot');
 const speechEl = document.getElementById('speechBubble');
 
-function showSpeech(text, x, y, dark){
-  speechEl.textContent = text;
+function showSpeech(speaker, text, worldPos, dark){
+  const sp = worldToScreen(worldPos);
+  const x = Math.max(20, Math.min(window.innerWidth - 340, sp.x - 140));
+  const y = Math.max(90, Math.min(window.innerHeight - 200, sp.y - 90));
+  speechEl.innerHTML = speaker ? `<span class="speaker">${speaker}</span>${text}` : text;
   speechEl.style.left = x + 'px';
   speechEl.style.top = y + 'px';
   speechEl.classList.toggle('dark', !!dark);
@@ -2181,8 +2151,14 @@ function hideCinema(){
   cinemaBarsTop.classList.remove('on');
   cinemaBarsBot.classList.remove('on');
   hideSpeech();
+  timeScale = 1.0;
+  if (billboardMesh) {
+    scene.remove(billboardMesh);
+    billboardMesh.geometry.dispose();
+    billboardMesh.material.dispose();
+    billboardMesh = null;
+  }
 }
-
 function worldToScreen(v3){
   const v = v3.clone().project(camera);
   return {
@@ -2190,203 +2166,422 @@ function worldToScreen(v3){
     y: (-v.y * 0.5 + 0.5) * window.innerHeight
   };
 }
+function computeRatingPreview(winnerColor){
+  const botRating = BOT_LEVELS[currentBotIdx].rating;
+  let score = 0.5;
+  if (winnerColor === playerColor) score = 1;
+  else if (winnerColor === aiColor) score = 0;
+  const oldR = pRating;
+  const exp = 1 / (1 + Math.pow(10, (botRating - pRating) / 400));
+  const newR = Math.max(100, Math.round(pRating + 32 * (score - exp)));
+  const delta = newR - oldR;
+  let coinGain = 0;
+  if (winnerColor === playerColor) coinGain = Math.round(botRating / 6);
+  else if (winnerColor === aiColor) coinGain = Math.round(botRating / 20);
+  else coinGain = Math.round(botRating / 12);
+  let title = 'Stalemate', icon = '⚖️', desc = 'Neither kingdom could claim victory.';
+  if (winnerColor === playerColor) { title = 'Victory'; icon = '👑'; desc = 'The enemy king has fallen.'; }
+  else if (winnerColor === aiColor) { title = 'Defeat'; icon = '💀'; desc = 'Your king has fallen in battle.'; }
+  return { oldR, newR, delta, coinGain, title, icon, desc, botRating };
+}
 
-async function playCheckmateCinematic(loserColor){
+async function playCheckmateCinematic(loserColor, attackerMove){
   cinematicActive = true;
+  const winnerColor = -loserColor;
+  const preview = computeRatingPreview(winnerColor);
   const bot = BOT_LEVELS[currentBotIdx] || BOT_LEVELS[5];
-  const tier = bot.tier || 'mid';
 
   cinemaEl.classList.add('on');
   cinemaBarsTop.classList.add('on');
   cinemaBarsBot.classList.add('on');
   controls.enabled = false;
 
-  const kingSq = gameState.kings[loserColor === WHITE ? 0 : 1];
-  const kingMesh = meshAt[kingSq];
-  const kingPos = squarePos(kingSq);
+  const winnerKingSq = gameState.kings[winnerColor === WHITE ? 0 : 1];
+  const loserKingSq = gameState.kings[loserColor === WHITE ? 0 : 1];
+  const winnerKingMesh = meshAt[winnerKingSq];
+  const loserKingMesh = meshAt[loserKingSq];
+  const attackerSq = attackerMove.to;
+  const attackerMesh = meshAt[attackerSq];
 
-  const winnerColor = -loserColor;
-  let duelistSq = -1;
-  let bestDist = Infinity;
-  for (let i = 0; i < 64; i++) {
-    if (meshAt[i] && Math.sign(gameState.board[i]) === winnerColor) {
-      const d = squarePos(i).distanceTo(kingPos);
-      if (d < bestDist) { bestDist = d; duelistSq = i; }
-    }
-  }
-  const duelist = duelistSq >= 0 ? meshAt[duelistSq] : null;
+  const wPos = squarePos(winnerKingSq);
+  const lPos = squarePos(loserKingSq);
 
+  /* ---------- Phase 1: cinematic camera sweep ---------- */
+  const midX = (wPos.x + lPos.x) / 2;
+  const midZ = (wPos.z + lPos.z) / 2;
   const camStart = camera.position.clone();
-  const camEnd = new THREE.Vector3(kingPos.x + 2.2, kingPos.y + 2.6, kingPos.z + 3.4);
+  const camWide = new THREE.Vector3(midX + 6.5, 8, midZ + 7);
+  const targetWide = new THREE.Vector3(midX, 0.8, midZ);
   const targetStart = controls.target.clone();
-  const targetEnd = new THREE.Vector3(kingPos.x, kingPos.y + 0.8, kingPos.z);
-  await addTween(1.4, p => {
+  await addTween(1.8, p => {
     const e = easeInOutQuad(p);
-    camera.position.lerpVectors(camStart, camEnd, e);
-    controls.target.lerpVectors(targetStart, targetEnd, e);
+    camera.position.lerpVectors(camStart, camWide, e);
+    controls.target.lerpVectors(targetStart, targetWide, e);
     camera.lookAt(controls.target);
   });
 
-  if (kingMesh) {
-    const s = worldToScreen(new THREE.Vector3(kingPos.x, kingPos.y + 1.9, kingPos.z));
-    const battleCries = {
-      low: ['Aaaah!', 'For the village!', 'W-wait, let\'s talk!', 'I can do this!'],
-      mid: ['For honor!', 'You will not take me!', 'I fight to the end!', 'Have at thee!'],
-      high: ['You dare?', 'I am your better!', 'Face me, coward!', 'Death before surrender!'],
-      elite: ['You will learn your place!', 'I am eternal!', 'Kneel!', 'This ends now!'],
-      legend: ['Only the worthy shall rule.', 'Witness true power.', 'The throne is mine.']
-    };
-    const cry = pick(battleCries[tier] || battleCries.mid);
-    showSpeech(cry, s.x - 80, s.y - 40, false);
-    sfx('battlecry');
-    await new Promise(r => setTimeout(r, 700));
-    hideSpeech();
-  }
+  /* ---------- Phase 2: dialogue between kings ---------- */
+  const winnerPos = new THREE.Vector3(wPos.x, wPos.y + 2.1, wPos.z);
+  const loserPos  = new THREE.Vector3(lPos.x, lPos.y + 2.1, lPos.z);
+  const winnerSpeaker = winnerColor === WHITE ? 'Ivory King' : 'Obsidian King';
+  const loserSpeaker  = loserColor === WHITE ? 'Ivory King' : 'Obsidian King';
 
-  if (kingMesh) {
-    await addTween(0.55, p => {
-      const e = easeOutCubic(p);
-      kingMesh.position.y = kingPos.y + e * 0.35;
-      kingMesh.rotation.x = -e * 0.25;
-    });
-  }
+  // Winner opens
+  showSpeech(winnerSpeaker, '"Surrender, king. The kingdom is ours now."', winnerPos, false);
+  sfx('battlecry');
+  await new Promise(r => setTimeout(r, 2600));
+  hideSpeech();
+  await new Promise(r => setTimeout(r, 250));
 
-  const exchanges = tier === 'low' ? 1 : tier === 'mid' ? 2 : tier === 'high' ? 3 : tier === 'elite' ? 4 : 5;
+  // Loser taunts
+  showSpeech(loserSpeaker, '"Look at your cowardly king! Can\'t tell his army to kill me!"', loserPos, false);
+  await new Promise(r => setTimeout(r, 3000));
+  hideSpeech();
+  await new Promise(r => setTimeout(r, 250));
 
-  for (let i = 0; i < exchanges; i++) {
-    if (kingMesh && duelist) {
-      const strike = new THREE.Vector3(
-        (duelist.position.x - kingMesh.position.x) * 0.55,
-        0.18,
-        (duelist.position.z - kingMesh.position.z) * 0.55
-      );
-      const startK = kingMesh.position.clone();
-      const startR = kingMesh.rotation.x;
-      await addTween(0.20, p => {
-        const e = easeInOutQuad(p);
-        kingMesh.position.x = startK.x + strike.x * e;
-        kingMesh.position.z = startK.z + strike.z * e;
-        kingMesh.position.y = startK.y + Math.sin(p * Math.PI) * 0.15;
-        kingMesh.rotation.x = startR - Math.sin(p * Math.PI) * 0.35;
-      });
-      sfx('clang');
-      const mid = new THREE.Vector3(
-        (kingMesh.position.x + duelist.position.x) / 2,
-        0.9,
-        (kingMesh.position.z + duelist.position.z) / 2
-      );
-      sparkBurst(mid, 14, 0xffe08a, 1.0);
-      await addTween(0.18, p => {
-        const e = easeOutQuad(p);
-        kingMesh.position.x = startK.x + strike.x * (1 - e);
-        kingMesh.position.z = startK.z + strike.z * (1 - e);
-        kingMesh.position.y = startK.y + 0.35 * e;
-        kingMesh.rotation.x = startR;
-      });
-    }
-  }
+  // Winner replies
+  showSpeech(winnerSpeaker, '"I can tell that! You want it?"', winnerPos, false);
+  await new Promise(r => setTimeout(r, 2400));
+  hideSpeech();
+  await new Promise(r => setTimeout(r, 250));
 
-  screenFlash('rgba(255,40,20,.7)', 0.4, 1.0);
-  shake(0.7, 0.6);
-  sfx('impact');
-  const impactPos = kingMesh ? kingMesh.position.clone() : kingPos.clone();
-  sparkBurst(impactPos.clone().setY(impactPos.y + 0.7), 50, 0xffb347, 1.8);
-  dustBurst(impactPos, 40, 0x9a7a5a, 1.8);
-  shockwave(impactPos, 0xff1e0a, 6, 1.2);
-  setTimeout(() => shockwave(impactPos, 0xff8040, 8, 1.4), 160);
-
-  if (kingMesh) {
-    await addTween(0.35, p => {
-      const e = easeOutCubic(p);
-      kingMesh.position.y = impactPos.y + 0.15 * (1 - e) - 0.10 * e;
-      kingMesh.rotation.x = -0.4 * e;
-      kingMesh.rotation.z = 0.25 * e;
-      kingMesh.scale.setScalar(1 - 0.05 * e);
-    });
-    await new Promise(r => setTimeout(r, 200));
-    await addTween(1.0, p => {
-      const e = easeInQuad(p);
-      kingMesh.rotation.z = 0.25 + e * Math.PI * 0.55;
-      kingMesh.rotation.x = -0.4 - e * 0.35;
-      kingMesh.position.y = impactPos.y + 0.05 - e * 0.30;
-      kingMesh.position.x = impactPos.x + e * 0.20;
-    });
-    sfx('death');
-  }
-
-  if (kingMesh) {
-    const swordMat = new THREE.MeshStandardMaterial({
-      color: 0xd8a94a, roughness: 0.3, metalness: 0.95,
-      emissive: 0x3a1a00, emissiveIntensity: 0.4
-    });
-    const sword = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.82, 0.02), swordMat);
-    sword.position.copy(kingMesh.position).add(new THREE.Vector3(0.1, 0.6, 0.1));
-    sword.castShadow = true;
-    scene.add(sword);
-    const sv0 = sword.position.clone();
-    const spinR = Math.random() * Math.PI * 2;
-    await addTween(1.1, p => {
-      sword.position.y = sv0.y - p * 1.2;
-      sword.position.x = sv0.x + Math.sin(p * Math.PI * 2) * 0.35;
-      sword.position.z = sv0.z + Math.cos(p * Math.PI * 2) * 0.35;
-      sword.rotation.z = spinR + p * Math.PI * 3;
-      sword.rotation.x = p * Math.PI;
-    }, () => {
-      addTween(0.35, p => {
-        sword.rotation.z += 0.03;
-        sword.position.y = sv0.y - 1.2 + Math.sin(p * Math.PI) * 0.05;
-      }, () => {
-        scene.remove(sword);
-        sword.geometry.dispose();
-        sword.material.dispose();
-      });
-    });
-  }
-
+  // Loser final challenge
+  showSpeech(loserSpeaker, '"Do it if you can, loser!"', loserPos, false);
+  await new Promise(r => setTimeout(r, 2400));
+  hideSpeech();
   await new Promise(r => setTimeout(r, 400));
 
-  const lossLines = {
-    low:    ['I lost...', 'B-but my crops!', 'I yield...'],
-    mid:    ['I lost...', 'You were the better warrior.', 'I yield to you.'],
-    high:   ['I... I lost.', 'This cannot be...', 'You have bested me.'],
-    elite:  ['Impossible... I lost.', 'My crown... falls.', 'You are worthy.'],
-    legend: ['I lost...', 'The ages will remember this.', 'You are the true sovereign.']
-  };
-  const line = pick(lossLines[tier] || lossLines.mid);
-  const speechPos = worldToScreen(
-    new THREE.Vector3(
-      (kingMesh ? kingMesh.position.x : kingPos.x) - 0.2,
-      (kingMesh ? kingMesh.position.y : kingPos.y) + 0.6,
-      (kingMesh ? kingMesh.position.z : kingPos.z) + 0.5
-    )
+  /* ---------- Phase 3: slow-motion mega stunt kill ---------- */
+  // Zoom camera closer for the kill
+  const attackerPosNow = attackerMesh ? attackerMesh.position.clone() : squarePos(attackerSq);
+  const camKill = new THREE.Vector3(
+    (attackerPosNow.x + lPos.x) / 2 + 4,
+    4.5,
+    (attackerPosNow.z + lPos.z) / 2 + 5
   );
-  showSpeech(line, speechPos.x - 90, speechPos.y - 40, true);
-
-  const camStart2 = camera.position.clone();
-  const camEnd2 = new THREE.Vector3(
-    (kingMesh ? kingMesh.position.x : kingPos.x) + 1.6,
-    1.4,
-    (kingMesh ? kingMesh.position.z : kingPos.z) + 2.4
+  const camKillStart = camera.position.clone();
+  const targetKill = new THREE.Vector3(
+    (attackerPosNow.x + lPos.x) / 2,
+    0.9,
+    (attackerPosNow.z + lPos.z) / 2
   );
-  await addTween(2.0, p => {
+  const targetKillStart = controls.target.clone();
+  await addTween(1.2, p => {
     const e = easeInOutQuad(p);
-    camera.position.lerpVectors(camStart2, camEnd2, e);
-    controls.target.lerp(new THREE.Vector3(
-      kingMesh ? kingMesh.position.x : kingPos.x,
-      0.4,
-      kingMesh ? kingMesh.position.z : kingPos.z
-    ), 0.10);
+    camera.position.lerpVectors(camKillStart, camKill, e);
+    controls.target.lerpVectors(targetKillStart, targetKill, e);
     camera.lookAt(controls.target);
   });
 
-  await new Promise(r => setTimeout(r, 1200));
-  hideSpeech();
+  // SLOW MOTION begins
+  timeScale = 0.3;
 
+  if (attackerMesh) {
+    const startPos = attackerMesh.position.clone();
+    const endPos = new THREE.Vector3(lPos.x, lPos.y + 0.6, lPos.z);
+    const dir = new THREE.Vector3().subVectors(endPos, startPos).normalize();
+
+    // Phase 3a: attacker crouches and winds up
+    await addTween(0.6, p => {
+      const e = easeOutCubic(p);
+      attackerMesh.position.y = startPos.y + 0.1 * e;
+      attackerMesh.rotation.x = -0.3 * e;
+      attackerMesh.scale.set(1 + 0.15 * e, 1 - 0.15 * e, 1 + 0.15 * e);
+    });
+
+    // Phase 3b: leap high in the air (huge mega stunt leap)
+    const leapStart = attackerMesh.position.clone();
+    const leapPeak = new THREE.Vector3(
+      startPos.x + dir.x * 1.2,
+      startPos.y + 5.5,
+      startPos.z + dir.z * 1.2
+    );
+    const baseRotY = attackerMesh.userData.baseRotY ?? 0;
+    await addTween(2.0, p => {
+      const e = easeOutCubic(p);
+      attackerMesh.position.x = leapStart.x + (leapPeak.x - leapStart.x) * e;
+      attackerMesh.position.z = leapStart.z + (leapPeak.z - leapStart.z) * e;
+      attackerMesh.position.y = leapStart.y + Math.sin(p * Math.PI * 0.5) * 5.5;
+      attackerMesh.rotation.y = baseRotY + p * Math.PI * 3;
+      attackerMesh.rotation.x = -0.3 + p * 0.5;
+      attackerMesh.scale.set(1.15 - p * 0.15, 0.85 + p * 0.3, 1.15 - p * 0.15);
+    });
+
+    // Phase 3c: brief hover at the peak (dramatic pause)
+    await new Promise(r => setTimeout(r, 500));
+
+    // Phase 3d: crash down onto the loser king with a spinning attack
+    const crashStart = attackerMesh.position.clone();
+    const crashEnd = endPos.clone();
+    await addTween(1.4, p => {
+      const e = easeInQuad(p);
+      attackerMesh.position.lerpVectors(crashStart, crashEnd, e);
+      attackerMesh.position.y += (1 - e) * 0.8;
+      attackerMesh.rotation.y = baseRotY + Math.PI * 3 + e * Math.PI * 4;
+      attackerMesh.rotation.x = 0.2 - e * 1.5;
+      attackerMesh.rotation.z = e * Math.PI * 2;
+    });
+
+    // IMPACT
+    sfx('impact');
+    sfx('rumble');
+    screenFlash('rgba(255,40,20,.9)', 0.9, 1.0);
+    shake(1.5, 1.2);
+    sparkBurst(crashEnd.clone().setY(crashEnd.y + 0.3), 100, 0xffb347, 2.8);
+    dustBurst(crashEnd, 80, 0x9a7a5a, 3.0);
+    bloodBurst(crashEnd.clone().setY(crashEnd.y + 0.2), 30, 1.8);
+    shockwave(crashEnd, 0xff1e0a, 9, 1.6);
+    setTimeout(() => shockwave(crashEnd, 0xff8040, 13, 1.9), 200);
+    setTimeout(() => shockwave(crashEnd, 0xffcc66, 17, 2.2), 400);
+
+    // Restore time scale slowly — slow-mo lingers
+    timeScale = 0.5;
+    await new Promise(r => setTimeout(r, 600));
+    timeScale = 1.0;
+
+    // Loser king shatters
+    if (loserKingMesh) {
+      shatterPiece(loserKingMesh);
+      meshAt[loserKingSq] = null;
+    }
+    await new Promise(r => setTimeout(r, 700));
+  } else if (loserKingMesh) {
+    // Fallback if no attacker mesh: just shatter the king
+    shatterPiece(loserKingMesh);
+    meshAt[loserKingSq] = null;
+    sfx('impact');
+    screenFlash('rgba(255,40,20,.7)', 0.6, 1.0);
+    shake(1.0, 0.8);
+  }
+
+  /* ---------- Phase 4: all losing pieces fall + board shake ---------- */
+  const lossSquares = [];
+  for (let i = 0; i < 64; i++) {
+    if (meshAt[i] && Math.sign(gameState.board[i]) === loserColor) {
+      lossSquares.push(i);
+    }
+  }
+  const fallPromises = [];
+  for (const sq of lossSquares) {
+    const obj = meshAt[sq];
+    if (!obj) continue;
+    const delay = Math.random() * 0.6;
+    const dirX = (Math.random() - 0.5) * 0.9;
+    const dirZ = (Math.random() - 0.5) * 0.9;
+    const spinX = (Math.random() - 0.5) * 3.5;
+    const spinZ = (Math.random() - 0.5) * 3.5;
+    const startY = obj.position.y;
+    const startRX = obj.rotation.x;
+    const startRZ = obj.rotation.z;
+    fallPromises.push((async () => {
+      await new Promise(r => setTimeout(r, delay * 1000));
+      await addTween(0.9, p => {
+        const e = easeInQuad(p);
+        obj.position.x += dirX * e * 0.5;
+        obj.position.z += dirZ * e * 0.5;
+        obj.position.y = startY - e * 0.55;
+        obj.rotation.x = startRX + spinX * e;
+        obj.rotation.z = startRZ + spinZ * e;
+      });
+    })());
+  }
+  await Promise.all(fallPromises);
+
+  // Violent board shake
+  sfx('rumble');
+  shake(1.4, 1.5);
+  screenFlash('rgba(120,40,20,.4)', 1.0, 0.7);
+  dustBurst(new THREE.Vector3(0, 0.2, 0), 60, 0xa88868, 2.0);
+  await new Promise(r => setTimeout(r, 1200));
+
+  /* ---------- Phase 5: soul rises with blood ---------- */
+  sfx('soul');
+  const soulOrigin = new THREE.Vector3(lPos.x, lPos.y + 0.4, lPos.z);
+
+  // Soul group
+  const soulGroup = new THREE.Group();
+  const soulMat = new THREE.MeshBasicMaterial({
+    color: 0xffdddd, transparent: true, opacity: 0.9,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const soulBody = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 16), soulMat);
+  soulBody.scale.set(1, 1.5, 1);
+  soulGroup.add(soulBody);
+  // Crown shape
+  const soulCrown = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.35, 8), soulMat);
+  soulCrown.position.y = 0.65;
+  soulGroup.add(soulCrown);
+  // Trailing wisps
+  for (let i = 0; i < 8; i++) {
+    const wisp = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), soulMat);
+    wisp.position.set(
+      (Math.random() - 0.5) * 0.4,
+      -0.3 - i * 0.15,
+      (Math.random() - 0.5) * 0.4
+    );
+    soulGroup.add(wisp);
+  }
+  soulGroup.position.copy(soulOrigin);
+  scene.add(soulGroup);
+
+  // Camera follows the soul — pull back and up slightly
+  const camSoulStart = camera.position.clone();
+  const camSoul = new THREE.Vector3(soulOrigin.x + 3.5, 4.5, soulOrigin.z + 4.5);
+  const targetSoulStart = controls.target.clone();
+  const targetSoul = new THREE.Vector3(soulOrigin.x, soulOrigin.y + 1.5, soulOrigin.z);
+  const camPromise = addTween(2.2, p => {
+    const e = easeInOutQuad(p);
+    camera.position.lerpVectors(camSoulStart, camSoul, e);
+    controls.target.lerpVectors(targetSoulStart, targetSoul, e);
+    camera.lookAt(controls.target);
+  });
+
+  // Continuous blood spray during rise
+  let bloodInterval = setInterval(() => {
+    bloodBurst(soulGroup.position.clone(), 4, 1.2);
+  }, 180);
+
+  // Soul rises slowly
+  const riseStart = soulGroup.position.clone();
+  await addTween(3.2, p => {
+    const e = easeOutCubic(p);
+    soulGroup.position.y = riseStart.y + e * 4.5;
+    soulGroup.rotation.y += 0.015;
+    soulMat.opacity = 0.9 - e * 0.15;
+  });
+  clearInterval(bloodInterval);
+  await camPromise;
+
+  await new Promise(r => setTimeout(r, 500));
+
+  /* ---------- Phase 6: soul → billboard ---------- */
+  // Build billboard canvas texture
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 560;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  const grad = ctx.createLinearGradient(0, 0, 0, 560);
+  grad.addColorStop(0, 'rgba(40, 26, 14, 0.96)');
+  grad.addColorStop(1, 'rgba(14, 8, 4, 0.98)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1024, 560);
+
+  // Gold border
+  ctx.strokeStyle = '#e0b464';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(24, 24, 976, 512);
+  ctx.strokeStyle = '#a8834a';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(44, 44, 936, 472);
+
+  // Icon
+  ctx.font = 'bold 72px "Cinzel", Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffe7ae';
+  ctx.fillText(preview.icon, 512, 130);
+
+  // Title
+  ctx.font = 'bold 56px "Cinzel", Georgia, serif';
+  ctx.fillStyle = '#ffe7ae';
+  ctx.fillText(preview.title.toUpperCase(), 512, 210);
+
+  // Divider
+  ctx.strokeStyle = 'rgba(224,180,100,.4)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(180, 240);
+  ctx.lineTo(844, 240);
+  ctx.stroke();
+
+  // Rating line
+  ctx.font = '30px "Cinzel", Georgia, serif';
+  ctx.fillStyle = '#f3e6cc';
+  ctx.fillText(`Rating   ${preview.oldR}   →   ${preview.newR}`, 512, 310);
+
+  // Delta
+  ctx.font = 'bold 52px "Cinzel", Georgia, serif';
+  ctx.fillStyle = preview.delta > 0 ? '#7fd48a' : preview.delta < 0 ? '#e8664a' : '#bda684';
+  ctx.fillText(`${preview.delta > 0 ? '+' : ''}${preview.delta}`, 512, 380);
+
+  // Coins
+  ctx.font = '32px "Cinzel", Georgia, serif';
+  ctx.fillStyle = '#e0b464';
+  ctx.fillText(`◆  ${preview.coinGain} Coins Earned  ◆`, 512, 445);
+
+  // Desc
+  ctx.font = 'italic 22px "Spectral", Georgia, serif';
+  ctx.fillStyle = '#bda684';
+  ctx.fillText(preview.desc, 512, 500);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const billboardMat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0, side: THREE.DoubleSide });
+  const billboard = new THREE.Mesh(new THREE.PlaneGeometry(9, 4.9), billboardMat);
+  billboard.position.copy(soulGroup.position);
+  billboard.userData.billboard = true;
+  scene.add(billboard);
+  billboardMesh = billboard;
+
+  // Cross-fade soul → billboard
+  await addTween(1.0, p => {
+    const e = easeOutCubic(p);
+    soulGroup.scale.setScalar(1 - e * 0.95);
+    soulMat.opacity = 0.75 * (1 - e);
+    billboardMat.opacity = e;
+    billboard.scale.setScalar(0.3 + e * 0.7);
+  }, () => {
+    scene.remove(soulGroup);
+    soulGroup.traverse(o => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) o.material.dispose();
+    });
+  });
+
+  // Billboard gently bobs while visible
+  const bbBaseY = billboard.position.y;
+  const bobPromise = (async () => {
+    for (let i = 0; i < 20; i++) {
+      await new Promise(r => setTimeout(r, 100));
+      if (billboardMesh !== billboard) return;
+      billboard.position.y = bbBaseY + Math.sin(pulseT * 1.5) * 0.15;
+    }
+  })();
+
+  // Slow zoom on billboard
+  const camBillStart = camera.position.clone();
+  const camBill = new THREE.Vector3(soulOrigin.x + 0.5, soulOrigin.y + 5.5, soulOrigin.z + 6.5);
+  const targetBillStart = controls.target.clone();
+  const targetBill = new THREE.Vector3(soulOrigin.x, billboard.position.y, soulOrigin.z);
+  await addTween(1.5, p => {
+    const e = easeInOutQuad(p);
+    camera.position.lerpVectors(camBillStart, camBill, e);
+    controls.target.lerpVectors(targetBillStart, targetBill, e);
+    camera.lookAt(controls.target);
+  });
+
+  // Hold on billboard for a few seconds
+  await new Promise(r => setTimeout(r, 3500));
+  void bobPromise;
+
+  // Fade out billboard
+  await addTween(1.0, p => {
+    billboardMat.opacity = 1 - p;
+  }, () => {
+    scene.remove(billboard);
+    billboard.geometry.dispose();
+    billboard.material.dispose();
+    if (billboardMesh === billboard) billboardMesh = null;
+  });
+
+  /* ---------- Cleanup ---------- */
   cinemaEl.classList.remove('on');
   cinemaBarsTop.classList.remove('on');
   cinemaBarsBot.classList.remove('on');
   controls.enabled = true;
   cinematicActive = false;
+  timeScale = 1.0;
 }
 
 /* ============================================================
@@ -2454,7 +2649,7 @@ async function performMove(move){
   refreshHighlights(); updateStatus(); updateThroneAlert();
 
   if (isMate) {
-    await playCheckmateCinematic(st.turn);
+    await playCheckmateCinematic(st.turn, move);
   } else {
     if (givingCheck) fxCheck(st.kings[st.turn === WHITE ? 0 : 1]);
     if (forkTargets) fxFork(to, forkTargets);
@@ -2906,6 +3101,7 @@ document.getElementById('endProfile').onclick = () => {
 function newGame(){
   tweens.length = 0;
   advisorComputeToken++;
+  timeScale = 1.0;
   clearMarkers(); clearPieceMeshes();
   gameState = createState();
   allMoves = []; sanList = []; lastMove = null;
@@ -2984,8 +3180,9 @@ const clock = new THREE.Clock();
 const shakeOff = new THREE.Vector3();
 function animate(){
   requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), 0.05);
-  pulseT += dt;
+  const rawDt = Math.min(clock.getDelta(), 0.05);
+  pulseT += rawDt;
+  const dt = rawDt * timeScale;
   for (let i = tweens.length - 1; i >= 0; i--) {
     const tw = tweens[i]; tw.t += dt;
     const p = Math.min(1, tw.t / tw.dur);
@@ -2999,6 +3196,12 @@ function animate(){
     t.flame.material.opacity = 0.7 + f*0.3;
   }
   skyDome.position.copy(camera.position);
+
+  // Billboard faces camera
+  if (billboardMesh) {
+    billboardMesh.lookAt(camera.position);
+  }
+
   if (!busy && !gameOver && !cinematicActive && hudEl.classList.contains('on')) {
     for (let i = 0; i < 64; i++) {
       const obj = meshAt[i]; if (!obj) continue;
@@ -3009,7 +3212,7 @@ function animate(){
   }
   if (!gameOver && inCheck(gameState, gameState.turn)) refreshHighlights();
   if (shakeTime > 0) {
-    shakeTime -= dt;
+    shakeTime -= rawDt;
     const k = Math.max(0, shakeTime) * shakeAmt;
     shakeOff.set((Math.random()-0.5)*k, (Math.random()-0.5)*k, (Math.random()-0.5)*k);
     if (shakeTime <= 0) { shakeAmt = 0; shakeOff.set(0,0,0); }
@@ -3026,13 +3229,14 @@ window.addEventListener('resize', () => {
 });
 
 /* ============================================================
-   WEBGL CONTEXT LOSS PROTECTION
+   WEBGL CONTEXT LOSS
    ============================================================ */
 renderer.domElement.addEventListener('webglcontextlost', e => {
   e.preventDefault();
   console.warn('WebGL context lost — recovering…');
   tweens.length = 0;
   cinematicActive = false;
+  timeScale = 1.0;
   hideCinema();
 });
 renderer.domElement.addEventListener('webglcontextrestored', () => {
