@@ -113,7 +113,6 @@ button.ctl{font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spac
 button.ctl:hover{background:rgba(255,225,170,.18);transform:translateY(-1px);}
 button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(160,110,50,.3));border-color:rgba(224,180,100,.55);}
 
-/* ============ ADVISOR (AI BOT COMMENTATOR) ============ */
 #advisor{
   position:absolute;bottom:88px;left:50%;transform:translateX(-50%) translateY(24px) scale(.94);
   max-width:560px;min-width:340px;padding:0;border-radius:16px;
@@ -145,11 +144,6 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
 #advisorBody{padding:12px 16px 14px;font-size:13px;line-height:1.55;color:var(--parch);}
 #advisorBody strong{color:var(--gold);font-weight:700;}
 #advisorBody em{color:#ffe7ae;font-style:normal;font-weight:600;}
-#advisorTail{
-  position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);
-  width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;
-  border-top:9px solid var(--border);display:none;
-}
 #advisor.good{border-color:rgba(127,212,138,.65);}
 #advisor.good #advisorAvatar{filter:drop-shadow(0 0 14px rgba(127,212,138,.75));}
 #advisor.excellent{border-color:rgba(255,210,74,.75);box-shadow:0 16px 48px rgba(0,0,0,.8), 0 0 30px rgba(255,210,74,.3);}
@@ -160,7 +154,6 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
 #advisor.taunt #advisorAvatar{filter:drop-shadow(0 0 16px rgba(220,60,80,.85));}
 #advisor.speech{border-color:rgba(224,180,100,.7);}
 
-/* ============ CLUE ============ */
 #clue{
   position:absolute;top:20%;left:50%;transform:translateX(-50%) scale(.55) rotate(-8deg);
   font-family:'Cinzel',serif;font-size:32px;font-weight:900;letter-spacing:8px;
@@ -188,23 +181,20 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   letter-spacing:4px;text-transform:uppercase;color:rgba(244,230,200,.7);padding:6px 16px;border-radius:20px;
   background:rgba(20,14,8,.5);border:1px solid rgba(224,180,100,.2);backdrop-filter:blur(8px);}
 
-/* ============ CINEMATIC OVERLAY ============ */
 #cinema{
   position:fixed;inset:0;pointer-events:none;z-index:45;
   background:radial-gradient(ellipse at 50% 50%, transparent 0%, rgba(0,0,0,.85) 80%);
   opacity:0;transition:opacity .6s ease;
 }
 #cinema.on{opacity:1;}
-#cinemaBars{
-  position:fixed;left:0;right:0;pointer-events:none;z-index:46;
-  height:0;background:#000;transition:height .5s ease;
+#cinemaBarsTop, #cinemaBarsBot {
+  position: fixed; left: 0; right: 0; pointer-events: none; z-index: 46;
+  height: 0; background: #000; transition: height .5s ease;
 }
-#cinemaBars.top{top:0;}
-#cinemaBars.bot{bottom:0;}
-#cinemaBars.top.on{height:70px;}
-#cinemaBars.bot.on{height:70px;}
+#cinemaBarsTop { top: 0; }
+#cinemaBarsBot { bottom: 0; }
+#cinemaBarsTop.on, #cinemaBarsBot.on { height: 70px; }
 
-/* Speech bubble */
 #speechBubble{
   position:absolute;z-index:47;padding:10px 16px;border-radius:14px;
   background:rgba(255,245,220,.96);color:#2a1a0a;
@@ -338,13 +328,11 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
 <div id="loading"><div id="loadingText">Forging the Ancient World…</div></div>
 <div id="canvas-wrap"></div>
 
-<!-- Cinematic overlays -->
-<div id="cinemaBars" class="top"></div>
-<div id="cinemaBars" class="bot"></div>
+<div id="cinemaBarsTop"></div>
+<div id="cinemaBarsBot"></div>
 <div id="cinema"></div>
 <div id="speechBubble"></div>
 
-<!-- ================= HUD ================= -->
 <div id="hud">
   <div id="envName">Ancient Kingdom</div>
 
@@ -382,7 +370,6 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   <div id="throneAlert"></div>
   <div id="clue"><div id="clueMain">CLUE!</div><div id="clueSub"></div></div>
 
-  <!-- AI BOT ADVISOR -->
   <div id="advisor">
     <div id="advisorHead">
       <div id="advisorAvatar">🧙</div>
@@ -399,7 +386,6 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
 <div id="flash"></div>
 <div id="vignette"></div>
 
-<!-- ================= COVER ================= -->
 <div id="screen-cover" class="screen active">
   <div id="cover-user"></div>
   <div id="cover-content">
@@ -417,10 +403,9 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
       <button class="cover-btn ghost" id="covLogin">🔑 Sign In</button>
     </div>
   </div>
-  <div id="cover-footer">v1.1 · The Oracle Awaits</div>
+  <div id="cover-footer">v1.2 · The Oracle Awaits</div>
 </div>
 
-<!-- ================= LOGIN ================= -->
 <div id="screen-login" class="screen">
   <div class="bigPanel">
     <div class="panelTitle" id="loginTitle">Sign In</div>
@@ -439,7 +424,6 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   </div>
 </div>
 
-<!-- ================= PROFILE ================= -->
 <div id="screen-profile" class="screen">
   <div id="profileBox">
     <div id="avatarRow">
@@ -463,7 +447,6 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   </div>
 </div>
 
-<!-- ================= SHOP ================= -->
 <div id="screen-shop" class="screen">
   <div id="shopBox">
     <div id="shopHeader">
@@ -476,7 +459,6 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   </div>
 </div>
 
-<!-- ================= BATTLE REQUEST ================= -->
 <div id="battleReq">
   <div id="battleBox">
     <div id="battleIcon">⚔️</div>
@@ -494,7 +476,6 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   </div>
 </div>
 
-<!-- ================= PROMOTION ================= -->
 <div id="promo">
   <div id="promoBox" class="bigPanel" style="max-width:380px;">
     <h3 style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:18px;">Choose Your Champion</h3>
@@ -502,7 +483,6 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   </div>
 </div>
 
-<!-- ================= END MODAL ================= -->
 <div id="endModal">
   <div id="endBox" class="bigPanel">
     <div id="endIcon">👑</div>
@@ -521,7 +501,6 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   </div>
 </div>
 
-<!-- ================= CHESS ENGINE ================= -->
 <script id="engineSrc" type="text/x-engine">
 const WHITE = 1, BLACK = -1;
 const P=1, N=2, B=3, R=4, Q=5, K=6;
@@ -755,9 +734,6 @@ const THRONE_WHITE = 60;
 const THRONE_BLACK = 4;
 const SACRED = [27, 28, 35, 36];
 
-/* ============================================================
-   20 BOTS WITH PERSONALITY
-   ============================================================ */
 const BOT_LEVELS = [
   { name:'Peasant', rating:400, depth:1, timeMs:80, blunder:0.55,
     avatar:'🧑‍🌾', rank:'Village Dweller', mood:'😄', tier:'low',
@@ -862,7 +838,6 @@ const SKINS = {
   ancient:  { name:'Ancient',    price:14000, desc:'Relics from a forgotten age of gods.',       body:0xdac89a, cloth:0x2a1a10, trim:0xffd070, metal:0.95, emissive:0x4a2800, emI:0.5 }
 };
 
-/* Storage */
 const Storage = {
   getProfiles(){ try { return JSON.parse(localStorage.getItem('akc_profiles') || '{}'); } catch(e){ return {}; } },
   saveProfiles(p){ localStorage.setItem('akc_profiles', JSON.stringify(p)); },
@@ -1536,6 +1511,7 @@ function addTween(dur, update, done){
 }
 const easeOutCubic  = p => 1 - Math.pow(1-p, 3);
 const easeInOutQuad = p => p < 0.5 ? 2*p*p : 1 - Math.pow(-2*p+2, 2)/2;
+const easeOutQuad   = p => 1 - (1 - p) * (1 - p);
 const easeOutBack   = p => { const c1=1.70158, c3=c1+1; return 1 + c3*Math.pow(p-1,3) + c1*Math.pow(p-1,2); };
 const easeInQuad    = p => p*p;
 
@@ -1923,7 +1899,6 @@ function showAdvisor(type, text, mood){
   }, type === 'taunt' ? 4500 : 6500);
 }
 
-/* Opening speech: taunt from bot */
 function botOpeningSpeech(){
   const bot = BOT_LEVELS[currentBotIdx] || BOT_LEVELS[5];
   setAdvisorIdentity(bot);
@@ -1931,7 +1906,6 @@ function botOpeningSpeech(){
   showAdvisor('taunt', `<strong>${bot.name} speaks:</strong> <em>"${line}"</em>`, bot.mood);
 }
 
-/* Move analysis: tell the player good/blunder/best */
 async function analyzeMoveAsync(preSnapshot, playedMove, legal){
   const token = ++advisorComputeToken;
   await new Promise(r => setTimeout(r, 60));
@@ -1959,10 +1933,6 @@ async function analyzeMoveAsync(preSnapshot, playedMove, legal){
 
     if (token !== advisorComputeToken) return;
 
-    /* Mood reaction */
-    let mood = bot.mood;
-
-    /* If the played move WAS the best move */
     if (diff <= 30 && playedEntry) {
       if (Math.abs(best.sc) > 600) {
         showAdvisor('excellent',
@@ -1976,7 +1946,6 @@ async function analyzeMoveAsync(preSnapshot, playedMove, legal){
       return;
     }
 
-    /* Blunder / mistake / inaccuracy */
     if (diff > 260) {
       showAdvisor('bad',
         `<strong>${bot.name} laughs:</strong> <em>"Blunder!"</em><br>You should have played <strong>${bestSan}</strong> — that would have been much stronger.`,
@@ -1996,18 +1965,16 @@ async function analyzeMoveAsync(preSnapshot, playedMove, legal){
       return;
     }
 
-    /* Otherwise just good */
     const genericGood = [
       'A reasonable move. Nothing spectacular, but solid.',
       'Decent choice. Keep the pressure up.',
       'That works — though I saw a slightly sharper line.',
       'Solid, if unambitious.'
     ];
-    showAdvisor('good', `<strong>${bot.name}:</strong> ${pick(genericGood)}`, mood);
+    showAdvisor('good', `<strong>${bot.name}:</strong> ${pick(genericGood)}`, bot.mood);
   } catch(e) { /* ignore analysis errors */ }
 }
 
-/* Funny commentary on captures / checks */
 function commentOnCapture(isPlayer, pieceType, capturedType){
   const bot = BOT_LEVELS[currentBotIdx] || BOT_LEVELS[5];
   const pName = { [P]:'pawn', [N]:'knight', [B]:'bishop', [R]:'rook', [Q]:'queen', [K]:'king' }[capturedType] || 'piece';
@@ -2023,7 +1990,6 @@ function commentOnCapture(isPlayer, pieceType, capturedType){
   }
 }
 
-/* Clue display */
 let clueTimer = 0;
 function showClue(text, sub){
   clueMain.textContent = 'CLUE!';
@@ -2198,8 +2164,8 @@ function fxThroneSeized(sq, winner){
    CINEMATIC CHECKMATE
    ============================================================ */
 const cinemaEl = document.getElementById('cinema');
-const cinemaBarsTop = document.querySelector('#cinemaBars.top');
-const cinemaBarsBot = document.querySelector('#cinemaBars.bot');
+const cinemaBarsTop = document.getElementById('cinemaBarsTop');
+const cinemaBarsBot = document.getElementById('cinemaBarsBot');
 const speechEl = document.getElementById('speechBubble');
 
 function showSpeech(text, x, y, dark){
@@ -2217,7 +2183,6 @@ function hideCinema(){
   hideSpeech();
 }
 
-/* Project a 3D world point to screen pixels */
 function worldToScreen(v3){
   const v = v3.clone().project(camera);
   return {
@@ -2226,26 +2191,20 @@ function worldToScreen(v3){
   };
 }
 
-/* Different cinematic fight styles per bot tier */
 async function playCheckmateCinematic(loserColor){
   cinematicActive = true;
   const bot = BOT_LEVELS[currentBotIdx] || BOT_LEVELS[5];
   const tier = bot.tier || 'mid';
 
-  /* Enter cinematic mode */
   cinemaEl.classList.add('on');
   cinemaBarsTop.classList.add('on');
   cinemaBarsBot.classList.add('on');
-
-  /* Freeze controls for cinematic */
   controls.enabled = false;
 
-  /* Find the loser king */
   const kingSq = gameState.kings[loserColor === WHITE ? 0 : 1];
   const kingMesh = meshAt[kingSq];
   const kingPos = squarePos(kingSq);
 
-  /* Winning side finds nearest piece for a duel */
   const winnerColor = -loserColor;
   let duelistSq = -1;
   let bestDist = Infinity;
@@ -2257,7 +2216,6 @@ async function playCheckmateCinematic(loserColor){
   }
   const duelist = duelistSq >= 0 ? meshAt[duelistSq] : null;
 
-  /* Camera sweep to losing king */
   const camStart = camera.position.clone();
   const camEnd = new THREE.Vector3(kingPos.x + 2.2, kingPos.y + 2.6, kingPos.z + 3.4);
   const targetStart = controls.target.clone();
@@ -2269,7 +2227,6 @@ async function playCheckmateCinematic(loserColor){
     camera.lookAt(controls.target);
   });
 
-  /* Speech: battle cry from king */
   if (kingMesh) {
     const s = worldToScreen(new THREE.Vector3(kingPos.x, kingPos.y + 1.9, kingPos.z));
     const battleCries = {
@@ -2286,7 +2243,6 @@ async function playCheckmateCinematic(loserColor){
     hideSpeech();
   }
 
-  /* King stands up, draws his sword - rise animation */
   if (kingMesh) {
     await addTween(0.55, p => {
       const e = easeOutCubic(p);
@@ -2295,12 +2251,9 @@ async function playCheckmateCinematic(loserColor){
     });
   }
 
-  /* Kings fight — length and number of exchanges depends on tier */
   const exchanges = tier === 'low' ? 1 : tier === 'mid' ? 2 : tier === 'high' ? 3 : tier === 'elite' ? 4 : 5;
-  const duelistStartPos = duelist ? duelist.position.clone() : null;
 
   for (let i = 0; i < exchanges; i++) {
-    /* King strikes forward */
     if (kingMesh && duelist) {
       const strike = new THREE.Vector3(
         (duelist.position.x - kingMesh.position.x) * 0.55,
@@ -2317,14 +2270,12 @@ async function playCheckmateCinematic(loserColor){
         kingMesh.rotation.x = startR - Math.sin(p * Math.PI) * 0.35;
       });
       sfx('clang');
-      /* Spark at clash point */
       const mid = new THREE.Vector3(
         (kingMesh.position.x + duelist.position.x) / 2,
         0.9,
         (kingMesh.position.z + duelist.position.z) / 2
       );
       sparkBurst(mid, 14, 0xffe08a, 1.0);
-      /* King retreats */
       await addTween(0.18, p => {
         const e = easeOutQuad(p);
         kingMesh.position.x = startK.x + strike.x * (1 - e);
@@ -2335,20 +2286,15 @@ async function playCheckmateCinematic(loserColor){
     }
   }
 
-  /* Enemy hero delivers the killing blow */
-  const strikeDir = new THREE.Vector3().subVectors(kingMesh ? kingMesh.position : kingPos, kingPos).normalize();
-  /* Screen flash */
   screenFlash('rgba(255,40,20,.7)', 0.4, 1.0);
   shake(0.7, 0.6);
   sfx('impact');
-  /* Massive sparks and shockwave at the king */
   const impactPos = kingMesh ? kingMesh.position.clone() : kingPos.clone();
   sparkBurst(impactPos.clone().setY(impactPos.y + 0.7), 50, 0xffb347, 1.8);
   dustBurst(impactPos, 40, 0x9a7a5a, 1.8);
   shockwave(impactPos, 0xff1e0a, 6, 1.2);
   setTimeout(() => shockwave(impactPos, 0xff8040, 8, 1.4), 160);
 
-  /* King dies — slump and topple */
   if (kingMesh) {
     await addTween(0.35, p => {
       const e = easeOutCubic(p);
@@ -2368,7 +2314,6 @@ async function playCheckmateCinematic(loserColor){
     sfx('death');
   }
 
-  /* Sword drops — a spinning blade falls from the king */
   if (kingMesh) {
     const swordMat = new THREE.MeshStandardMaterial({
       color: 0xd8a94a, roughness: 0.3, metalness: 0.95,
@@ -2390,13 +2335,16 @@ async function playCheckmateCinematic(loserColor){
       addTween(0.35, p => {
         sword.rotation.z += 0.03;
         sword.position.y = sv0.y - 1.2 + Math.sin(p * Math.PI) * 0.05;
+      }, () => {
+        scene.remove(sword);
+        sword.geometry.dispose();
+        sword.material.dispose();
       });
     });
   }
 
   await new Promise(r => setTimeout(r, 400));
 
-  /* Speech: "I lost..." with tier-specific flavour */
   const lossLines = {
     low:    ['I lost...', 'B-but my crops!', 'I yield...'],
     mid:    ['I lost...', 'You were the better warrior.', 'I yield to you.'],
@@ -2414,9 +2362,7 @@ async function playCheckmateCinematic(loserColor){
   );
   showSpeech(line, speechPos.x - 90, speechPos.y - 40, true);
 
-  /* Camera slow zoom in */
   const camStart2 = camera.position.clone();
-  const targetStart2 = controls.target.clone();
   const camEnd2 = new THREE.Vector3(
     (kingMesh ? kingMesh.position.x : kingPos.x) + 1.6,
     1.4,
@@ -2436,18 +2382,21 @@ async function playCheckmateCinematic(loserColor){
   await new Promise(r => setTimeout(r, 1200));
   hideSpeech();
 
-  /* Exit cinematic */
   cinemaEl.classList.remove('on');
   cinemaBarsTop.classList.remove('on');
   cinemaBarsBot.classList.remove('on');
   controls.enabled = true;
   cinematicActive = false;
-  void duelistStartPos;
 }
 
 /* ============================================================
    PERFORM MOVE
    ============================================================ */
+function snapshotState(st){
+  return { board: st.board.slice(), turn: st.turn, castling: st.castling, ep: st.ep,
+           halfmove: st.halfmove, fullmove: st.fullmove, kings: st.kings.slice() };
+}
+
 async function performMove(move){
   busy = true;
   clearSelection(); hoverSq = -1;
@@ -2525,7 +2474,6 @@ async function performMove(move){
     endGame(us, 'throne'); return;
   }
 
-  /* Player's move -> advisor analysis, clue checks, mate threat */
   if (us === playerColor) {
     checkForClues(st, move, us);
     if (st.turn === aiColor) {
@@ -2536,10 +2484,6 @@ async function performMove(move){
   }
 
   if (st.turn === aiColor) scheduleAI();
-}
-function snapshotState(st){
-  return { board: st.board.slice(), turn: st.turn, castling: st.castling, ep: st.ep,
-           halfmove: st.halfmove, fullmove: st.fullmove, kings: st.kings.slice() };
 }
 
 /* ============================================================
@@ -2640,7 +2584,6 @@ renderer.domElement.addEventListener('pointerdown', async ev => {
   clearSelection(); refreshHighlights();
 });
 
-/* Promotion */
 const PROMO_GLYPHS = { [Q]:'♛', [R]:'♜', [B]:'♝', [N]:'♞' };
 function askPromotion(){
   return new Promise(resolve => {
@@ -3080,6 +3023,21 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+/* ============================================================
+   WEBGL CONTEXT LOSS PROTECTION
+   ============================================================ */
+renderer.domElement.addEventListener('webglcontextlost', e => {
+  e.preventDefault();
+  console.warn('WebGL context lost — recovering…');
+  tweens.length = 0;
+  cinematicActive = false;
+  hideCinema();
+});
+renderer.domElement.addEventListener('webglcontextrestored', () => {
+  console.warn('WebGL context restored');
+  try { rebuildFromMoves(); } catch(e) { console.error(e); }
 });
 
 /* ============================================================
