@@ -93,13 +93,13 @@ canvas{display:block;position:fixed;inset:0;}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
 
 #modePickerGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
-.modeCard{padding:18px 16px;border-radius:14px;cursor:pointer;
+.modeCard{padding:16px 14px;border-radius:14px;cursor:pointer;
   background:linear-gradient(160deg,rgba(60,42,26,.5),rgba(30,20,12,.5));
   border:1.5px solid rgba(224,180,100,.28);transition:all .18s;text-align:center;}
 .modeCard:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.5);}
-.modeCard .ico{font-size:38px;margin-bottom:8px;line-height:1;}
-.modeCard .nm{font-family:'Cinzel',serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;color:var(--parch);}
-.modeCard .ds{font-size:11.5px;color:var(--dim);line-height:1.5;}
+.modeCard .ico{font-size:34px;margin-bottom:6px;line-height:1;}
+.modeCard .nm{font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:5px;color:var(--parch);}
+.modeCard .ds{font-size:11px;color:var(--dim);line-height:1.45;}
 
 #hud{position:fixed;inset:0;pointer-events:none;z-index:10;display:none;}
 #hud.on{display:block;}
@@ -397,7 +397,7 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
       <button class="cover-btn ghost" id="covLogin">🔑 Sign In</button>
     </div>
   </div>
-  <div id="cover-footer">v3.3 · Online Multiplayer · The Oracle Awaits</div>
+  <div id="cover-footer">v3.4 · Online Multiplayer · The Oracle Awaits</div>
 </div>
 
 <div id="screen-login" class="screen">
@@ -447,7 +447,7 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
 </div>
 
 <div id="screen-modes" class="screen">
-  <div class="bigPanel" style="max-width:640px;">
+  <div class="bigPanel" style="max-width:680px;">
     <div class="panelTitle">Choose Your Battle</div>
     <div class="panelSub">Select a game type</div>
     <div id="modePickerGrid"></div>
@@ -460,6 +460,10 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
   <div class="inner">
     <h3 id="soloTitle">An Enemy Approaches</h3>
     <p id="soloBody">-</p>
+    <div class="field" style="margin-top:14px;">
+      <label>Bot Difficulty</label>
+      <select id="soloBotLevel"></select>
+    </div>
     <div class="muted" id="soloEnv"></div>
     <div class="btnRow">
       <button class="btn" id="soloDecline">Flee</button>
@@ -478,6 +482,7 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
         <option value="normal">Normal Chess</option>
         <option value="throne">Capture the Throne</option>
         <option value="hill">King of the Hill</option>
+        <option value="checkthrice">Check Thrice</option>
       </select>
     </div>
     <div class="field" style="margin-top:14px;">
@@ -1122,9 +1127,6 @@ const CAM_HOME_BLACK = new THREE.Vector3(0, 11, -13);
 camera.position.copy(CAM_HOME);
 camera.lookAt(0, 0.5, 0);
 
-/* Returns the correct "home" camera position for the current player color.
-   White → camera on the +Z side (White pieces closest to player).
-   Black → camera on the -Z side (Black pieces closest to player). */
 function getCamHome(){
   return playerColor === WHITE ? CAM_HOME.clone() : CAM_HOME_BLACK.clone();
 }
@@ -1578,7 +1580,8 @@ let gameMode = 'normal';
 let isMultiplayer = false;
 let mpOpponent = null;
 let autoReturnTimer = null;
-let searchMode = 'normal'; // 'normal' | 'multiplayer'
+let searchMode = 'normal';
+let checksGiven = { [WHITE]: 0, [BLACK]: 0 };
 
 /* TWEENS */
 const tweens = [];
@@ -1623,6 +1626,7 @@ function sfx(kind){
     else if (kind === 'rumble'){ const n=noise(1.0); const ng=actx.createGain(); n.connect(ng); ng.connect(actx.destination); ng.gain.setValueAtTime(0.18,t); ng.gain.exponentialRampToValueAtTime(0.001,t+1.0); n.start(t); o.type='sawtooth'; o.frequency.setValueAtTime(80,t); o.frequency.exponentialRampToValueAtTime(30,t+0.9); g.gain.setValueAtTime(0.10,t); g.gain.exponentialRampToValueAtTime(0.001,t+1.0); o.start(t); o.stop(t+1.05); }
     else if (kind === 'soul'){ o.type='sine'; o.frequency.setValueAtTime(320,t); o.frequency.exponentialRampToValueAtTime(660,t+1.2); o.frequency.exponentialRampToValueAtTime(440,t+2.4); g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.001,t+2.6); o.start(t); o.stop(t+2.7); }
     else if (kind === 'notify'){ o.type='sine'; o.frequency.setValueAtTime(660,t); o.frequency.setValueAtTime(990,t+0.08); g.gain.setValueAtTime(0.09,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.4); o.start(t); o.stop(t+0.42); }
+    else if (kind === 'energy'){ o.type='sawtooth'; o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(880,t+0.8); o.frequency.exponentialRampToValueAtTime(200,t+1.6); g.gain.setValueAtTime(0.13,t); g.gain.exponentialRampToValueAtTime(0.001,t+1.8); o.start(t); o.stop(t+1.85); }
   } catch(e){}
 }
 
@@ -1681,6 +1685,42 @@ function bloodBurst(pos, count, power=1){
       m.position.set(pos.x+dir.x*d, pos.y+dir.y*d-8*p*p*life*life, pos.z+dir.z*d);
       mat.opacity = 0.95*(1-p);
     }, () => { scene.remove(m); mat.dispose(); });
+  }
+}
+/* Radial energy beam burst - a pillar of light spreading outward */
+function energyBurst(pos, color, dur=2.2){
+  // Central pillar
+  const pillarMat = new THREE.MeshBasicMaterial({
+    color, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide
+  });
+  const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.2, 24, 1, true), pillarMat);
+  pillar.position.copy(pos); pillar.position.y += 0.1;
+  pillar.renderOrder = 8; scene.add(pillar);
+  addTween(dur, p => {
+    const e = easeOutCubic(p);
+    pillar.scale.set(1 + e*0.6, 1 + e*40, 1 + e*0.6);
+    pillar.position.y = pos.y + 0.1 + e * 8;
+    pillarMat.opacity = 0.9 * (1 - p);
+  }, () => { scene.remove(pillar); pillar.geometry.dispose(); pillarMat.dispose(); });
+
+  // Radial energy sparks - many small beams flying outward
+  for (let i = 0; i < 40; i++) {
+    const a = (i/40)*Math.PI*2;
+    const beamMat = new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0.95, blending:THREE.AdditiveBlending, depthWrite:false });
+    const beamMesh = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.5), beamMat);
+    beamMesh.position.copy(pos); beamMesh.position.y += 0.2;
+    beamMesh.rotation.y = a;
+    beamMesh.renderOrder = 8; scene.add(beamMesh);
+    const spd = 6 + Math.random()*4;
+    const life = 1.0 + Math.random()*0.6;
+    addTween(life, p => {
+      const d = spd*p*life;
+      beamMesh.position.x = pos.x + Math.cos(a)*d;
+      beamMesh.position.z = pos.z + Math.sin(a)*d;
+      beamMesh.position.y = pos.y + 0.2 + Math.sin(p*Math.PI)*1.5;
+      beamMesh.scale.z = 1 + p*2;
+      beamMat.opacity = 0.95*(1-p);
+    }, () => { scene.remove(beamMesh); beamMesh.geometry.dispose(); beamMat.dispose(); });
   }
 }
 function shatterPiece(obj){
@@ -1941,6 +1981,11 @@ function updateStatus(){
     if (isMultiplayer) { statusEl.textContent = 'Waiting for opponent…'; subEl.textContent = mp.opponent + ' to play'; }
     else { statusEl.textContent = 'Oracle is thinking…'; subEl.textContent = 'Obsidian Kingdom to play'; }
   }
+  if (gameMode === 'checkthrice') {
+    const youChecks = checksGiven[playerColor] || 0;
+    const oppChecks = checksGiven[aiColor] || 0;
+    subEl.innerHTML += `<br><span style="color:var(--gold);">Checks: You ${youChecks}/3 · Enemy ${oppChecks}/3</span>`;
+  }
   updateUndoButton();
 }
 
@@ -1964,6 +2009,7 @@ function rulesFor(mode){
   if (mode === 'normal') return `Standard chess rules. <strong>Checkmate</strong> wins.<br><br>Castling, en passant and promotion are active.`;
   if (mode === 'throne') return `<strong>CAPTURE THE THRONE</strong><br><br>Goal: get <em>any piece</em> (except your king) onto the enemy king's starting square (<em>e1</em> / <em>e8</em>). Those squares glow gold/orange.<br><br>Checkmate also wins.`;
   if (mode === 'hill') return `<strong>KING OF THE HILL</strong><br><br>Goal: march your <strong>king</strong> to any of the <strong>4 centre squares</strong> (d4, e4, d5, e5) — marked with blue rings.<br><br>Checkmate also wins.`;
+  if (mode === 'checkthrice') return `<strong>CHECK THRICE</strong><br><br>Goal: deliver <strong>3 checks</strong> against the enemy king to win.<br><br>The counter shows in the HUD. Checkmate also wins.`;
   return '';
 }
 function announceRules(mode){
@@ -2168,6 +2214,7 @@ function computeRatingPreview(winnerColor){
   return { oldR, newR, delta, coinGain, title, icon, desc, botRating: oppRating };
 }
 
+/* CHECKMATE CINEMATIC — piece draws sword, walks forward, swishes */
 async function playCheckmateCinematic(loserColor){
   cinematicActive = true;
   const winnerColor = -loserColor;
@@ -2223,6 +2270,7 @@ async function playCheckmateCinematic(loserColor){
   hideSpeech();
   await new Promise(r => setTimeout(r, 350));
 
+  // Find the nearest winning piece to attack
   let attackerSq = winnerKingSq, bestD = Infinity;
   for (let i = 0; i < 64; i++) {
     if (meshAt[i] && Math.sign(gameState.board[i]) === winnerColor) {
@@ -2233,6 +2281,7 @@ async function playCheckmateCinematic(loserColor){
   const attacker = meshAt[attackerSq];
   const atkPos = attacker ? attacker.position.clone() : wPos;
 
+  // Camera to strike view
   const camStrike = new THREE.Vector3((atkPos.x + lPos.x)/2 + 3.5, 3.6, (atkPos.z + lPos.z)/2 + 4);
   const camStrikeStart = camera.position.clone();
   const targetStrikeStart = controls.target.clone();
@@ -2245,15 +2294,19 @@ async function playCheckmateCinematic(loserColor){
   });
 
   if (attacker) {
+    const startPos = attacker.position.clone();
+    const endPos = new THREE.Vector3(lPos.x, lPos.y + 0.6, lPos.z);
+    const dir = new THREE.Vector3().subVectors(new THREE.Vector3(lPos.x, 0, lPos.z), new THREE.Vector3(startPos.x, 0, startPos.z)).normalize();
     const baseRotY = attacker.userData.baseRotY ?? 0;
-    const dx = lPos.x - atkPos.x, dz = lPos.z - atkPos.z;
-    const faceAngle = Math.atan2(dx, dz);
+    const faceAngle = Math.atan2(dir.x, dir.z);
 
+    // Turn to face the king
     await addTween(0.5, p => {
       const e = easeOutCubic(p);
       attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e;
     });
 
+    // Draw sword — spawn glowing sword at the attacker's hand
     const swordMat = new THREE.MeshStandardMaterial({
       color: 0xf0e0a0, roughness: 0.15, metalness: 0.98,
       emissive: 0x6a3a00, emissiveIntensity: 0.7
@@ -2274,38 +2327,67 @@ async function playCheckmateCinematic(loserColor){
     swordGroup.rotation.x = 0.6;
 
     sfx('swing');
-    await addTween(0.45, p => {
+    // Raise sword (drawing)
+    await addTween(0.4, p => {
       const e = easeOutCubic(p);
-      swordGroup.rotation.z = -Math.PI*0.45 + e*0.1;
       swordGroup.rotation.x = 0.6 - e*0.9;
       swordGroup.position.y = attacker.position.y + 0.9 + e*0.35;
     });
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 150));
 
-    timeScale = 0.4;
+    // Walk toward king with sword drawn
+    const walkStart = attacker.position.clone();
+    const walkTarget = new THREE.Vector3().lerpVectors(walkStart, endPos, 0.72);
+    const walkDist = walkStart.distanceTo(walkTarget);
+    const walkDur = 1.1 + walkDist * 0.1;
+    await addTween(walkDur, p => {
+      const e = easeInOutQuad(p);
+      attacker.position.lerpVectors(walkStart, walkTarget, e);
+      attacker.position.y = walkStart.y + Math.sin(p * Math.PI * 5) * 0.035;
+      // sword follows attacker
+      swordGroup.position.x = attacker.position.x + (-Math.sin(faceAngle)*0.2 + 0.35);
+      swordGroup.position.z = attacker.position.z + (-Math.cos(faceAngle)*0.2);
+      swordGroup.position.y = attacker.position.y + 0.9 + 0.35;
+    });
+
+    // Brief pause facing the king
+    await new Promise(r => setTimeout(r, 220));
+
+    // SWISH — brief slow motion, sword swings down onto the king
+    timeScale = 0.5;
     sfx('swing');
-    const startRotX = swordGroup.rotation.x, startY = swordGroup.position.y;
-    await addTween(0.35, p => {
+    const startRotX = swordGroup.rotation.x;
+    const startRotZ = swordGroup.rotation.z;
+    const stepStart = attacker.position.clone();
+    await addTween(0.32, p => {
       const e = easeInQuad(p);
-      swordGroup.rotation.x = startRotX + e*1.4;
-      swordGroup.position.y = startY - e*0.9;
-      swordGroup.position.x = attacker.position.x + Math.sin(faceAngle)*0.4;
-      swordGroup.position.z = attacker.position.z + Math.cos(faceAngle)*0.4;
+      swordGroup.rotation.x = startRotX + e * 1.8;
+      swordGroup.rotation.z = startRotZ + e * 0.4;
+      // step forward into the strike
+      attacker.position.lerpVectors(stepStart, endPos, e * 0.92);
+      swordGroup.position.x = attacker.position.x + (-Math.sin(faceAngle)*0.2 + 0.35);
+      swordGroup.position.z = attacker.position.z + (-Math.cos(faceAngle)*0.2);
+      swordGroup.position.y = attacker.position.y + 0.9 - e * 0.5;
     });
     timeScale = 1.0;
 
+    // IMPACT!
     sfx('impact'); sfx('rumble');
     screenFlash('rgba(255,40,20,.9)', 0.7, 1.0);
-    shake(1.2, 0.9);
+    shake(1.4, 1.0);
     const kingImpact = new THREE.Vector3(lPos.x, lPos.y + 0.5, lPos.z);
-    sparkBurst(kingImpact, 70, 0xffb347, 2.2);
-    dustBurst(kingImpact, 55, 0x9a7a5a, 2.2);
-    bloodBurst(kingImpact, 40, 2.0);
-    shockwave(kingImpact, 0xff1e0a, 7, 1.3);
+    sparkBurst(kingImpact, 80, 0xffb347, 2.4);
+    dustBurst(kingImpact, 60, 0x9a7a5a, 2.4);
+    bloodBurst(kingImpact, 50, 2.2);
+    shockwave(kingImpact, 0xff1e0a, 8, 1.4);
+    setTimeout(() => shockwave(kingImpact, 0xff8040, 11, 1.6), 200);
+    setTimeout(() => shockwave(kingImpact, 0xffcc66, 14, 1.8), 400);
 
+    // Clean up sword
     scene.remove(swordGroup);
     swordGroup.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
 
+    // King topples and shatters
     if (loserKingMesh) {
       const lBaseY = loserKingMesh.position.y;
       await addTween(1.0, p => {
@@ -2326,6 +2408,7 @@ async function playCheckmateCinematic(loserColor){
     shake(1.0, 0.8);
   }
 
+  // Losing pieces topple
   const lossSquares = [];
   for (let i = 0; i < 64; i++) {
     if (meshAt[i] && Math.sign(gameState.board[i]) === loserColor) lossSquares.push(i);
@@ -2355,6 +2438,7 @@ async function playCheckmateCinematic(loserColor){
   dustBurst(new THREE.Vector3(0, 0.2, 0), 55, 0xa88868, 1.8);
   await new Promise(r => setTimeout(r, 700));
 
+  // Soul rises
   sfx('soul');
   const soulOrigin = new THREE.Vector3(lPos.x, lPos.y + 0.4, lPos.z);
   const soulGroup = new THREE.Group();
@@ -2389,6 +2473,7 @@ async function playCheckmateCinematic(loserColor){
   await camPromise;
   await new Promise(r => setTimeout(r, 350));
 
+  // Billboard
   const canvas = document.createElement('canvas');
   canvas.width = 1024; canvas.height = 560;
   const ctx = canvas.getContext('2d');
@@ -2444,7 +2529,7 @@ async function playCheckmateCinematic(loserColor){
     camera.lookAt(controls.target);
   });
 
-  await new Promise(r => setTimeout(r, 2600));
+  await new Promise(r => setTimeout(r, 2400));
   await addTween(0.9, p => { billboardMat.opacity = 1 - p; }, () => {
     scene.remove(billboard); billboard.geometry.dispose(); billboard.material.dispose();
     if (billboardMesh === billboard) billboardMesh = null;
@@ -2456,6 +2541,77 @@ async function playCheckmateCinematic(loserColor){
   controls.enabled = true;
   cinematicActive = false;
   timeScale = 1.0;
+}
+
+/* VICTORY ENERGY — for non-checkmate wins (throne / hill / checkthrice) */
+async function playVictoryEnergy(winnerColor, reason){
+  cinematicActive = true;
+  controls.enabled = false;
+  const kingSq = gameState.kings[winnerColor === WHITE ? 0 : 1];
+  const kp = squarePos(kingSq);
+
+  const color = winnerColor === WHITE ? 0xffe08a : 0xff9a5a;
+
+  // Camera zoom in toward the winning king
+  const camStart = camera.position.clone();
+  const camEnd = new THREE.Vector3(kp.x + 2.4, 4.2, kp.z + 3.6);
+  const targetStart = controls.target.clone();
+  const targetEnd = new THREE.Vector3(kp.x, kp.y + 0.6, kp.z);
+  addTween(1.6, p => {
+    const e = easeInOutQuad(p);
+    camera.position.lerpVectors(camStart, camEnd, e);
+    controls.target.lerpVectors(targetStart, targetEnd, e);
+    camera.lookAt(controls.target);
+  });
+
+  // Sound + shake
+  sfx('energy');
+  sfx('rumble');
+  sfx('victory');
+  shake(1.8, 1.8);
+  screenFlash(winnerColor === WHITE ? 'rgba(255,220,150,.75)' : 'rgba(255,150,80,.75)', 0.9, 0.95);
+
+  // Central pillar of light
+  energyBurst(kp, color, 2.4);
+
+  // Expanding shockwaves at ground level
+  for (let i = 0; i < 7; i++) {
+    setTimeout(() => shockwave(kp, color, 7 + i * 2, 1.6, 0.02), i * 150);
+  }
+
+  // Big spark + dust burst
+  sparkBurst(kp.clone().setY(kp.y + 1), 100, color, 2.6);
+  dustBurst(kp, 80, 0xe6cf9e, 2.6);
+  // Also burst from the board center for a huge feel
+  setTimeout(() => {
+    const center = new THREE.Vector3(0, BOARD_TOP, 0);
+    sparkBurst(center.clone().setY(center.y + 0.6), 60, color, 2.2);
+    shockwave(center, color, 12, 1.8, 0.02);
+    // Board shake (heavier)
+    shake(2.0, 1.6);
+  }, 400);
+
+  // Additional rings rising
+  for (let i = 0; i < 4; i++) {
+    setTimeout(() => {
+      const ringMat = new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0.85, side:THREE.DoubleSide, depthWrite:false, blending:THREE.AdditiveBlending });
+      const ring = new THREE.Mesh(new THREE.RingGeometry(0.4, 0.55, 44), ringMat);
+      ring.rotation.x = -Math.PI/2;
+      ring.position.copy(kp); ring.position.y = BOARD_TOP + 0.02;
+      ring.renderOrder = 8; scene.add(ring);
+      addTween(1.6, p => {
+        const e = easeOutCubic(p);
+        ring.scale.setScalar(1 + e * (10 + i*2));
+        ring.position.y = BOARD_TOP + 0.02 + e * 1.2;
+        ringMat.opacity = 0.85 * (1 - p);
+      }, () => { scene.remove(ring); ring.geometry.dispose(); ringMat.dispose(); });
+    }, 200 + i * 180);
+  }
+
+  // Wait for effects to play out
+  await new Promise(r => setTimeout(r, 2600));
+  controls.enabled = true;
+  cinematicActive = false;
 }
 
 /* PERFORM MOVE */
@@ -2508,6 +2664,13 @@ async function performMove(move, fromRemote){
   if (isMate) san += '#'; else if (givingCheck) san += '+';
   sanList.push(san); renderMoveList();
 
+  // Track check count for Check Thrice mode
+  let checkMilestone = 0;
+  if (givingCheck && !isMate) {
+    checksGiven[us] = (checksGiven[us] || 0) + 1;
+    checkMilestone = checksGiven[us];
+  }
+
   refreshHighlights(); updateStatus();
 
   let modeWin = null;
@@ -2522,6 +2685,14 @@ async function performMove(move, fromRemote){
       const p = st.board[sq];
       if (p !== 0 && Math.abs(p) === K) { modeWin = { winner: Math.sign(p), reason: 'hill' }; break; }
     }
+  } else if (gameMode === 'checkthrice') {
+    if (checksGiven[us] >= 3) {
+      modeWin = { winner: us, reason: 'checkthrice' };
+    } else if (checkMilestone > 0) {
+      // Show progress
+      const who = us === playerColor ? 'You' : 'Enemy';
+      setTimeout(() => showClue(`CHECK ${checkMilestone}/3`, who + ' delivered a check!'), 900);
+    }
   }
 
   if (isMultiplayer && !fromRemote && mp.active) {
@@ -2533,13 +2704,16 @@ async function performMove(move, fromRemote){
   }
 
   if (isMate) {
+    // Checkmate → full cinematic clip
     await playCheckmateCinematic(st.turn);
     busy = false;
     endGame(st.turn === WHITE ? BLACK : WHITE, 'checkmate');
     return;
   }
   if (modeWin) {
+    // Non-checkmate wins → energy burst effect
     busy = false;
+    await playVictoryEnergy(modeWin.winner, modeWin.reason);
     endGame(modeWin.winner, modeWin.reason);
     return;
   }
@@ -2840,13 +3014,13 @@ function openProfile(username, readonly){
   });
 }
 
-/* Search (supports 'multiplayer' mode) */
+/* Search */
 function openSearch(mode){
   searchMode = mode || 'normal';
   const titleEl = document.getElementById('searchTitle');
-  const subEl = document.getElementById('searchSub');
+  const subEl2 = document.getElementById('searchSub');
   if (titleEl) titleEl.textContent = searchMode === 'multiplayer' ? 'Find an Opponent' : 'Search Warriors';
-  if (subEl) subEl.textContent = searchMode === 'multiplayer'
+  if (subEl2) subEl2.textContent = searchMode === 'multiplayer'
     ? 'Type a name — click to challenge if online'
     : 'Find any warrior by name — online or offline';
   document.getElementById('searchInput').value = '';
@@ -2856,7 +3030,6 @@ function openSearch(mode){
 }
 function renderSearchResults(q){
   const box = document.getElementById('searchResults');
-  // Multiplayer mode with empty query: show all currently online users
   if (searchMode === 'multiplayer' && !q) {
     const onlineList = [...onlineUsers.keys()].filter(u => u !== currentUsername).sort();
     if (onlineList.length === 0) {
@@ -2894,11 +3067,8 @@ function renderSearchResults(q){
     el.onclick = () => {
       if (searchMode === 'multiplayer') {
         if (uname === currentUsername) return;
-        if (online) {
-          openChallengeSetup(uname);
-        } else {
-          showAdvisor('bad', `<strong>${escapeHtml(uname)}</strong> is offline. Ask them to open the game and sign in.`, '😐');
-        }
+        if (online) openChallengeSetup(uname);
+        else showAdvisor('bad', `<strong>${escapeHtml(uname)}</strong> is offline. Ask them to open the game and sign in.`, '😐');
       } else {
         openProfile(uname, uname !== currentUsername);
       }
@@ -2958,6 +3128,7 @@ function openModePicker(){
     { id:'normal', ico:'♟️', nm:'Normal Chess', ds:'Classic chess. Checkmate wins.' },
     { id:'throne', ico:'👑', nm:'Capture the Throne', ds:'Reach the enemy king\'s square with any piece.' },
     { id:'hill',   ico:'⛰️', nm:'King of the Hill', ds:'March your king to any centre square.' },
+    { id:'checkthrice', ico:'⚡', nm:'Check Thrice', ds:'Deliver 3 checks to the enemy king to win.' },
     { id:'mp',     ico:'🌐', nm:'Multiplayer', ds:'Challenge a friend online from anywhere.' }
   ];
   grid.innerHTML = modes.map(m => `
@@ -2979,11 +3150,10 @@ function openModePicker(){
 }
 document.getElementById('modesBack').onclick = () => { showScreen('screen-cover'); refreshCoverUser(); };
 
-/* Single-player battle request */
+/* Single-player battle request — with bot difficulty picker */
 function requestSinglePlayerBattle(){
   const env = pickRandomEnv(currentEnvId);
-  const botIdx = Math.min(19, Math.max(0, Math.floor((pRating - 400)/120)));
-  const bot = BOT_LEVELS[botIdx];
+  const defaultBotIdx = Math.min(19, Math.max(0, Math.floor((pRating - 400)/120)));
   const envLines = {
     kingdom: 'The banner armies of the old empire clash in the temple courtyard.',
     desert: 'Sandstorms howl as both armies meet at the desert oasis.',
@@ -2994,11 +3164,19 @@ function requestSinglePlayerBattle(){
     city: 'In the ancient marketplace, war erupts between the rival houses.'
   };
   document.getElementById('soloTitle').textContent = `An Enemy Approaches — ${labelGameType(gameMode)}`;
-  document.getElementById('soloBody').innerHTML = `${envLines[env.id]}<br><br>A challenger of <em>${bot.name}</em> rank (rating <em>${bot.rating}</em>) approaches. Will you accept?`;
+  document.getElementById('soloBody').innerHTML = `${envLines[env.id]}<br><br>Choose the rank of your challenger, then accept or flee.`;
   document.getElementById('soloEnv').textContent = '⚜ ' + env.name + ' ⚜';
+
+  // Populate bot level dropdown
+  const sel = document.getElementById('soloBotLevel');
+  sel.innerHTML = BOT_LEVELS.map((b, i) => `<option value="${i}">${b.name} · Rating ${b.rating}</option>`).join('');
+  sel.value = String(defaultBotIdx);
+
   openModal('soloBattleModal');
 
   document.getElementById('soloAccept').onclick = () => {
+    const chosenIdx = parseInt(sel.value, 10);
+    const botIdx = isNaN(chosenIdx) ? defaultBotIdx : chosenIdx;
     closeModal('soloBattleModal');
     currentEnvId = env.id;
     currentBotIdx = botIdx;
@@ -3015,7 +3193,11 @@ function pickRandomEnv(exclude){
   return opts[Math.floor(Math.random()*opts.length)];
 }
 function labelGameType(t){
-  return t === 'normal' ? 'Normal Chess' : t === 'throne' ? 'Capture the Throne' : t === 'hill' ? 'King of the Hill' : t;
+  return t === 'normal' ? 'Normal Chess'
+    : t === 'throne' ? 'Capture the Throne'
+    : t === 'hill' ? 'King of the Hill'
+    : t === 'checkthrice' ? 'Check Thrice'
+    : t;
 }
 
 /* Start single-player */
@@ -3041,12 +3223,12 @@ function startSinglePlayerGame(){
   updateRatingUI();
 }
 
-/* Multiplayer menu — always opens the search screen in multiplayer mode */
+/* Multiplayer menu */
 function openMultiplayerMenu(){
   openSearch('multiplayer');
 }
 
-/* Challenge setup — with color choice */
+/* Challenge setup */
 function openChallengeSetup(username){
   const prof = Storage.getProfile(username);
   if (!prof) { showAdvisor('bad', `Unknown warrior: ${escapeHtml(username)}`, '🤷'); return; }
@@ -3130,7 +3312,6 @@ document.getElementById('incAccept').onclick = () => {
     type:'challenge_response', from: currentUsername, to: msg.from,
     gameId: msg.gameId, accept: true, ts: Date.now()
   });
-  // Accepter plays the opposite color of the challenger
   const myColor = msg.challengerColor === BLACK ? WHITE : BLACK;
   startMultiplayerGame({
     gameId: msg.gameId,
@@ -3226,6 +3407,7 @@ function newGame(){
   moveSnapshot = [];
   selectedSq = -1; legalFromSel = []; hoverSq = -1;
   gameOver = false; busy = false;
+  checksGiven = { [WHITE]: 0, [BLACK]: 0 };
   if (autoReturnTimer) { clearTimeout(autoReturnTimer); autoReturnTimer = null; }
   thinkingEl.classList.remove('on');
   endModal.classList.remove('show');
@@ -3236,7 +3418,6 @@ function newGame(){
   renderMoveList(); updateRatingUI(); updateUndoButton();
   refreshHighlights(); updateStatus();
   controls.enabled = false;
-  // Camera intro from the correct side based on the player's color
   const camHome = getCamHome();
   const start = new THREE.Vector3(camHome.x, 30, camHome.z > 0 ? 34 : -34);
   const end = camHome;
@@ -3326,7 +3507,7 @@ document.getElementById('btnResign').onclick = () => {
   endGame(aiColor, 'resign');
 };
 
-/* END GAME */
+/* END GAME — auto-return home almost immediately */
 function endGame(winnerColor, reason){
   if (gameOver) return;
   gameOver = true; busy = false;
@@ -3343,6 +3524,7 @@ function endGame(winnerColor, reason){
     score = 1; icon = '👑'; title = 'Victory';
     desc = reason === 'throne' ? 'You captured the enemy throne!' :
            reason === 'hill' ? 'Your king claimed the hill!' :
+           reason === 'checkthrice' ? 'Three checks — the enemy king is undone!' :
            reason === 'checkmate' ? 'The enemy king has fallen.' :
            reason === 'resign-remote' ? 'Your opponent resigned.' : 'The kingdom is yours.';
     pWins++; coinGain = Math.round(oppRating/6); pCoins += coinGain;
@@ -3351,6 +3533,7 @@ function endGame(winnerColor, reason){
     score = 0; icon = '💀'; title = 'Defeat';
     desc = reason === 'throne' ? 'Enemy captured your throne.' :
            reason === 'hill' ? 'Enemy king claimed the hill.' :
+           reason === 'checkthrice' ? 'You were checked three times.' :
            reason === 'checkmate' ? 'Your king has fallen in battle.' :
            reason === 'resign' ? 'You resigned.' : 'The enemy prevails.';
     pLosses++; coinGain = Math.round(oppRating/20); pCoins += coinGain;
@@ -3383,15 +3566,15 @@ function endGame(winnerColor, reason){
   dEl.style.color = delta > 0 ? 'var(--good)' : delta < 0 ? 'var(--bad)' : 'var(--dim)';
   document.getElementById('coinGain').textContent = '+' + coinGain;
 
-  setTimeout(() => {
-    endModal.classList.add('show');
-    if (winnerColor === playerColor) sfx('coin');
-    if (autoReturnTimer) clearTimeout(autoReturnTimer);
-    autoReturnTimer = setTimeout(() => {
-      autoReturnTimer = null;
-      if (endModal.classList.contains('show')) returnToHomeScreen();
-    }, 12000);
-  }, 1200);
+  // Show the end modal briefly, then auto-return home
+  endModal.classList.add('show');
+  if (winnerColor === playerColor) sfx('coin');
+
+  if (autoReturnTimer) clearTimeout(autoReturnTimer);
+  autoReturnTimer = setTimeout(() => {
+    autoReturnTimer = null;
+    returnToHomeScreen();
+  }, 1500);
 
   if (isMultiplayer && mp.gameId) {
     unsubscribeFromMatch(mp.gameId);
@@ -3415,7 +3598,6 @@ function returnToHomeScreen(){
   pendingChallenge = null;
   gameOver = false;
   busy = false;
-  // Restore camera and colors to default so the cover renders correctly
   playerColor = WHITE;
   aiColor = BLACK;
   camera.position.copy(CAM_HOME);
@@ -3425,9 +3607,7 @@ function returnToHomeScreen(){
   refreshCoverUser();
 }
 
-document.getElementById('endAgain').onclick = () => {
-  returnToHomeScreen();
-};
+document.getElementById('endAgain').onclick = () => { returnToHomeScreen(); };
 document.getElementById('endProfile').onclick = () => {
   if (autoReturnTimer) { clearTimeout(autoReturnTimer); autoReturnTimer = null; }
   endModal.classList.remove('show');
