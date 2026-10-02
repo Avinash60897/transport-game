@@ -397,7 +397,7 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
       <button class="cover-btn ghost" id="covLogin">🔑 Sign In</button>
     </div>
   </div>
-  <div id="cover-footer">v3.2 · Online Multiplayer · The Oracle Awaits</div>
+  <div id="cover-footer">v3.3 · Online Multiplayer · The Oracle Awaits</div>
 </div>
 
 <div id="screen-login" class="screen">
@@ -438,8 +438,8 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
 
 <div id="screen-search" class="screen">
   <div class="bigPanel">
-    <div class="panelTitle">Search Warriors</div>
-    <div class="panelSub">Find any warrior by name — online or offline</div>
+    <div class="panelTitle" id="searchTitle">Search Warriors</div>
+    <div class="panelSub" id="searchSub">Find any warrior by name — online or offline</div>
     <div class="searchBar"><input type="text" id="searchInput" placeholder="Type a username…" autocomplete="off"></div>
     <div class="searchResults" id="searchResults"></div>
     <div class="btnRow"><button class="btn" id="searchBack">← Back</button></div>
@@ -478,6 +478,14 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
         <option value="normal">Normal Chess</option>
         <option value="throne">Capture the Throne</option>
         <option value="hill">King of the Hill</option>
+      </select>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Your Color</label>
+      <select id="chSetupColor">
+        <option value="white">White (moves first)</option>
+        <option value="black">Black</option>
+        <option value="random">Random</option>
       </select>
     </div>
     <div class="btnRow">
@@ -1110,8 +1118,16 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xb8d0e8);
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 600);
 const CAM_HOME = new THREE.Vector3(0, 11, 13);
+const CAM_HOME_BLACK = new THREE.Vector3(0, 11, -13);
 camera.position.copy(CAM_HOME);
 camera.lookAt(0, 0.5, 0);
+
+/* Returns the correct "home" camera position for the current player color.
+   White → camera on the +Z side (White pieces closest to player).
+   Black → camera on the -Z side (Black pieces closest to player). */
+function getCamHome(){
+  return playerColor === WHITE ? CAM_HOME.clone() : CAM_HOME_BLACK.clone();
+}
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0.5, 0);
@@ -1562,6 +1578,7 @@ let gameMode = 'normal';
 let isMultiplayer = false;
 let mpOpponent = null;
 let autoReturnTimer = null;
+let searchMode = 'normal'; // 'normal' | 'multiplayer'
 
 /* TWEENS */
 const tweens = [];
@@ -1944,8 +1961,8 @@ function showAdvisor(type, text, mood){
   advisorEl._hideTimer = setTimeout(() => { advisorEl.classList.remove('on'); }, type === 'taunt' ? 4500 : (type === 'rules' ? 9000 : 6500));
 }
 function rulesFor(mode){
-  if (mode === 'normal') return `Standard chess rules. <strong>Checkmate</strong> wins.<br><br>Castling, en passant and promotion are active. You play <strong>Ivory</strong> (light pieces).`;
-  if (mode === 'throne') return `<strong>CAPTURE THE THRONE</strong><br><br>Goal: get <em>any piece</em> (except your king) onto the enemy king's starting square (<em>e1</em> for you, <em>e8</em> for the enemy). Those squares glow gold/orange.<br><br>Checkmate also wins.`;
+  if (mode === 'normal') return `Standard chess rules. <strong>Checkmate</strong> wins.<br><br>Castling, en passant and promotion are active.`;
+  if (mode === 'throne') return `<strong>CAPTURE THE THRONE</strong><br><br>Goal: get <em>any piece</em> (except your king) onto the enemy king's starting square (<em>e1</em> / <em>e8</em>). Those squares glow gold/orange.<br><br>Checkmate also wins.`;
   if (mode === 'hill') return `<strong>KING OF THE HILL</strong><br><br>Goal: march your <strong>king</strong> to any of the <strong>4 centre squares</strong> (d4, e4, d5, e5) — marked with blue rings.<br><br>Checkmate also wins.`;
   return '';
 }
@@ -2823,8 +2840,15 @@ function openProfile(username, readonly){
   });
 }
 
-/* Search */
-function openSearch(){
+/* Search (supports 'multiplayer' mode) */
+function openSearch(mode){
+  searchMode = mode || 'normal';
+  const titleEl = document.getElementById('searchTitle');
+  const subEl = document.getElementById('searchSub');
+  if (titleEl) titleEl.textContent = searchMode === 'multiplayer' ? 'Find an Opponent' : 'Search Warriors';
+  if (subEl) subEl.textContent = searchMode === 'multiplayer'
+    ? 'Type a name — click to challenge if online'
+    : 'Find any warrior by name — online or offline';
   document.getElementById('searchInput').value = '';
   renderSearchResults('');
   showScreen('screen-search');
@@ -2832,19 +2856,53 @@ function openSearch(){
 }
 function renderSearchResults(q){
   const box = document.getElementById('searchResults');
+  // Multiplayer mode with empty query: show all currently online users
+  if (searchMode === 'multiplayer' && !q) {
+    const onlineList = [...onlineUsers.keys()].filter(u => u !== currentUsername).sort();
+    if (onlineList.length === 0) {
+      box.innerHTML = '<div style="padding:14px;color:var(--dim);font-size:12px;text-align:center;">No one else is online right now. Type a name to search — you can only challenge online warriors.</div>';
+      return;
+    }
+    box.innerHTML = onlineList.map(u => {
+      const p = Storage.getProfile(u) || {};
+      return `<div class="searchResult" data-user="${escapeAttr(u)}">
+        <span class="av">${p.avatar || '⚔️'}</span>
+        <span class="nm">${escapeHtml(u)} <span style="color:var(--online);font-size:10px;">● online</span></span>
+        <span class="rt">${p.rating || 1000}</span>
+      </div>`;
+    }).join('');
+    box.querySelectorAll('.searchResult').forEach(el => {
+      el.onclick = () => openChallengeSetup(el.dataset.user);
+    });
+    return;
+  }
   if (!q) { box.innerHTML = '<div style="padding:14px;color:var(--dim);font-size:12px;text-align:center;">Start typing to search.</div>'; return; }
   const results = Storage.searchUsers(q);
   if (results.length === 0) { box.innerHTML = '<div style="padding:14px;color:var(--dim);font-size:12px;text-align:center;">No warriors found.</div>'; return; }
   box.innerHTML = results.map(r => {
     const online = onlineUsers.has(r.username);
-    return `<div class="searchResult" data-user="${escapeAttr(r.username)}">
+    const isSelf = r.username === currentUsername;
+    return `<div class="searchResult" data-user="${escapeAttr(r.username)}" data-online="${online ? 1 : 0}">
       <span class="av">${r.avatar}</span>
-      <span class="nm">${escapeHtml(r.username)}${online ? ' <span style="color:var(--online);font-size:10px;">● online</span>' : ''}</span>
+      <span class="nm">${escapeHtml(r.username)}${isSelf ? ' <span style="color:var(--dim);font-size:10px;">(you)</span>' : ''}${online ? ' <span style="color:var(--online);font-size:10px;">● online</span>' : ''}</span>
       <span class="rt">${r.rating}</span>
     </div>`;
   }).join('');
   box.querySelectorAll('.searchResult').forEach(el => {
-    el.onclick = () => openProfile(el.dataset.user, el.dataset.user !== currentUsername);
+    const uname = el.dataset.user;
+    const online = el.dataset.online === '1';
+    el.onclick = () => {
+      if (searchMode === 'multiplayer') {
+        if (uname === currentUsername) return;
+        if (online) {
+          openChallengeSetup(uname);
+        } else {
+          showAdvisor('bad', `<strong>${escapeHtml(uname)}</strong> is offline. Ask them to open the game and sign in.`, '😐');
+        }
+      } else {
+        openProfile(uname, uname !== currentUsername);
+      }
+    };
   });
 }
 document.getElementById('searchInput').addEventListener('input', e => renderSearchResults(e.target.value));
@@ -2983,40 +3041,12 @@ function startSinglePlayerGame(){
   updateRatingUI();
 }
 
-/* Multiplayer menu */
+/* Multiplayer menu — always opens the search screen in multiplayer mode */
 function openMultiplayerMenu(){
-  const onlineOthers = [...onlineUsers.keys()].filter(u => u !== currentUsername);
-  if (onlineOthers.length === 0) {
-    document.getElementById('waitTitle').textContent = 'No Warriors Online';
-    document.getElementById('waitBody').innerHTML = 'Nobody else is online right now. Ask a friend to open this game at:<br><br><span style="color:var(--gold);word-break:break-all;">' + escapeHtml(location.href) + '</span><br><br>They need to sign in with their own username, then you can challenge each other.';
-    document.getElementById('waitSub').textContent = 'You can also use Search to find offline profiles.';
-    const cancelBtn = document.getElementById('waitCancel');
-    cancelBtn.textContent = 'Close';
-    cancelBtn.onclick = () => { closeModal('waitingModal'); showScreen('screen-cover'); refreshCoverUser(); };
-    openModal('waitingModal');
-    return;
-  }
-  if (onlineOthers.length === 1) {
-    openChallengeSetup(onlineOthers[0]);
-  } else {
-    document.getElementById('searchInput').value = '';
-    const box = document.getElementById('searchResults');
-    box.innerHTML = onlineOthers.map(u => {
-      const p = Storage.getProfile(u) || {};
-      return `<div class="searchResult" data-user="${escapeAttr(u)}">
-        <span class="av">${p.avatar || '⚔️'}</span>
-        <span class="nm">${escapeHtml(u)} <span style="color:var(--online);font-size:10px;">● online</span></span>
-        <span class="rt">${p.rating || 1000}</span>
-      </div>`;
-    }).join('');
-    box.querySelectorAll('.searchResult').forEach(el => {
-      el.onclick = () => openChallengeSetup(el.dataset.user);
-    });
-    document.getElementById('searchInput').placeholder = 'Search all users too…';
-    showScreen('screen-search');
-  }
+  openSearch('multiplayer');
 }
 
+/* Challenge setup — with color choice */
 function openChallengeSetup(username){
   const prof = Storage.getProfile(username);
   if (!prof) { showAdvisor('bad', `Unknown warrior: ${escapeHtml(username)}`, '🤷'); return; }
@@ -3026,23 +3056,29 @@ function openChallengeSetup(username){
   }
   document.getElementById('chSetupTo').innerHTML = `To: <strong>${escapeHtml(username)}</strong> (rating ${prof.rating})`;
   document.getElementById('chSetupType').value = 'normal';
+  document.getElementById('chSetupColor').value = 'white';
   openModal('challengeSetupModal');
 
   document.getElementById('chSetupSend').onclick = () => {
     const gameType = document.getElementById('chSetupType').value;
+    const colorChoice = document.getElementById('chSetupColor').value;
+    let challengerColor = WHITE;
+    if (colorChoice === 'black') challengerColor = BLACK;
+    else if (colorChoice === 'random') challengerColor = Math.random() < 0.5 ? WHITE : BLACK;
     const gameId = 'g_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,7);
     const challengeMsg = {
       type:'challenge', from: currentUsername, to: username,
-      gameId, gameType, ts: Date.now()
+      gameId, gameType, challengerColor, ts: Date.now()
     };
     if (!publishChallenge(username, challengeMsg)) {
       showAdvisor('bad', 'Could not reach the network. Check your internet connection.', '😕');
       return;
     }
-    mp.outgoingChallenge = { gameId, opponent: username, gameType };
+    mp.outgoingChallenge = { gameId, opponent: username, gameType, myColor: challengerColor };
     closeModal('challengeSetupModal');
     document.getElementById('waitTitle').textContent = 'Challenge Sent';
-    document.getElementById('waitBody').innerHTML = `Waiting for <strong>${escapeHtml(username)}</strong> to accept your <em>${labelGameType(gameType)}</em> challenge…`;
+    const colorLabel = challengerColor === WHITE ? 'White' : 'Black';
+    document.getElementById('waitBody').innerHTML = `Waiting for <strong>${escapeHtml(username)}</strong> to accept your <em>${labelGameType(gameType)}</em> challenge as <em>${colorLabel}</em>…`;
     document.getElementById('waitSub').textContent = 'This will time out in 60 seconds.';
     const cancelBtn = document.getElementById('waitCancel');
     cancelBtn.textContent = 'Cancel';
@@ -3065,7 +3101,6 @@ function openChallengeSetup(username){
 
 let pendingChallenge = null;
 function showIncomingChallenge(msg){
-  // FIX #3a: If already in an active match, auto-decline politely
   if (mp.active) {
     publishChallenge(msg.from, {
       type:'challenge_response', from: currentUsername, to: msg.from,
@@ -3073,7 +3108,6 @@ function showIncomingChallenge(msg){
     });
     return;
   }
-  // FIX #3b: If another challenge is already pending, ignore duplicate
   if (pendingChallenge) {
     console.warn('Challenge already pending — ignoring new one');
     return;
@@ -3081,7 +3115,9 @@ function showIncomingChallenge(msg){
   pendingChallenge = msg;
   sfx('notify');
   const gt = labelGameType(msg.gameType);
-  document.getElementById('incBody').innerHTML = `<strong>${escapeHtml(msg.from)}</strong> challenges you to a <em>${gt}</em> duel!`;
+  const theirColor = msg.challengerColor === BLACK ? 'Black' : 'White';
+  const yourColor = msg.challengerColor === BLACK ? 'White' : 'Black';
+  document.getElementById('incBody').innerHTML = `<strong>${escapeHtml(msg.from)}</strong> challenges you to a <em>${gt}</em> duel!<br><br>They play <em>${theirColor}</em> — you play <em>${yourColor}</em>.`;
   document.getElementById('incMuted').textContent = 'Accepting will start the game immediately.';
   openModal('incomingChallengeModal');
 }
@@ -3094,10 +3130,12 @@ document.getElementById('incAccept').onclick = () => {
     type:'challenge_response', from: currentUsername, to: msg.from,
     gameId: msg.gameId, accept: true, ts: Date.now()
   });
+  // Accepter plays the opposite color of the challenger
+  const myColor = msg.challengerColor === BLACK ? WHITE : BLACK;
   startMultiplayerGame({
     gameId: msg.gameId,
     opponent: msg.from,
-    myColor: BLACK,
+    myColor: myColor,
     gameType: msg.gameType
   });
 };
@@ -3116,7 +3154,6 @@ function handleChallengeResponse(msg){
   const ch = mp.outgoingChallenge;
   mp.outgoingChallenge = null;
   closeModal('waitingModal');
-  // FIX #2: Guard against null ch (duplicate response)
   if (!ch) {
     console.warn('Challenge response received but outgoing challenge is gone — ignoring');
     return;
@@ -3125,7 +3162,7 @@ function handleChallengeResponse(msg){
     startMultiplayerGame({
       gameId: ch.gameId,
       opponent: ch.opponent,
-      myColor: WHITE,
+      myColor: ch.myColor,
       gameType: ch.gameType
     });
   } else {
@@ -3136,7 +3173,6 @@ function handleChallengeResponse(msg){
 }
 
 function startMultiplayerGame({ gameId, opponent, myColor, gameType }){
-  // FIX #1: Guard against duplicate starts
   if (mp.active) {
     console.warn('Already in an active match — ignoring duplicate start');
     return;
@@ -3162,15 +3198,17 @@ function startMultiplayerGame({ gameId, opponent, myColor, gameType }){
   hideAllScreens();
   hudEl.classList.add('on');
   if (modeLabelEl) {
-    modeLabelEl.textContent = '🌐 Online · ' + labelGameType(gameType);
+    const colorLabel = myColor === WHITE ? 'White' : 'Black';
+    modeLabelEl.textContent = '🌐 Online · ' + labelGameType(gameType) + ' · You are ' + colorLabel;
     modeLabelEl.style.display = 'block';
   }
 
   newGame();
 
   setTimeout(() => {
+    const colorLabel = myColor === WHITE ? 'White' : 'Black';
     showAdvisor('speech',
-      `<strong>Online Match!</strong><br>You are <em>${myColor === WHITE ? 'White' : 'Black'}</em> vs <em>${escapeHtml(opponent)}</em><br><br>` +
+      `<strong>Online Match!</strong><br>You are <em>${colorLabel}</em> vs <em>${escapeHtml(opponent)}</em><br><br>` +
       `<strong>Rules:</strong> ${rulesFor(gameType)}`,
       '🌐');
   }, 700);
@@ -3198,8 +3236,10 @@ function newGame(){
   renderMoveList(); updateRatingUI(); updateUndoButton();
   refreshHighlights(); updateStatus();
   controls.enabled = false;
-  const start = new THREE.Vector3(0, 30, 34);
-  const end = CAM_HOME.clone();
+  // Camera intro from the correct side based on the player's color
+  const camHome = getCamHome();
+  const start = new THREE.Vector3(camHome.x, 30, camHome.z > 0 ? 34 : -34);
+  const end = camHome;
   camera.position.copy(start);
   controls.target.set(0, 0.5, 0);
   addTween(1.2, p => {
@@ -3269,7 +3309,7 @@ document.getElementById('btnHint').onclick = async () => {
 };
 document.getElementById('btnView').onclick = () => {
   const start = camera.position.clone();
-  const end = CAM_HOME.clone();
+  const end = getCamHome();
   controls.enabled = false;
   addTween(0.8, p => {
     const e = easeInOutQuad(p);
@@ -3346,13 +3386,10 @@ function endGame(winnerColor, reason){
   setTimeout(() => {
     endModal.classList.add('show');
     if (winnerColor === playerColor) sfx('coin');
-    // FIX #4: Auto-return to home after 12 seconds
     if (autoReturnTimer) clearTimeout(autoReturnTimer);
     autoReturnTimer = setTimeout(() => {
       autoReturnTimer = null;
-      if (endModal.classList.contains('show')) {
-        returnToHomeScreen();
-      }
+      if (endModal.classList.contains('show')) returnToHomeScreen();
     }, 12000);
   }, 1200);
 
@@ -3363,13 +3400,11 @@ function endGame(winnerColor, reason){
   }
 }
 
-/* FIX #4: shared function to fully reset state and return home */
 function returnToHomeScreen(){
   if (autoReturnTimer) { clearTimeout(autoReturnTimer); autoReturnTimer = null; }
   endModal.classList.remove('show');
   hudEl.classList.remove('on');
   hideCinema();
-  // Full reset of multiplayer state so a fresh challenge can be received
   isMultiplayer = false;
   mp.active = false;
   mp.gameId = null;
@@ -3380,7 +3415,9 @@ function returnToHomeScreen(){
   pendingChallenge = null;
   gameOver = false;
   busy = false;
-  // Restore the camera and clear the board display so the cover looks clean
+  // Restore camera and colors to default so the cover renders correctly
+  playerColor = WHITE;
+  aiColor = BLACK;
   camera.position.copy(CAM_HOME);
   controls.target.set(0, 0.5, 0);
   camera.lookAt(controls.target);
@@ -3413,7 +3450,7 @@ document.getElementById('covProfile').onclick = () => {
   if (!currentUsername) { openLogin('signup'); return; }
   openProfile(currentUsername, false);
 };
-document.getElementById('covSearch').onclick = () => openSearch();
+document.getElementById('covSearch').onclick = () => openSearch('normal');
 document.getElementById('covLogin').onclick = () => openLogin('signin');
 
 botToggleEl.onclick = () => {
