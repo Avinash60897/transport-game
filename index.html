@@ -269,14 +269,15 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
 .gameRow .info{color:var(--dim);font-size:11px;}
 .gameRow .delta{font-variant-numeric:tabular-nums;font-weight:600;}
 
-#shopGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:16px;}
+#shopGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:16px;}
 .skinCard{background:linear-gradient(160deg,rgba(60,42,26,.6),rgba(30,20,12,.6));
-  border:1.5px solid rgba(224,180,100,.25);border-radius:12px;padding:14px;text-align:center;transition:all .2s;}
+  border:1.5px solid rgba(224,180,100,.25);border-radius:12px;padding:16px;text-align:center;transition:all .2s;}
 .skinCard:hover{transform:translateY(-3px);border-color:var(--gold);}
 .skinCard.equipped{border-color:var(--good);box-shadow:0 0 22px rgba(127,212,138,.3);}
-.skinPreview{font-size:38px;height:60px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;}
-.skinName{font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;color:var(--parch);}
-.skinDesc{font-size:10.5px;color:var(--dim);line-height:1.4;margin-bottom:10px;min-height:26px;}
+.skinPreview{font-size:48px;height:78px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;
+  color:#ffd070;text-shadow:0 0 24px rgba(255,200,90,.85),0 0 8px rgba(255,230,150,.7);}
+.skinName{font-family:'Cinzel',serif;font-size:12.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;color:var(--parch);}
+.skinDesc{font-size:10.5px;color:var(--dim);line-height:1.4;margin-bottom:10px;min-height:34px;}
 .skinPrice{font-size:12.5px;font-weight:700;color:var(--gold);margin-bottom:6px;}
 .skinBtn{width:100%;padding:8px;font-family:'Cinzel',serif;font-size:10.5px;font-weight:700;letter-spacing:1.2px;
   text-transform:uppercase;border-radius:8px;cursor:pointer;border:1px solid var(--border);
@@ -410,7 +411,7 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
       <button class="cover-btn ghost" id="covLogin">🔑 Sign In</button>
     </div>
   </div>
-  <div id="cover-footer">v5.0 · Armies of the Realm · Progress Auto-Saved</div>
+  <div id="cover-footer">v6.2 · Armies of the Realm · Cloud-Synced</div>
 </div>
 
 <div id="screen-login" class="screen">
@@ -436,13 +437,16 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
 </div>
 
 <div id="screen-shop" class="screen">
-  <div class="bigPanel" style="max-width:860px;">
+  <div class="bigPanel" style="max-width:900px;">
     <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1px solid rgba(224,180,100,.2);">
       <h2 style="font-family:'Cinzel',serif;font-size:20px;font-weight:900;letter-spacing:3px;text-transform:uppercase;
         background:linear-gradient(180deg,#ffe7ae,#c8912f);-webkit-background-clip:text;background-clip:text;color:transparent;">⚜ Armory</h2>
       <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:6px;">
         <span style="font-size:20px;">🪙</span><span id="shopMoneyVal">0</span>
       </div>
+    </div>
+    <div style="text-align:center;font-size:11.5px;color:var(--dim);margin-top:10px;font-style:italic;">
+      All armies march in the same glorious gold — your kingdom's colour shines at their feet.
     </div>
     <div id="shopGrid"></div>
     <div class="btnRow"><button class="btn" id="shopBack">← Back</button></div>
@@ -454,6 +458,7 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
     <div class="panelTitle" id="searchTitle">Search Warriors</div>
     <div class="panelSub" id="searchSub">Find any warrior by name — online or offline</div>
     <div class="searchBar"><input type="text" id="searchInput" placeholder="Type a username…" autocomplete="off"></div>
+    <div id="searchStatusLine" style="font-size:11px;color:var(--dim);text-align:center;margin-bottom:8px;min-height:14px;"></div>
     <div class="searchResults" id="searchResults"></div>
     <div class="btnRow"><button class="btn" id="searchBack">← Back</button></div>
   </div>
@@ -477,6 +482,10 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
       <label>Bot Difficulty</label>
       <select id="soloBotLevel"></select>
     </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Battlefield Realm</label>
+      <select id="soloEnvSelect"></select>
+    </div>
     <div class="muted" id="soloEnv"></div>
     <div class="btnRow">
       <button class="btn" id="soloDecline">Flee</button>
@@ -498,7 +507,11 @@ button.ctl.primary{background:linear-gradient(135deg,rgba(224,180,100,.3),rgba(1
         <option value="checkthrice">Check Thrice</option>
       </select>
     </div>
-    <div class="field" style="margin-top:14px;">
+    <div class="field" style="margin-top:12px;">
+      <label>Battlefield Realm</label>
+      <select id="chSetupEnv"></select>
+    </div>
+    <div class="field" style="margin-top:12px;">
       <label>Your Color</label>
       <select id="chSetupColor">
         <option value="white">White (moves first)</option>
@@ -795,19 +808,13 @@ if (engineWorker) {
 function workerFindMove(st, cfg) {
   return new Promise(resolve => {
     if (!engineWorker) {
-      setTimeout(() => {
-        let mv = null;
-        try { mv = findBestMove(st, cfg); } catch (e) { mv = null; }
-        resolve(mv);
-      }, 20);
+      setTimeout(() => { let mv = null; try { mv = findBestMove(st, cfg); } catch (e) { mv = null; } resolve(mv); }, 20);
       return;
     }
     const id = ++workerMsgId;
     workerCallbacks.set(id, resolve);
-    engineWorker.postMessage({
-      id, board: Array.from(st.board), turn: st.turn, castling: st.castling, ep: st.ep,
-      halfmove: st.halfmove, fullmove: st.fullmove, kings: st.kings.slice(), cfg
-    });
+    engineWorker.postMessage({ id, board: Array.from(st.board), turn: st.turn, castling: st.castling, ep: st.ep,
+      halfmove: st.halfmove, fullmove: st.fullmove, kings: st.kings.slice(), cfg });
   });
 }
 
@@ -891,19 +898,18 @@ const ENVIRONMENTS = [
   { id:'city',       name:'Ancient City',    sky:[0x405a88,0xd09060,0xf0d0a0], fog:0xd0a880, fogNear:32, fogFar:105, ground:0x9a8068, sun:0xffd8a0, amb:0xd0b090, ambI:0.6,  props:'city' }
 ];
 
-const SKINS = {
-  stone:    { name:'Stone',      price:0,     desc:'Humble granite.',        body:0xbfb0a0, cloth:0x6a5040, trim:0x8a7a68, metal:0.05 },
-  oak:      { name:'Ancient Oak',price:400,   desc:'Carved Elderwood.',      body:0xd8b878, cloth:0x5a3a20, trim:0xa07040, metal:0.05 },
-  bronze:   { name:'Bronze',     price:1200,  desc:'Copper Age forging.',    body:0xd0a060, cloth:0x804020, trim:0xc08040, metal:0.65 },
-  silver:   { name:'Silver',     price:2400,  desc:'Moonlight given form.',  body:0xe8e8f0, cloth:0x3a3a5a, trim:0xc0c0d0, metal:0.85 },
-  gold:     { name:'Golden',     price:4000,  desc:'Sunken Vault treasure.', body:0xffd060, cloth:0x9a3a20, trim:0xffe090, metal:0.9  },
-  obsidian: { name:'Obsidian',   price:6000,  desc:'Volcanic glass.',        body:0x1a1a20, cloth:0x0a0a18, trim:0x6a2a3a, metal:0.5, emissive:0x2a0a2a, emI:0.35 },
-  crystal:  { name:'Crystal',    price:9000,  desc:'Frozen starlight.',      body:0x90e0f0, cloth:0x3060a0, trim:0xc0f0ff, metal:0.3, emissive:0x50d0e0, emI:0.4, transparent:true, opacity:0.92 },
-  ancient:  { name:'Ancient',    price:14000, desc:'Relics of the gods.',    body:0xdac89a, cloth:0x2a1a10, trim:0xffd070, metal:0.95, emissive:0x4a2800, emI:0.5 }
+const PIECE_SETS = {
+  royal:     { name:'Royal Guard',     price:0,     desc:'The classic army of the realm — disciplined, ornate, and true.', style:0, icon:'♛' },
+  ornate:    { name:'Ornate Legion',   price:3500,  desc:'Filigreed gold and proud banners streaming from every shoulder.', style:1, icon:'⚜' },
+  barbarian: { name:'Barbarian Horde', price:8000,  desc:'Spiked armour, rougher forges — fierce and untamed.', style:2, icon:'⚔' },
+  celestial: { name:'Celestial Host',  price:16000, desc:'Winged guardians blessed by the heavens themselves.', style:3, icon:'✦' }
 };
 
+const KINGDOM_RING = { [WHITE]: 0x80b8ff, [BLACK]: 0xff5a4a };
+const KINGDOM_RING2 = { [WHITE]: 0xd8e8ff, [BLACK]: 0xffb090 };
+
 /* PROFILE STORAGE */
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 const KEY_PRIMARY = 'akc_profiles';
 const KEY_BACKUP = 'akc_profiles_backup';
 const KEY_CURRENT = 'akc_current';
@@ -916,7 +922,7 @@ function fnv1a(str) { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) {
 function hashPassword(pw) { return 'h_' + fnv1a('akc_pw_' + pw + '_salt_v2'); }
 function defaultProfile(passwordHash) {
   return { schemaVersion: SCHEMA_VERSION, password: passwordHash, rating: 1000, coins: 300, wins: 0, losses: 0, draws: 0,
-    unlockedSkins: ['stone'], equippedSkin: 'stone', avatar: '⚔️', createdAt: Date.now(), updatedAt: Date.now(), history: [] };
+    unlockedSkins: ['royal'], equippedSkin: 'royal', avatar: '⚔️', createdAt: Date.now(), updatedAt: Date.now(), history: [] };
 }
 function migrateProfile(p) {
   if (!p || typeof p !== 'object') return null;
@@ -927,10 +933,9 @@ function migrateProfile(p) {
   p.wins = (typeof p.wins === 'number' && isFinite(p.wins)) ? p.wins : 0;
   p.losses = (typeof p.losses === 'number' && isFinite(p.losses)) ? p.losses : 0;
   p.draws = (typeof p.draws === 'number' && isFinite(p.draws)) ? p.draws : 0;
-  p.unlockedSkins = Array.isArray(p.unlockedSkins) ? p.unlockedSkins.filter(x => typeof x === 'string') : ['stone'];
-  if (p.unlockedSkins.length === 0) p.unlockedSkins = ['stone'];
-  p.equippedSkin = (typeof p.equippedSkin === 'string') ? p.equippedSkin : 'stone';
-  if (!p.unlockedSkins.includes(p.equippedSkin)) p.equippedSkin = p.unlockedSkins[0];
+  p.unlockedSkins = Array.isArray(p.unlockedSkins) ? p.unlockedSkins.filter(x => typeof x === 'string') : ['royal'];
+  if (p.unlockedSkins.length === 0) p.unlockedSkins = ['royal'];
+  p.equippedSkin = (typeof p.equippedSkin === 'string') ? p.equippedSkin : 'royal';
   p.avatar = (typeof p.avatar === 'string') ? p.avatar : '⚔️';
   p.createdAt = (typeof p.createdAt === 'number') ? p.createdAt : Date.now();
   p.updatedAt = (typeof p.updatedAt === 'number') ? p.updatedAt : Date.now();
@@ -938,11 +943,16 @@ function migrateProfile(p) {
   if (p.history.length > 200) p.history = p.history.slice(-200);
   if (typeof p.password !== 'string') p.password = hashPassword('');
   if (v < 2 && p.password && !p.password.startsWith('h_')) p.password = hashPassword(p.password);
+  if (v < 3) { p.unlockedSkins = ['royal']; p.equippedSkin = 'royal'; }
+  const validKeys = Object.keys(PIECE_SETS);
+  p.unlockedSkins = p.unlockedSkins.filter(k => validKeys.includes(k));
+  if (p.unlockedSkins.length === 0) p.unlockedSkins = ['royal'];
+  if (!p.unlockedSkins.includes(p.equippedSkin)) p.equippedSkin = p.unlockedSkins[0];
   return p;
 }
 function computeIntegrity(profiles) {
   const keys = Object.keys(profiles).sort();
-  let s = 'v2::';
+  let s = 'v3::';
   for (const k of keys) {
     const p = profiles[k];
     s += k + '|' + p.password + '|' + p.rating + '|' + p.coins + '|' + p.wins + '|' + p.losses + '|' + p.draws + '|' + p.avatar + '|' +
@@ -951,7 +961,7 @@ function computeIntegrity(profiles) {
   return fnv1a(s);
 }
 const Storage = {
-  _cache: null, _recoveredFromBackup: false, _tampered: false,
+  _cache: null, _recoveredFromBackup: false, _tampered: false, _didMigrate: false,
   _read(key) { if (!localStorageAvailable) return null; try { const raw = localStorage.getItem(key); if (!raw) return null; return JSON.parse(raw); } catch (e) { return null; } },
   _write(key, obj) { if (!localStorageAvailable) return false; try { localStorage.setItem(key, JSON.stringify(obj)); return true; } catch (e) { return false; } },
   loadAll() {
@@ -971,9 +981,16 @@ const Storage = {
     else { chosen = {}; }
     this._recoveredFromBackup = fromBackup;
     this._tampered = tampered;
-    for (const u of Object.keys(chosen)) { const m = migrateProfile(chosen[u]); if (m) chosen[u] = m; else delete chosen[u]; }
+    let didMigrate = false;
+    for (const u of Object.keys(chosen)) {
+      const beforeVer = chosen[u] && chosen[u].schemaVersion;
+      const m = migrateProfile(chosen[u]);
+      if (m) { if (beforeVer !== m.schemaVersion) didMigrate = true; chosen[u] = m; }
+      else delete chosen[u];
+    }
+    this._didMigrate = didMigrate;
     this._cache = chosen;
-    if (fromBackup || tampered || !primary) this.saveAll(chosen);
+    if (fromBackup || tampered || !primary || didMigrate) this.saveAll(chosen);
     return this._cache;
   },
   saveAll(profiles) {
@@ -987,7 +1004,7 @@ const Storage = {
   saveProfile(u, data) { if (!u || !data) return false; data.schemaVersion = SCHEMA_VERSION; data.updatedAt = Date.now(); const all = this.loadAll(); all[u] = data; this.saveAll(all); return true; },
   createProfile(username, password) {
     if (!username || !password) return { error: 'Username and password required' };
-    if (this.getProfile(username)) return { error: 'Username already exists on this device' };
+    if (this.getProfile(username)) return { error: 'Username already exists' };
     const p = defaultProfile(hashPassword(password));
     const all = this.loadAll(); all[username] = p; this.saveAll(all);
     return { profile: p };
@@ -1011,12 +1028,13 @@ const Storage = {
   getCurrent() { if (!localStorageAvailable) return ''; try { return localStorage.getItem(KEY_CURRENT) || ''; } catch(e){ return ''; } },
   setCurrent(u) { if (!localStorageAvailable) return; try { if (u) localStorage.setItem(KEY_CURRENT, u); else localStorage.removeItem(KEY_CURRENT); } catch(e){} },
   wasRecovered() { this.loadAll(); return this._recoveredFromBackup; },
-  wasTampered() { this.loadAll(); return this._tampered; }
+  wasTampered() { this.loadAll(); return this._tampered; },
+  wasMigrated() { this.loadAll(); return this._didMigrate; }
 };
 
 let currentProfile = null, currentUsername = '';
 let pRating = 1000, pCoins = 300, pWins = 0, pLosses = 0, pDraws = 0;
-let pUnlockedSkins = ['stone'], pEquippedSkin = 'stone', pAvatar = '⚔️', pHistory = [];
+let pUnlockedSkins = ['royal'], pEquippedSkin = 'royal', pAvatar = '⚔️', pHistory = [];
 
 function loadProfileIntoMemory(u){
   const p = Storage.getProfile(u);
@@ -1024,8 +1042,10 @@ function loadProfileIntoMemory(u){
   currentUsername = u; currentProfile = p;
   pRating = p.rating; pCoins = p.coins;
   pWins = p.wins; pLosses = p.losses; pDraws = p.draws;
-  pUnlockedSkins = (p.unlockedSkins||['stone']).slice();
-  pEquippedSkin = p.equippedSkin || 'stone';
+  pUnlockedSkins = (p.unlockedSkins||['royal']).slice();
+  pEquippedSkin = p.equippedSkin || 'royal';
+  if (!PIECE_SETS[pEquippedSkin]) pEquippedSkin = 'royal';
+  if (!pUnlockedSkins.includes(pEquippedSkin)) { pUnlockedSkins.push(pEquippedSkin); }
   pAvatar = p.avatar || '⚔️';
   pHistory = (p.history || []).slice();
   Storage.setCurrent(u);
@@ -1035,35 +1055,142 @@ function saveMemoryToProfile(){
   if (!currentUsername) return;
   let p = Storage.getProfile(currentUsername);
   if (!p) {
-    console.warn('Profile missing — recreating');
-    p = {
-      schemaVersion: SCHEMA_VERSION,
+    p = { schemaVersion: SCHEMA_VERSION,
       password: currentProfile && currentProfile.password ? currentProfile.password : '',
-      rating: pRating, coins: pCoins,
-      wins: pWins, losses: pLosses, draws: pDraws,
+      rating: pRating, coins: pCoins, wins: pWins, losses: pLosses, draws: pDraws,
       unlockedSkins: pUnlockedSkins.slice(), equippedSkin: pEquippedSkin,
-      avatar: pAvatar, createdAt: Date.now(), updatedAt: Date.now(),
-      history: pHistory.slice()
-    };
-    Storage.saveProfile(currentUsername, p); currentProfile = p; return;
+      avatar: pAvatar, createdAt: Date.now(), updatedAt: Date.now(), history: pHistory.slice() };
+    Storage.saveProfile(currentUsername, p); currentProfile = p;
+  } else {
+    p.rating = pRating; p.coins = pCoins;
+    p.wins = pWins; p.losses = pLosses; p.draws = pDraws;
+    p.unlockedSkins = pUnlockedSkins.slice(); p.equippedSkin = pEquippedSkin;
+    p.avatar = pAvatar; p.history = pHistory.slice();
+    Storage.saveProfile(currentUsername, p); currentProfile = p;
   }
-  p.rating = pRating; p.coins = pCoins;
-  p.wins = pWins; p.losses = pLosses; p.draws = pDraws;
-  p.unlockedSkins = pUnlockedSkins.slice(); p.equippedSkin = pEquippedSkin;
-  p.avatar = pAvatar; p.history = pHistory.slice();
-  Storage.saveProfile(currentUsername, p); currentProfile = p;
+  schedulePublishMyProfile(200);
 }
 
-/* ONLINE MULTIPLAYER */
-const MQTT_TOPIC_BASE = 'ancient-kingdom-chess/v3';
+/* ============================================================
+   ONLINE MULTIPLAYER + CROSS-DEVICE PROFILE SYNC (MQTT)
+   Strategy:
+   - presence carries { username, avatar, rating, profile } every 2.5s
+     → so any two simultaneously-online clients ALWAYS know each other's profile
+   - profile/<user> retained publish keeps an offline-accessible copy
+   - "hello" broadcast on connect → everyone re-broadcasts presence + profile
+   - periodic re-publish every 25s → keeps retained msg fresh
+   - profile_request/<user> → any client that has it responds
+   ============================================================ */
+const MQTT_TOPIC_BASE = 'ancient-kingdom-chess/v6';
 let mqttClient = null, mqttReady = false, mqttConnecting = false;
 const onlineUsers = new Map();
 const PRESENCE_INTERVAL = 2500;
-const ONLINE_TIMEOUT = 8000;
+const ONLINE_TIMEOUT = 9000;
 let presenceTimer = null, pruneTimer = null;
+let profileRepublishTimer = null;
 let mp = { active: false, gameId: null, opponent: null, myColor: WHITE, undoPending: false, undoRequestedByMe: false, outgoingChallenge: null };
 
 function sanitizeTopicPart(s) { return String(s).replace(/[^a-zA-Z0-9_\-]/g, '_').slice(0, 40); }
+
+/* compact profile for transport — trim huge history */
+function compactProfileForWire(p) {
+  if (!p) return null;
+  const hist = Array.isArray(p.history) ? p.history.slice(-10) : [];
+  return { schemaVersion: p.schemaVersion, password: p.password, rating: p.rating, coins: p.coins,
+    wins: p.wins, losses: p.losses, draws: p.draws,
+    unlockedSkins: (p.unlockedSkins||['royal']).slice(), equippedSkin: p.equippedSkin,
+    avatar: p.avatar, createdAt: p.createdAt, updatedAt: p.updatedAt, history: hist };
+}
+
+function upsertRemoteProfile(username, incoming) {
+  if (!username || !incoming) return false;
+  if (username === currentUsername) return false;
+  const existing = Storage.getProfile(username);
+  const inUpdated = (typeof incoming.updatedAt === 'number') ? incoming.updatedAt : 0;
+  const exUpdated = (existing && typeof existing.updatedAt === 'number') ? existing.updatedAt : -1;
+  if (existing && inUpdated <= exUpdated) return false;
+  const migrated = migrateProfile(incoming);
+  if (!migrated) return false;
+  // Keep existing local history if incoming is trimmed and older entries exist
+  if (existing && Array.isArray(existing.history) && Array.isArray(migrated.history)) {
+    if (migrated.history.length < existing.history.length && inUpdated === exUpdated) {
+      migrated.history = existing.history;
+    } else if (migrated.history.length < 20 && existing.history.length > migrated.history.length) {
+      // merge: keep newest combined
+      const combined = existing.history.concat(migrated.history);
+      combined.sort((a,b) => (a.ts||0) - (b.ts||0));
+      migrated.history = combined.slice(-200);
+    }
+  }
+  const all = Storage.getProfiles();
+  all[username] = migrated;
+  Storage.saveAll(all);
+  // If our own profile screen or search is open, refresh
+  const searchScreen = document.getElementById('screen-search');
+  if (searchScreen && searchScreen.classList.contains('active')) {
+    const input = document.getElementById('searchInput');
+    if (input) renderSearchResults(input.value);
+  }
+  const profileScreen = document.getElementById('screen-profile');
+  if (profileScreen && profileScreen.classList.contains('active')) {
+    const nameEl = document.querySelector('.profileName');
+    if (nameEl && nameEl.textContent === username) openProfile(username, username !== currentUsername);
+  }
+  return true;
+}
+
+/* --- publishing helpers --- */
+let publishProfileTimer = null;
+function schedulePublishMyProfile(delay = 200) {
+  if (publishProfileTimer) clearTimeout(publishProfileTimer);
+  publishProfileTimer = setTimeout(() => { publishProfileTimer = null; publishMyProfile(); }, delay);
+}
+function publishMyProfile(forceRetain = true) {
+  if (!mqttReady || !mqttClient || !currentUsername) return;
+  const p = Storage.getProfile(currentUsername);
+  if (!p) return;
+  try {
+    mqttClient.publish(
+      `${MQTT_TOPIC_BASE}/profile/${sanitizeTopicPart(currentUsername)}`,
+      JSON.stringify({ profile: compactProfileForWire(p), username: currentUsername, ts: Date.now() }),
+      { qos: 0, retain: !!forceRetain }
+    );
+  } catch (e) { console.warn('[profile publish]', e); }
+}
+function broadcastHello() {
+  if (!mqttReady || !mqttClient) return;
+  try {
+    mqttClient.publish(`${MQTT_TOPIC_BASE}/hello`,
+      JSON.stringify({ from: currentUsername || ('anon_' + Math.random().toString(36).slice(2,8)), ts: Date.now() }),
+      { qos: 0 });
+  } catch (e) {}
+}
+function startProfileRepublishLoop() {
+  if (profileRepublishTimer) clearInterval(profileRepublishTimer);
+  profileRepublishTimer = setInterval(() => { if (currentUsername && mqttReady) publishMyProfile(true); }, 25000);
+}
+
+function networkWaitForProfile(username, timeoutMs = 3500) {
+  return new Promise(resolve => {
+    if (Storage.getProfile(username)) { resolve(true); return; }
+    const requestId = 'req_' + Math.random().toString(36).slice(2,8);
+    if (mqttReady && mqttClient) {
+      try {
+        mqttClient.publish(`${MQTT_TOPIC_BASE}/profile_request/${sanitizeTopicPart(username)}`,
+          JSON.stringify({ from: currentUsername || requestId, requested: username, reqId: requestId, ts: Date.now() }),
+          { qos: 0 });
+      } catch (e) {}
+    }
+    // also try a hello broadcast — every client re-broadcasts, so if the friend is online we get her quickly
+    broadcastHello();
+    const start = Date.now();
+    const poll = setInterval(() => {
+      if (Storage.getProfile(username)) { clearInterval(poll); resolve(true); return; }
+      if (Date.now() - start > timeoutMs) { clearInterval(poll); resolve(false); }
+    }, 100);
+  });
+}
+
 function initMQTT() {
   if (typeof mqtt === 'undefined') { setNetStatus('offline', false); return; }
   if (mqttClient || mqttConnecting) return;
@@ -1074,8 +1201,16 @@ function initMQTT() {
     mqttClient.on('connect', () => {
       mqttReady = true; mqttConnecting = false; setNetStatus('online', true);
       mqttClient.subscribe(`${MQTT_TOPIC_BASE}/presence`, { qos: 0 });
+      mqttClient.subscribe(`${MQTT_TOPIC_BASE}/profile/+`, { qos: 0 });
+      mqttClient.subscribe(`${MQTT_TOPIC_BASE}/profile_request/+`, { qos: 0 });
+      mqttClient.subscribe(`${MQTT_TOPIC_BASE}/hello`, { qos: 0 });
       if (currentUsername) mqttClient.subscribe(`${MQTT_TOPIC_BASE}/challenge/${sanitizeTopicPart(currentUsername)}`, { qos: 0 });
       broadcastPresence();
+      if (currentUsername) {
+        schedulePublishMyProfile(50);
+        broadcastHello();
+      }
+      startProfileRepublishLoop();
     });
     mqttClient.on('message', (topic, payload) => { try { handleMQTTMessage(topic, JSON.parse(payload.toString())); } catch (e) {} });
     mqttClient.on('error', (err) => { console.warn('[MQTT] error', err); });
@@ -1084,24 +1219,86 @@ function initMQTT() {
   } catch (e) { mqttConnecting = false; setNetStatus('offline', false); }
 }
 function setNetStatus(text, online){ const el = document.getElementById('netStatus'); if (!el) return; el.textContent = text; el.classList.toggle('on', !!online); }
-function broadcastPresence(){ if (!mqttReady || !currentUsername || !mqttClient) return; try { mqttClient.publish(`${MQTT_TOPIC_BASE}/presence`, JSON.stringify({ username: currentUsername, avatar: pAvatar, rating: pRating, ts: Date.now() }), { qos: 0, retain: false }); } catch (e) {} }
+
+/* Presence now carries a full (compact) profile snapshot. This is the KEY sync mechanism. */
+function broadcastPresence(){
+  if (!mqttReady || !currentUsername || !mqttClient) return;
+  const prof = Storage.getProfile(currentUsername);
+  try {
+    mqttClient.publish(`${MQTT_TOPIC_BASE}/presence`, JSON.stringify({
+      username: currentUsername, avatar: pAvatar, rating: pRating,
+      profile: compactProfileForWire(prof),
+      ts: Date.now()
+    }), { qos: 0, retain: false });
+  } catch (e) {}
+}
 function subscribeToMyChallengeChannel(){ if (!mqttReady || !currentUsername || !mqttClient) return; mqttClient.subscribe(`${MQTT_TOPIC_BASE}/challenge/${sanitizeTopicPart(currentUsername)}`, { qos: 0 }); }
 function subscribeToMatch(gameId){ if (!mqttReady || !mqttClient) return; mqttClient.subscribe(`${MQTT_TOPIC_BASE}/match/${sanitizeTopicPart(gameId)}`, { qos: 0 }); }
 function unsubscribeFromMatch(gameId){ if (!mqttReady || !mqttClient) return; mqttClient.unsubscribe(`${MQTT_TOPIC_BASE}/match/${sanitizeTopicPart(gameId)}`); }
 function publishChallenge(targetUser, msg){ if (!mqttReady || !mqttClient) return false; try { mqttClient.publish(`${MQTT_TOPIC_BASE}/challenge/${sanitizeTopicPart(targetUser)}`, JSON.stringify(msg), { qos: 0 }); return true; } catch (e) { return false; } }
 function publishToMatch(gameId, msg){ if (!mqttReady || !mqttClient) return false; try { mqttClient.publish(`${MQTT_TOPIC_BASE}/match/${sanitizeTopicPart(gameId)}`, JSON.stringify(msg), { qos: 0 }); return true; } catch (e) { return false; } }
+
 function handleMQTTMessage(topic, msg) {
   if (!msg || typeof msg !== 'object') return;
-  if (topic === `${MQTT_TOPIC_BASE}/presence`) {
-    if (msg.username && msg.username !== currentUsername) { onlineUsers.set(msg.username, { avatar: msg.avatar || '⚔️', rating: msg.rating || 1000, lastSeen: Date.now() }); renderOnlineUsers(); }
+
+  /* --- Hello: everyone re-broadcasts presence + profile --- */
+  if (topic === `${MQTT_TOPIC_BASE}/hello`) {
+    if (msg.from && msg.from !== currentUsername) {
+      const jitter = Math.random() * 700;
+      setTimeout(() => { broadcastPresence(); if (currentUsername) publishMyProfile(false); }, jitter);
+    }
     return;
   }
+
+  /* --- Presence: contains full profile snapshot --- */
+  if (topic === `${MQTT_TOPIC_BASE}/presence`) {
+    if (msg.username && msg.username !== currentUsername) {
+      onlineUsers.set(msg.username, { avatar: msg.avatar || '⚔️', rating: msg.rating || 1000, lastSeen: Date.now() });
+      if (msg.profile) {
+        const changed = upsertRemoteProfile(msg.username, msg.profile);
+        if (changed) {
+          // if the search screen is open, refresh the "status" line
+          const statusLine = document.getElementById('searchStatusLine');
+          if (statusLine) statusLine.textContent = `Discovered: ${msg.username}`;
+        }
+      }
+      renderOnlineUsers();
+    }
+    return;
+  }
+
+  /* --- Retained profile broadcast --- */
+  if (topic.startsWith(`${MQTT_TOPIC_BASE}/profile/`)) {
+    const uname = topic.substring(`${MQTT_TOPIC_BASE}/profile/`.length);
+    if (!msg.profile || !uname) return;
+    upsertRemoteProfile(uname, msg.profile);
+    return;
+  }
+
+  /* --- Profile request: any client with the profile re-publishes --- */
+  if (topic.startsWith(`${MQTT_TOPIC_BASE}/profile_request/`)) {
+    const requested = topic.substring(`${MQTT_TOPIC_BASE}/profile_request/`.length);
+    if (!requested || !mqttClient) return;
+    const p = Storage.getProfile(requested);
+    if (p) {
+      try {
+        mqttClient.publish(`${MQTT_TOPIC_BASE}/profile/${sanitizeTopicPart(requested)}`,
+          JSON.stringify({ profile: compactProfileForWire(p), username: requested, ts: Date.now() }),
+          { qos: 0, retain: true });
+      } catch (e) {}
+    }
+    return;
+  }
+
+  /* --- Challenge channel --- */
   const challengePrefix = `${MQTT_TOPIC_BASE}/challenge/${sanitizeTopicPart(currentUsername)}`;
   if (topic === challengePrefix) {
     if (msg.type === 'challenge' && msg.from && msg.from !== currentUsername) { showIncomingChallenge(msg); return; }
     if (msg.type === 'challenge_response' && mp.outgoingChallenge && msg.gameId === mp.outgoingChallenge.gameId) { handleChallengeResponse(msg); return; }
     return;
   }
+
+  /* --- Match channel --- */
   if (topic.startsWith(`${MQTT_TOPIC_BASE}/match/`)) {
     if (!mp.active) return;
     if (msg.by === currentUsername) return;
@@ -1115,6 +1312,7 @@ function handleMQTTMessage(topic, msg) {
     return;
   }
 }
+
 function startPresenceLoop(){
   if (presenceTimer) clearInterval(presenceTimer);
   if (pruneTimer) clearInterval(pruneTimer);
@@ -1320,55 +1518,23 @@ function applyEnvironment(envId){
   document.getElementById('envName').textContent = env.name;
 }
 
-/* ============================================================
-   BATTLEFIELD BOARD
-   ============================================================ */
+/* BOARD */
 function makeWoodTexture(baseHex, grainHex, plankCount, scorchCount) {
   const c = document.createElement('canvas');
   c.width = 256; c.height = 256;
   const x = c.getContext('2d');
   const baseColor = '#' + baseHex.toString(16).padStart(6,'0');
   const grainColor = '#' + grainHex.toString(16).padStart(6,'0');
-  x.fillStyle = baseColor;
-  x.fillRect(0, 0, 256, 256);
-  // Planks - horizontal lines
+  x.fillStyle = baseColor; x.fillRect(0, 0, 256, 256);
   const plankH = 256 / plankCount;
-  for (let i = 0; i <= plankCount; i++) {
-    x.strokeStyle = 'rgba(0,0,0,0.35)';
-    x.lineWidth = 1.5;
-    x.beginPath(); x.moveTo(0, i*plankH); x.lineTo(256, i*plankH); x.stroke();
-  }
-  // Wood grain streaks
-  for (let i = 0; i < 90; i++) {
-    x.strokeStyle = grainColor;
-    x.globalAlpha = 0.10 + Math.random()*0.15;
-    x.lineWidth = 0.4 + Math.random()*1.2;
-    x.beginPath();
-    const y = Math.random()*256;
-    x.moveTo(0, y);
-    x.bezierCurveTo(64, y + (Math.random()-0.5)*8, 192, y + (Math.random()-0.5)*8, 256, y);
-    x.stroke();
-  }
+  for (let i = 0; i <= plankCount; i++) { x.strokeStyle = 'rgba(0,0,0,0.35)'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(0, i*plankH); x.lineTo(256, i*plankH); x.stroke(); }
+  for (let i = 0; i < 90; i++) { x.strokeStyle = grainColor; x.globalAlpha = 0.10 + Math.random()*0.15; x.lineWidth = 0.4 + Math.random()*1.2; x.beginPath();
+    const y = Math.random()*256; x.moveTo(0, y); x.bezierCurveTo(64, y + (Math.random()-0.5)*8, 192, y + (Math.random()-0.5)*8, 256, y); x.stroke(); }
   x.globalAlpha = 1;
-  // Scorch marks / stains
-  for (let i = 0; i < scorchCount; i++) {
-    x.fillStyle = 'rgba(20, 10, 5, 0.22)';
-    x.beginPath();
-    x.arc(Math.random()*256, Math.random()*256, 6 + Math.random()*22, 0, Math.PI*2);
-    x.fill();
-  }
-  // Small chips / dark dots (dirt)
-  for (let i = 0; i < 60; i++) {
-    x.fillStyle = 'rgba(0,0,0,0.18)';
-    x.beginPath();
-    x.arc(Math.random()*256, Math.random()*256, 0.8 + Math.random()*1.8, 0, Math.PI*2);
-    x.fill();
-  }
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(1, 1);
-  return t;
+  for (let i = 0; i < scorchCount; i++) { x.fillStyle = 'rgba(20, 10, 5, 0.22)'; x.beginPath(); x.arc(Math.random()*256, Math.random()*256, 6 + Math.random()*22, 0, Math.PI*2); x.fill(); }
+  for (let i = 0; i < 60; i++) { x.fillStyle = 'rgba(0,0,0,0.18)'; x.beginPath(); x.arc(Math.random()*256, Math.random()*256, 0.8 + Math.random()*1.8, 0, Math.PI*2); x.fill(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(1, 1); return t;
 }
 const lightWoodTex = makeWoodTexture(0xd9b78e, 0x6b4520, 5, 6);
 const darkWoodTex  = makeWoodTexture(0x6a3c1c, 0x2a1206, 6, 10);
@@ -1376,18 +1542,13 @@ const darkWoodTex  = makeWoodTexture(0x6a3c1c, 0x2a1206, 6, 10);
 const lightSqMat = new THREE.MeshStandardMaterial({ map: lightWoodTex, color: 0xf0dcb4, roughness: 0.78, metalness: 0.02 });
 const darkSqMat  = new THREE.MeshStandardMaterial({ map: darkWoodTex,  color: 0xb04a24, roughness: 0.82, metalness: 0.04 });
 
-/* BOARD */
 const boardGroup = new THREE.Group(); scene.add(boardGroup);
 
-// Foundation — dark stone slab under everything
 const baseSlab = new THREE.Mesh(new THREE.BoxGeometry(9.9, 0.9, 9.9),
   new THREE.MeshStandardMaterial({ color: 0x2a1f16, roughness: 0.85, metalness: 0.1 }));
 baseSlab.position.y = -0.45; baseSlab.receiveShadow = true; baseSlab.castShadow = true; boardGroup.add(baseSlab);
 
-// Battlefield "plank" surface — like a war table / wooden war map
-const plankMat = new THREE.MeshStandardMaterial({
-  color: 0x5a3d1e, roughness: 0.85, metalness: 0.06
-});
+const plankMat = new THREE.MeshStandardMaterial({ color: 0x5a3d1e, roughness: 0.85, metalness: 0.06 });
 const planksGroup = new THREE.Group();
 const plankCount = 6;
 for (let i = 0; i < plankCount; i++) {
@@ -1398,36 +1559,29 @@ for (let i = 0; i < plankCount; i++) {
 }
 boardGroup.add(planksGroup);
 
-// Ornate frame around the battlefield
 const rim = new THREE.Mesh(new THREE.BoxGeometry(9.75, 0.32, 9.75),
   new THREE.MeshStandardMaterial({ color: 0x2f1d10, roughness: 0.75, metalness: 0.18 }));
 rim.position.y = -0.05; rim.receiveShadow = true; rim.castShadow = true; boardGroup.add(rim);
 
-// Gold trim line
 const trim = new THREE.Mesh(new THREE.BoxGeometry(9.68, 0.04, 9.68),
   new THREE.MeshStandardMaterial({ color: 0xc9992f, roughness: 0.28, metalness: 0.96, emissive: 0x2a1600, emissiveIntensity: 0.55 }));
 trim.position.y = 0.115; boardGroup.add(trim);
 
-// Decorative corner stones
 for (const [cx, cz] of [[-4.75,-4.75],[4.75,-4.75],[-4.75,4.75],[4.75,4.75]]) {
   const corner = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.36, 8),
     new THREE.MeshStandardMaterial({ color: 0x3a2818, roughness: 0.82, metalness: 0.12 }));
-  corner.position.set(cx, 0.10, cz); corner.castShadow = true; corner.receiveShadow = true;
-  boardGroup.add(corner);
+  corner.position.set(cx, 0.10, cz); corner.castShadow = true; corner.receiveShadow = true; boardGroup.add(corner);
   const cap = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.14, 8),
     new THREE.MeshStandardMaterial({ color: 0xc9992f, roughness: 0.32, metalness: 0.92 }));
-  cap.position.set(cx, 0.35, cz); cap.castShadow = true;
-  boardGroup.add(cap);
+  cap.position.set(cx, 0.35, cz); cap.castShadow = true; boardGroup.add(cap);
 }
 
-// 8x8 battlefield squares (flat planks, alternating tones)
 const sqGeo = new THREE.BoxGeometry(1.06, 0.09, 1.06);
 const squareMeshes = [];
 for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
   const i = r*8 + c;
   const isLight = (r+c)%2 === 0;
   const mat = (isLight ? lightSqMat : darkSqMat).clone();
-  // Vary rotation so wood grain isn't aligned between squares
   if (mat.map) { mat.map = mat.map.clone(); mat.map.needsUpdate = true; mat.map.rotation = Math.random()*Math.PI; mat.map.center.set(0.5,0.5); }
   const m = new THREE.Mesh(sqGeo, mat);
   m.position.set(c-3.5, 0.155, r-3.5);
@@ -1435,42 +1589,27 @@ for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
   boardGroup.add(m); squareMeshes.push(m);
 }
 
-// Scattered battlefield debris on outer rim
 (function scatterDebris(){
   for (let i = 0; i < 26; i++) {
     const angle = Math.random() * Math.PI * 2;
     const dist = 5.0 + Math.random() * 1.6;
-    const x = Math.cos(angle) * dist;
-    const z = Math.sin(angle) * dist;
+    const x = Math.cos(angle) * dist; const z = Math.sin(angle) * dist;
     const s = 0.05 + Math.random() * 0.09;
-    const rock = new THREE.Mesh(
-      new THREE.DodecahedronGeometry(s, 0),
-      new THREE.MeshStandardMaterial({ color: 0x5a4a3a, roughness: 0.95 })
-    );
+    const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(s, 0), new THREE.MeshStandardMaterial({ color: 0x5a4a3a, roughness: 0.95 }));
     rock.position.set(x, 0.02 + s, z);
     rock.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
-    rock.castShadow = true; rock.receiveShadow = true;
-    boardGroup.add(rock);
+    rock.castShadow = true; rock.receiveShadow = true; boardGroup.add(rock);
   }
-  // A few broken arrow shafts
   for (let i = 0; i < 8; i++) {
     const angle = Math.random() * Math.PI * 2;
     const dist = 5.1 + Math.random() * 0.9;
-    const x = Math.cos(angle) * dist;
-    const z = Math.sin(angle) * dist;
+    const x = Math.cos(angle) * dist; const z = Math.sin(angle) * dist;
     const len = 0.5 + Math.random() * 0.5;
-    const shaft = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.014, 0.014, len, 5),
-      new THREE.MeshStandardMaterial({ color: 0x5a3a20, roughness: 0.9 })
-    );
-    shaft.position.set(x, 0.035, z);
-    shaft.rotation.set(Math.PI/2, 0, Math.random() * Math.PI);
-    shaft.castShadow = true;
-    boardGroup.add(shaft);
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, len, 5), new THREE.MeshStandardMaterial({ color: 0x5a3a20, roughness: 0.9 }));
+    shaft.position.set(x, 0.035, z); shaft.rotation.set(Math.PI/2, 0, Math.random() * Math.PI); shaft.castShadow = true; boardGroup.add(shaft);
   }
 })();
 
-/* Markers and highlights */
 function addMarker(sq, geo, color, opacity){
   const p = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }));
   p.rotation.x = -Math.PI/2;
@@ -1508,9 +1647,7 @@ for (let i = 0; i < 32; i++) {
   m.rotation.x = -Math.PI/2; m.visible = false; m.renderOrder = 5; boardGroup.add(m); markers.push({ mesh: m, kind: 'ring' });
 }
 
-/* ============================================================
-   HUMAN-LIKE ANCIENT WARRIOR PIECES
-   ============================================================ */
+/* PIECES */
 const geoCache = new Map();
 function G(key, fn){ if (!geoCache.has(key)) geoCache.set(key, fn()); return geoCache.get(key); }
 function addPart(parent, geo, mat, x=0,y=0,z=0, rx=0,ry=0,rz=0, sx=1,sy=1,sz=1){
@@ -1518,361 +1655,265 @@ function addPart(parent, geo, mat, x=0,y=0,z=0, rx=0,ry=0,rz=0, sx=1,sy=1,sz=1){
   m.position.set(x,y,z); m.rotation.set(rx,ry,rz); m.scale.set(sx,sy,sz);
   m.castShadow = true; m.receiveShadow = true; parent.add(m); return m;
 }
-function getSkinMaterials(skinName, kingdom){
-  const skin = SKINS[skinName] || SKINS.stone;
-  const isWhite = kingdom === WHITE;
-  const bodyColor = isWhite ? skin.body : Math.max(0x1a1a20, skin.body - 0x505050);
-  const clothColor = isWhite ? skin.cloth : Math.max(0x0a0a10, skin.cloth - 0x303030);
-  const trimColor = skin.trim;
-  const baseOpts = { roughness: 0.55, metalness: skin.metal };
-  if (skin.emissive) { baseOpts.emissive = skin.emissive; baseOpts.emissiveIntensity = skin.emI || 0.3; }
-  if (skin.transparent) { baseOpts.transparent = true; baseOpts.opacity = skin.opacity || 0.9; }
-  const skinTone = isWhite ? 0xe8c6a0 : 0x8a6242;
+const GLORIOUS = { body: 0xd4a956, cloth: 0x8a2e26, trim: 0xffe28a, skin: 0xe4c096, hair: 0x2a1810 };
+function getPieceMaterials(setName, kingdom){
+  const set = PIECE_SETS[setName] || PIECE_SETS.royal;
+  const style = set.style;
+  const baseOpts = { roughness: 0.48, metalness: 0.55 };
+  const optsBody = { ...baseOpts };
+  const optsTrim = { ...baseOpts, roughness: 0.25, metalness: 0.95, emissive: 0x5a3200, emissiveIntensity: 0.35 };
+  const optsCloth = { ...baseOpts, roughness: 0.72, metalness: 0.1 };
+  if (style === 2) { optsBody.roughness = 0.78; optsBody.metalness = 0.25; optsTrim.roughness = 0.5; optsTrim.metalness = 0.55; }
+  if (style === 3) { optsBody.emissive = 0x6040a0; optsBody.emissiveIntensity = 0.20; optsTrim.emissive = 0xa070ff; optsTrim.emissiveIntensity = 0.4; }
   return {
-    body: new THREE.MeshStandardMaterial({ color: bodyColor, ...baseOpts }),
-    cloth: new THREE.MeshStandardMaterial({ color: clothColor, ...baseOpts }),
-    trim: new THREE.MeshStandardMaterial({ color: trimColor, ...baseOpts }),
-    skin: new THREE.MeshStandardMaterial({ color: skinTone, roughness: 0.7, metalness: 0 }),
-    hair: new THREE.MeshStandardMaterial({ color: isWhite ? 0x4a2818 : 0x1a1008, roughness: 0.85 })
+    body: new THREE.MeshStandardMaterial({ color: GLORIOUS.body, ...optsBody }),
+    cloth: new THREE.MeshStandardMaterial({ color: GLORIOUS.cloth, ...optsCloth }),
+    trim: new THREE.MeshStandardMaterial({ color: GLORIOUS.trim, ...optsTrim }),
+    skin: new THREE.MeshStandardMaterial({ color: GLORIOUS.skin, roughness: 0.65, metalness: 0.05 }),
+    hair: new THREE.MeshStandardMaterial({ color: GLORIOUS.hair, roughness: 0.85 }),
+    style, kingdom
   };
 }
-
-/* PAWN — Foot Soldier with sword & shield */
+function decorateStyle(g, M){
+  const style = M.style | 0;
+  if (style === 0) return;
+  if (style === 1) {
+    const poleMat = new THREE.MeshStandardMaterial({ color: 0x5a3a20, roughness:0.9 });
+    const bannerMat = new THREE.MeshStandardMaterial({ color: 0xffd070, metalness:0.85, roughness:0.28, emissive:0x5a3000, emissiveIntensity:0.35, side: THREE.DoubleSide });
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.85,5), poleMat); pole.position.set(-0.22, 0.70, -0.22); g.add(pole);
+    const banner = new THREE.Mesh(new THREE.PlaneGeometry(0.22,0.36), bannerMat); banner.position.set(-0.22, 0.92, -0.21); g.add(banner);
+    const finial = new THREE.Mesh(new THREE.ConeGeometry(0.03,0.09,5), bannerMat); finial.position.set(-0.22, 1.16, -0.22); g.add(finial);
+    for (const s of [-1, 1]) { const dot = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 6), M.trim); dot.position.set(s*0.20, 0.95, 0.06); g.add(dot); }
+  } else if (style === 2) {
+    const spikeMat = new THREE.MeshStandardMaterial({ color: 0x4a3a28, metalness:0.75, roughness:0.5 });
+    for (let s of [-1, 1]) { for (let i = 0; i < 3; i++) { const spike = new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.11, 5), spikeMat); spike.position.set(s*(0.17 + i*0.02), 0.94 + i*0.02, -0.04 + i*0.02); spike.rotation.z = s * -0.45; g.add(spike); } }
+    for (let i = 0; i < 3; i++) { const spine = new THREE.Mesh(new THREE.ConeGeometry(0.024, 0.09, 5), spikeMat); spine.position.set(0, 0.75 + i*0.10, -0.20); spine.rotation.x = -0.6; g.add(spine); }
+    const stud = new THREE.Mesh(new THREE.DodecahedronGeometry(0.045, 0), spikeMat); stud.position.set(0, 0.66, 0.21); g.add(stud);
+  } else if (style === 3) {
+    const wingMat = new THREE.MeshBasicMaterial({ color: 0xffe8b0, transparent:true, opacity:0.85, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
+    for (const s of [-1, 1]) { const wing = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.44), wingMat); wing.position.set(s*0.26, 1.00, -0.14); wing.rotation.y = s * 0.42; wing.rotation.z = s * 0.10; g.add(wing); }
+    const haloMat = new THREE.MeshBasicMaterial({ color: 0xfff0c0, transparent:true, opacity:0.75, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
+    const halo = new THREE.Mesh(new THREE.RingGeometry(0.13, 0.17, 24), haloMat); halo.rotation.x = -Math.PI/2; halo.position.set(0, 1.62, 0); g.add(halo);
+  }
+}
 function buildSoldier(M){
   const g = new THREE.Group();
-  // Boots
   addPart(g, G('s_boot', ()=>new THREE.BoxGeometry(0.13,0.10,0.20)), M.cloth, 0.10,0.06,0.02);
   addPart(g, G('s_boot2', ()=>new THREE.BoxGeometry(0.13,0.10,0.20)), M.cloth, -0.10,0.06,0.02);
-  // Lower legs (hose)
   addPart(g, G('s_shin', ()=>new THREE.CylinderGeometry(0.06,0.055,0.30,8)), M.cloth, 0.10,0.26,0);
   addPart(g, G('s_shin2', ()=>new THREE.CylinderGeometry(0.06,0.055,0.30,8)), M.cloth, -0.10,0.26,0);
-  // Knees
   addPart(g, G('s_knee', ()=>new THREE.SphereGeometry(0.07,10,8)), M.body, 0.10,0.42,0);
   addPart(g, G('s_knee2', ()=>new THREE.SphereGeometry(0.07,10,8)), M.body, -0.10,0.42,0);
-  // Tunic (long, to knees)
   addPart(g, G('s_tunic', ()=>new THREE.CylinderGeometry(0.20,0.26,0.42,16)), M.cloth, 0,0.62,0);
-  // Chest plate
   addPart(g, G('s_chest', ()=>new THREE.BoxGeometry(0.30,0.20,0.20)), M.body, 0,0.83,0);
-  // Belt
   addPart(g, G('s_belt', ()=>new THREE.TorusGeometry(0.21,0.028,8,20)), M.trim, 0,0.66,0, Math.PI/2);
-  // Shoulders (pauldrons)
   addPart(g, G('s_pauldron', ()=>new THREE.SphereGeometry(0.095,12,10)), M.body, 0.18,0.94,0, 0,0,0, 1,0.85,1);
   addPart(g, G('s_pauldron2', ()=>new THREE.SphereGeometry(0.095,12,10)), M.body, -0.18,0.94,0, 0,0,0, 1,0.85,1);
-  // Right arm — raised holding sword
   addPart(g, G('s_uarm', ()=>new THREE.CylinderGeometry(0.05,0.048,0.22,8)), M.skin, 0.20,0.82,0.02, 0.2,0,0);
   addPart(g, G('s_farm', ()=>new THREE.CylinderGeometry(0.045,0.042,0.24,8)), M.skin, 0.20,0.70,0.14, 0.5,0,0);
   addPart(g, G('s_hand', ()=>new THREE.SphereGeometry(0.05,10,8)), M.skin, 0.20,0.68,0.28);
-  // Sword (raised in right hand)
   addPart(g, G('s_grip', ()=>new THREE.CylinderGeometry(0.014,0.014,0.08,6)), M.cloth, 0.20,0.68,0.34, Math.PI*0.15,0,0);
   addPart(g, G('s_guard', ()=>new THREE.BoxGeometry(0.14,0.02,0.03)), M.trim, 0.20,0.70,0.38, Math.PI*0.15,0,0);
   addPart(g, G('s_blade', ()=>new THREE.BoxGeometry(0.035,0.48,0.012)), M.trim, 0.20,0.94,0.44, Math.PI*0.15,0,0);
   addPart(g, G('s_tip', ()=>new THREE.ConeGeometry(0.024,0.07,4)), M.trim, 0.20,1.22,0.485, Math.PI*0.15,0,0);
-  // Left arm — shield
   addPart(g, G('s_uarm2', ()=>new THREE.CylinderGeometry(0.05,0.048,0.22,8)), M.skin, -0.20,0.82,0, -0.2,0,0);
   addPart(g, G('s_farm2', ()=>new THREE.CylinderGeometry(0.045,0.042,0.22,8)), M.skin, -0.22,0.72,0.10, 0.4,0,0);
-  // Round shield
-  const shield = addPart(g, G('s_shield', ()=>new THREE.CylinderGeometry(0.17,0.17,0.035,18)), M.body, -0.26,0.72,0.14, 0,0,Math.PI/2);
-  // Shield boss
+  addPart(g, G('s_shield', ()=>new THREE.CylinderGeometry(0.17,0.17,0.035,18)), M.body, -0.26,0.72,0.14, 0,0,Math.PI/2);
   addPart(g, G('s_boss', ()=>new THREE.SphereGeometry(0.04,10,8)), M.trim, -0.28,0.72,0.14);
-  // Neck
   addPart(g, G('s_neck', ()=>new THREE.CylinderGeometry(0.055,0.065,0.06,8)), M.skin, 0,1.02,0);
-  // Head
   addPart(g, G('s_head', ()=>new THREE.SphereGeometry(0.115,16,12)), M.skin, 0,1.14,0);
-  // Helmet (conical)
   addPart(g, G('s_helm', ()=>new THREE.SphereGeometry(0.125,16,10,0,Math.PI*2,0,Math.PI*0.55)), M.trim, 0,1.16,0);
   addPart(g, G('s_helmtip', ()=>new THREE.ConeGeometry(0.075,0.15,8)), M.trim, 0,1.30,0);
-  // Nose guard
   addPart(g, G('s_noseg', ()=>new THREE.BoxGeometry(0.02,0.075,0.02)), M.trim, 0,1.11,0.11);
+  decorateStyle(g, M);
   return g;
 }
-
-/* KNIGHT — Armored Horseman on Warhorse */
 function buildHorseman(M){
   const g = new THREE.Group();
-  // Horse base plate
   addPart(g, G('h_base', ()=>new THREE.BoxGeometry(0.55,0.10,0.75)), M.body, 0,0.05,0);
-  // Horse legs
   for (const [x,z] of [[0.20,0.26],[0.20,-0.26],[-0.20,0.26],[-0.20,-0.26]]) {
     addPart(g, G('h_leg', ()=>new THREE.CylinderGeometry(0.045,0.04,0.42,7)), M.body, x,0.30,z);
     addPart(g, G('h_hoof', ()=>new THREE.CylinderGeometry(0.055,0.05,0.06,8)), M.cloth, x,0.10,z);
   }
-  // Horse body
-  const body = addPart(g, G('h_body', ()=>new THREE.SphereGeometry(0.24,16,12)), M.body, 0,0.68,0);
-  body.scale.set(1.0,0.95,1.65);
-  // Chest
+  const body = addPart(g, G('h_body', ()=>new THREE.SphereGeometry(0.24,16,12)), M.body, 0,0.68,0); body.scale.set(1.0,0.95,1.65);
   addPart(g, G('h_chest', ()=>new THREE.SphereGeometry(0.20,14,10)), M.body, 0,0.72,0.32);
-  // Neck
   addPart(g, G('h_neck', ()=>new THREE.CylinderGeometry(0.09,0.13,0.40,10)), M.body, 0,0.92,0.42, 0.6,0,0);
-  // Head
   addPart(g, G('h_head', ()=>new THREE.BoxGeometry(0.14,0.16,0.32)), M.body, 0,1.08,0.66);
-  // Muzzle
   addPart(g, G('h_muzz', ()=>new THREE.BoxGeometry(0.11,0.10,0.10)), M.body, 0,1.04,0.78);
-  // Ears
   addPart(g, G('h_ear', ()=>new THREE.ConeGeometry(0.03,0.08,5)), M.body, 0.06,1.19,0.55);
   addPart(g, G('h_ear2', ()=>new THREE.ConeGeometry(0.03,0.08,5)), M.body, -0.06,1.19,0.55);
-  // Mane
-  for (let i = 0; i < 5; i++) {
-    addPart(g, G('h_mane'+i, ()=>new THREE.BoxGeometry(0.04,0.10,0.07)), M.hair, 0,1.00 - i*0.06, 0.34 + i*0.05);
-  }
-  // Saddle
+  for (let i = 0; i < 5; i++) addPart(g, G('h_mane'+i, ()=>new THREE.BoxGeometry(0.04,0.10,0.07)), M.hair, 0,1.00 - i*0.06, 0.34 + i*0.05);
   addPart(g, G('h_saddle', ()=>new THREE.BoxGeometry(0.32,0.06,0.36)), M.cloth, 0,0.86,-0.02);
   addPart(g, G('h_sadltrim', ()=>new THREE.BoxGeometry(0.34,0.02,0.38)), M.trim, 0,0.90,-0.02);
-  // Rider — torso
   addPart(g, G('h_rtorso', ()=>new THREE.CylinderGeometry(0.13,0.155,0.34,12)), M.cloth, 0,1.10,-0.04);
-  // Rider — chest plate
   addPart(g, G('h_rchest', ()=>new THREE.BoxGeometry(0.24,0.16,0.16)), M.body, 0,1.15,-0.04);
-  // Rider — shoulders
   addPart(g, G('h_rsh', ()=>new THREE.SphereGeometry(0.10,12,8)), M.body, 0.15,1.24,-0.04);
   addPart(g, G('h_rsh2', ()=>new THREE.SphereGeometry(0.10,12,8)), M.body, -0.15,1.24,-0.04);
-  // Rider — arms
   addPart(g, G('h_rarm', ()=>new THREE.CylinderGeometry(0.045,0.045,0.24,8)), M.body, 0.18,1.14,-0.04);
   addPart(g, G('h_rarm2', ()=>new THREE.CylinderGeometry(0.045,0.045,0.24,8)), M.body, -0.18,1.14,-0.04);
   addPart(g, G('h_rhand', ()=>new THREE.SphereGeometry(0.045,8,6)), M.skin, 0.18,1.02,-0.04);
   addPart(g, G('h_rhand2', ()=>new THREE.SphereGeometry(0.045,8,6)), M.skin, -0.18,1.02,-0.04);
-  // Rider — head
   addPart(g, G('h_rhead', ()=>new THREE.SphereGeometry(0.10,14,10)), M.skin, 0,1.38,-0.04);
-  // Rider — helmet
   addPart(g, G('h_rhelm', ()=>new THREE.SphereGeometry(0.115,14,10,0,Math.PI*2,0,Math.PI*0.6)), M.trim, 0,1.39,-0.04);
   addPart(g, G('h_rhelm_tip', ()=>new THREE.ConeGeometry(0.06,0.14,6)), M.trim, 0,1.52,-0.04);
-  // Rider — lance (long, held forward)
   addPart(g, G('h_lance', ()=>new THREE.CylinderGeometry(0.018,0.018,1.35,8)), M.trim, 0.25,1.15,0.05, Math.PI*0.42,0,0);
   addPart(g, G('h_ltip', ()=>new THREE.ConeGeometry(0.045,0.18,7)), M.trim, 0.25,1.72,0.62, Math.PI*0.42,0,0);
-  // Horse armor — chest plate
   addPart(g, G('h_barding', ()=>new THREE.BoxGeometry(0.36,0.28,0.10)), M.body, 0,0.72,0.48);
-  // Caparison skirt
   addPart(g, G('h_capare', ()=>new THREE.BoxGeometry(0.55,0.40,0.02)), M.cloth, 0,0.60,-0.42, 0,0,0);
+  decorateStyle(g, M);
   return g;
 }
-
-/* BISHOP — Hooded Priest with Staff */
 function buildPriest(M){
   const g = new THREE.Group();
-  // Robe base
   addPart(g, G('pr_base', ()=>new THREE.CylinderGeometry(0.32,0.35,0.10,18)), M.cloth, 0,0.05,0);
-  // Long flowing robe
   addPart(g, G('pr_robe', ()=>new THREE.CylinderGeometry(0.17,0.30,0.90,18)), M.cloth, 0,0.55,0);
-  // Robe belt
   addPart(g, G('pr_belt', ()=>new THREE.TorusGeometry(0.22,0.022,8,20)), M.trim, 0,0.70,0, Math.PI/2);
-  // Chest cross/pendant (small)
   addPart(g, G('pr_cross_v', ()=>new THREE.BoxGeometry(0.015,0.09,0.01)), M.trim, 0,0.90,0.17);
   addPart(g, G('pr_cross_h', ()=>new THREE.BoxGeometry(0.06,0.015,0.01)), M.trim, 0,0.92,0.17);
-  // Shoulders covered by wide mantle
   addPart(g, G('pr_mantle', ()=>new THREE.ConeGeometry(0.24,0.22,14)), M.cloth, 0,1.00,0);
-  // Arms (inside sleeves)
   addPart(g, G('pr_lsleeve', ()=>new THREE.CylinderGeometry(0.06,0.055,0.28,8)), M.cloth, 0.18,0.85,0, 0,0,-0.2);
   addPart(g, G('pr_rsleeve', ()=>new THREE.CylinderGeometry(0.06,0.055,0.28,8)), M.cloth, -0.18,0.85,0, 0,0,0.2);
-  // Hands
   addPart(g, G('pr_lhand', ()=>new THREE.SphereGeometry(0.045,8,6)), M.skin, 0.24,0.72,0);
   addPart(g, G('pr_rhand', ()=>new THREE.SphereGeometry(0.045,8,6)), M.skin, -0.24,0.72,0);
-  // Neck / collar
   addPart(g, G('pr_collar', ()=>new THREE.TorusGeometry(0.10,0.025,8,16)), M.trim, 0,1.10,0, Math.PI/2);
-  // Head
   addPart(g, G('pr_head', ()=>new THREE.SphereGeometry(0.105,14,12)), M.skin, 0,1.22,0);
-  // Hood
   addPart(g, G('pr_hood', ()=>new THREE.ConeGeometry(0.155,0.34,14,1,true)), M.cloth, 0,1.28,-0.02);
-  // Mitre (tall pointed hat)
   addPart(g, G('pr_mitre', ()=>new THREE.ConeGeometry(0.10,0.34,10)), M.trim, 0,1.55,0.02);
   addPart(g, G('pr_mitre_band', ()=>new THREE.TorusGeometry(0.105,0.02,8,16)), M.trim, 0,1.42,0.02, Math.PI/2);
-  // Staff (right hand) — long wooden shaft
   addPart(g, G('pr_staff', ()=>new THREE.CylinderGeometry(0.018,0.022,1.15,8)), M.cloth, -0.24,0.75,0.02);
-  // Staff top — cross / ring
   addPart(g, G('pr_staff_ring', ()=>new THREE.TorusGeometry(0.075,0.014,8,18)), M.trim, -0.24,1.32,0.02);
   addPart(g, G('pr_staff_gem', ()=>new THREE.SphereGeometry(0.035,10,8)), M.trim, -0.24,1.32,0.02);
-  // Holy orb (left hand)
   addPart(g, G('pr_orb', ()=>new THREE.SphereGeometry(0.055,12,10)), M.trim, 0.24,0.72,0.02);
+  decorateStyle(g, M);
   return g;
 }
-
-/* ROOK — Heavy Siege Guard with Tower Shield */
 function buildTower(M){
   const g = new THREE.Group();
-  // Base / platform
   addPart(g, G('t_base', ()=>new THREE.CylinderGeometry(0.38,0.42,0.14,18)), M.body, 0,0.07,0);
-  // Armored boots
   addPart(g, G('t_boot', ()=>new THREE.BoxGeometry(0.17,0.13,0.26)), M.body, 0.13,0.09,0.03);
   addPart(g, G('t_boot2', ()=>new THREE.BoxGeometry(0.17,0.13,0.26)), M.body, -0.13,0.09,0.03);
-  // Greaves (lower legs)
   addPart(g, G('t_greave', ()=>new THREE.CylinderGeometry(0.085,0.075,0.34,10)), M.body, 0.13,0.35,0);
   addPart(g, G('t_greave2', ()=>new THREE.CylinderGeometry(0.085,0.075,0.34,10)), M.body, -0.13,0.35,0);
-  // Thigh guards
   addPart(g, G('t_thigh', ()=>new THREE.CylinderGeometry(0.105,0.11,0.28,10)), M.body, 0.13,0.63,0);
   addPart(g, G('t_thigh2', ()=>new THREE.CylinderGeometry(0.105,0.11,0.28,10)), M.body, -0.13,0.63,0);
-  // Skirt armor plate
   addPart(g, G('t_skirt', ()=>new THREE.CylinderGeometry(0.26,0.30,0.28,16)), M.cloth, 0,0.72,0);
-  // Torso armor (bulky)
   addPart(g, G('t_torso', ()=>new THREE.CylinderGeometry(0.24,0.26,0.44,14)), M.body, 0,0.98,0);
-  // Chest plate
   addPart(g, G('t_chest', ()=>new THREE.BoxGeometry(0.42,0.28,0.22)), M.body, 0,1.06,0.04);
-  // Belt with metal plates
   addPart(g, G('t_belt', ()=>new THREE.TorusGeometry(0.27,0.032,8,20)), M.trim, 0,0.80,0, Math.PI/2);
-  // Massive shoulder pauldrons
   addPart(g, G('t_pauldL', ()=>new THREE.SphereGeometry(0.14,14,10,0,Math.PI*2,0,Math.PI*0.7)), M.body, 0.27,1.18,0);
   addPart(g, G('t_pauldR', ()=>new THREE.SphereGeometry(0.14,14,10,0,Math.PI*2,0,Math.PI*0.7)), M.body, -0.27,1.18,0);
-  // Arms
   addPart(g, G('t_larm', ()=>new THREE.CylinderGeometry(0.065,0.06,0.30,8)), M.body, 0.28,1.00,0);
   addPart(g, G('t_rarm', ()=>new THREE.CylinderGeometry(0.065,0.06,0.30,8)), M.body, -0.28,1.00,0);
-  // Hands
   addPart(g, G('t_lhand', ()=>new THREE.SphereGeometry(0.055,10,8)), M.skin, 0.30,0.83,0);
   addPart(g, G('t_rhand', ()=>new THREE.SphereGeometry(0.055,10,8)), M.skin, -0.30,0.83,0);
-  // Neck guard
   addPart(g, G('t_neck', ()=>new THREE.CylinderGeometry(0.09,0.11,0.08,10)), M.body, 0,1.25,0);
-  // Head
   addPart(g, G('t_head', ()=>new THREE.SphereGeometry(0.115,16,12)), M.skin, 0,1.37,0);
-  // Full helm with visor
   addPart(g, G('t_helm', ()=>new THREE.SphereGeometry(0.135,16,12)), M.body, 0,1.38,0);
-  // Visor slit
   addPart(g, G('t_visor', ()=>new THREE.BoxGeometry(0.19,0.02,0.02)), M.cloth, 0,1.35,0.12);
-  // Helm crest
   addPart(g, G('t_crest', ()=>new THREE.BoxGeometry(0.03,0.10,0.22)), M.cloth, 0,1.50,0);
-  // Tower shield — huge rectangular
-  const shield = addPart(g, G('t_shield', ()=>new THREE.BoxGeometry(0.06,0.72,0.42)), M.body, -0.42,0.98,0.06);
-  // Shield boss center
-  addPart(g, G('t_boss', ()=>new THREE.SphereGeometry(0.06,12,10)), M.trim, -0.46,0.98,0.06, 0,0,0, 1,1,1);
-  // Shield rivets
-  for (const [ry,rz] of [[0.95,0.18],[0.95,-0.10],[0.75,0.18],[0.75,-0.10],[1.15,0.18],[1.15,-0.10]]) {
-    addPart(g, G('t_riv', ()=>new THREE.SphereGeometry(0.018,6,5)), M.trim, -0.455, ry, rz);
-  }
-  // Shield cross emblem
+  addPart(g, G('t_shield', ()=>new THREE.BoxGeometry(0.06,0.72,0.42)), M.body, -0.42,0.98,0.06);
+  addPart(g, G('t_boss', ()=>new THREE.SphereGeometry(0.06,12,10)), M.trim, -0.46,0.98,0.06);
+  for (const [ry,rz] of [[0.95,0.18],[0.95,-0.10],[0.75,0.18],[0.75,-0.10],[1.15,0.18],[1.15,-0.10]]) addPart(g, G('t_riv', ()=>new THREE.SphereGeometry(0.018,6,5)), M.trim, -0.455, ry, rz);
   addPart(g, G('t_shieldH', ()=>new THREE.BoxGeometry(0.01,0.04,0.30)), M.trim, -0.452,0.98,0.06);
   addPart(g, G('t_shieldV', ()=>new THREE.BoxGeometry(0.01,0.30,0.04)), M.trim, -0.452,0.98,0.06);
-  // Mace in right hand
   addPart(g, G('t_mace_handle', ()=>new THREE.CylinderGeometry(0.022,0.022,0.55,8)), M.cloth, 0.30,0.62,0.05);
   addPart(g, G('t_mace_head', ()=>new THREE.DodecahedronGeometry(0.11, 0)), M.trim, 0.30,0.34,0.05);
-  // Mace spikes
-  for (let i = 0; i < 6; i++) {
-    const a = i/6 * Math.PI * 2;
-    addPart(g, G('t_mace_spk'+i, ()=>new THREE.ConeGeometry(0.03,0.10,5)), M.trim, 0.30 + Math.cos(a)*0.10, 0.34, 0.05 + Math.sin(a)*0.10);
-  }
+  for (let i = 0; i < 6; i++) { const a = i/6 * Math.PI * 2; addPart(g, G('t_mace_spk'+i, ()=>new THREE.ConeGeometry(0.03,0.10,5)), M.trim, 0.30 + Math.cos(a)*0.10, 0.34, 0.05 + Math.sin(a)*0.10); }
+  decorateStyle(g, M);
   return g;
 }
-
-/* QUEEN — Elegant Warrior Queen */
 function buildQueen(M){
   const g = new THREE.Group();
-  // Gown base
   addPart(g, G('q_base', ()=>new THREE.CylinderGeometry(0.36,0.40,0.12,20)), M.cloth, 0,0.06,0);
-  // Long flowing gown
   addPart(g, G('q_gown', ()=>new THREE.CylinderGeometry(0.15,0.34,0.85,20)), M.cloth, 0,0.53,0);
-  // Gown hem detail
   addPart(g, G('q_hem', ()=>new THREE.TorusGeometry(0.32,0.025,8,22)), M.trim, 0,0.16,0, Math.PI/2);
-  // Waist cinch
   addPart(g, G('q_waist', ()=>new THREE.TorusGeometry(0.19,0.028,8,20)), M.trim, 0,0.78,0, Math.PI/2);
-  // Torso bodice
   addPart(g, G('q_torso', ()=>new THREE.CylinderGeometry(0.13,0.17,0.28,14)), M.cloth, 0,0.98,0);
-  // Chest emblem — jewel
   addPart(g, G('q_jewel', ()=>new THREE.SphereGeometry(0.038,12,10)), M.trim, 0,1.02,0.13);
-  // Shoulders (delicate)
   addPart(g, G('q_sh', ()=>new THREE.SphereGeometry(0.14,12,10)), M.cloth, 0,1.16,0, 0,0,0, 1,0.72,1);
-  // Arms (elegant)
   addPart(g, G('q_larm', ()=>new THREE.CylinderGeometry(0.045,0.04,0.32,8)), M.skin, 0.17,1.04,0.02, 0,0,-0.15);
   addPart(g, G('q_rarm', ()=>new THREE.CylinderGeometry(0.045,0.04,0.32,8)), M.skin, -0.17,1.04,0.02, 0,0,0.15);
   addPart(g, G('q_lhand', ()=>new THREE.SphereGeometry(0.045,10,8)), M.skin, 0.21,0.88,0.02);
   addPart(g, G('q_rhand', ()=>new THREE.SphereGeometry(0.045,10,8)), M.skin, -0.21,0.88,0.02);
-  // Scepter in right hand
   addPart(g, G('q_scep', ()=>new THREE.CylinderGeometry(0.015,0.015,0.80,8)), M.trim, -0.22,0.75,0.02);
   addPart(g, G('q_scep_orb', ()=>new THREE.SphereGeometry(0.055,12,10)), M.trim, -0.22,1.17,0.02);
   addPart(g, G('q_scep_ring', ()=>new THREE.TorusGeometry(0.06,0.012,6,16)), M.trim, -0.22,1.17,0.02, Math.PI/2);
-  // Long hair flowing down back
   addPart(g, G('q_hair', ()=>new THREE.ConeGeometry(0.14,0.42,12,1,true)), M.hair, 0,1.05,-0.10);
-  // Neck
   addPart(g, G('q_neck', ()=>new THREE.CylinderGeometry(0.05,0.06,0.06,8)), M.skin, 0,1.26,0);
-  // Head
   addPart(g, G('q_head', ()=>new THREE.SphereGeometry(0.11,16,12)), M.skin, 0,1.37,0);
-  // Face details — eyes
   addPart(g, G('q_eye1', ()=>new THREE.SphereGeometry(0.012,6,4)), M.cloth, 0.04,1.40,0.095);
   addPart(g, G('q_eye2', ()=>new THREE.SphereGeometry(0.012,6,4)), M.cloth, -0.04,1.40,0.095);
-  // Crown — ornate
   addPart(g, G('q_crest_band', ()=>new THREE.TorusGeometry(0.115,0.02,8,20)), M.trim, 0,1.46,0, Math.PI/2);
-  for (let i = 0; i < 8; i++) {
-    const a = i/8 * Math.PI * 2;
-    const h = (i % 2 === 0) ? 0.16 : 0.10;
+  for (let i = 0; i < 8; i++) { const a = i/8 * Math.PI * 2; const h = (i % 2 === 0) ? 0.16 : 0.10;
     addPart(g, G('q_crest'+i, ()=>new THREE.ConeGeometry(0.026, h, 5)), M.trim, Math.cos(a)*0.11, 1.52 + h*0.5, Math.sin(a)*0.11);
-    // Gems on top of each point
-    addPart(g, G('q_gem'+i, ()=>new THREE.SphereGeometry(0.018,8,6)), M.cloth, Math.cos(a)*0.11, 1.55 + h, Math.sin(a)*0.11);
-  }
-  // Cape
+    addPart(g, G('q_gem'+i, ()=>new THREE.SphereGeometry(0.018,8,6)), M.cloth, Math.cos(a)*0.11, 1.55 + h, Math.sin(a)*0.11); }
   const cape = addPart(g, G('q_cape', ()=>new THREE.ConeGeometry(0.30,0.65,16,1,true,0,Math.PI)), M.cloth, 0,0.78,-0.12);
-  cape.material = M.cloth.clone();
-  cape.material.side = THREE.DoubleSide;
+  cape.material = M.cloth.clone(); cape.material.side = THREE.DoubleSide;
+  decorateStyle(g, M);
   return g;
 }
-
-/* KING — Crowned Warrior King */
 function buildKing(M){
   const g = new THREE.Group();
-  // Base / dais
   addPart(g, G('k_base', ()=>new THREE.CylinderGeometry(0.38,0.42,0.14,20)), M.body, 0,0.07,0);
-  // Greaves
   addPart(g, G('k_greave', ()=>new THREE.CylinderGeometry(0.085,0.075,0.34,10)), M.body, 0.13,0.36,0);
   addPart(g, G('k_greave2', ()=>new THREE.CylinderGeometry(0.085,0.075,0.34,10)), M.body, -0.13,0.36,0);
-  // Boots
   addPart(g, G('k_boot', ()=>new THREE.BoxGeometry(0.17,0.12,0.24)), M.body, 0.13,0.09,0.02);
   addPart(g, G('k_boot2', ()=>new THREE.BoxGeometry(0.17,0.12,0.24)), M.body, -0.13,0.09,0.02);
-  // Long royal robe
   addPart(g, G('k_robe', ()=>new THREE.CylinderGeometry(0.15,0.34,0.90,20)), M.cloth, 0,0.55,0);
-  // Golden hem
   addPart(g, G('k_hem', ()=>new THREE.TorusGeometry(0.33,0.028,8,22)), M.trim, 0,0.16,0, Math.PI/2);
-  // Belt with central gold buckle
   addPart(g, G('k_belt', ()=>new THREE.TorusGeometry(0.20,0.030,8,20)), M.trim, 0,0.78,0, Math.PI/2);
   addPart(g, G('k_buckle', ()=>new THREE.BoxGeometry(0.08,0.06,0.02)), M.trim, 0,0.78,0.20);
-  // Torso robe top
   addPart(g, G('k_torso', ()=>new THREE.CylinderGeometry(0.14,0.19,0.30,16)), M.cloth, 0,1.02,0);
-  // Chest ornament (royal)
   addPart(g, G('k_chest', ()=>new THREE.BoxGeometry(0.22,0.10,0.02)), M.trim, 0,1.04,0.16);
   addPart(g, G('k_chest_gem', ()=>new THREE.SphereGeometry(0.03,10,8)), M.trim, 0,1.04,0.185);
-  // Shoulders with fur mantle
   addPart(g, G('k_mantle', ()=>new THREE.SphereGeometry(0.24,14,10,0,Math.PI*2,0,Math.PI*0.65)), M.cloth, 0,1.18,0);
-  // Arms
   addPart(g, G('k_larm', ()=>new THREE.CylinderGeometry(0.05,0.05,0.30,8)), M.cloth, 0.20,1.04,0);
   addPart(g, G('k_rarm', ()=>new THREE.CylinderGeometry(0.05,0.05,0.30,8)), M.cloth, -0.20,1.04,0);
   addPart(g, G('k_lhand', ()=>new THREE.SphereGeometry(0.05,10,8)), M.skin, 0.20,0.88,0);
   addPart(g, G('k_rhand', ()=>new THREE.SphereGeometry(0.05,10,8)), M.skin, -0.20,0.88,0);
-  // Sword at right side
   addPart(g, G('k_blade', ()=>new THREE.BoxGeometry(0.045,0.65,0.02)), M.trim, -0.22,0.85,0.02);
   addPart(g, G('k_guard', ()=>new THREE.BoxGeometry(0.16,0.03,0.04)), M.trim, -0.22,0.50,0.02);
   addPart(g, G('k_grip', ()=>new THREE.CylinderGeometry(0.02,0.02,0.14,6)), M.cloth, -0.22,0.42,0.02);
   addPart(g, G('k_pommel', ()=>new THREE.SphereGeometry(0.032,10,8)), M.trim, -0.22,0.34,0.02);
-  // Orb in left hand
   addPart(g, G('k_orb', ()=>new THREE.SphereGeometry(0.06,12,10)), M.trim, 0.22,0.90,0.02);
-  // Neck
   addPart(g, G('k_neck', ()=>new THREE.CylinderGeometry(0.06,0.07,0.06,10)), M.skin, 0,1.30,0);
-  // Head
   addPart(g, G('k_head', ()=>new THREE.SphereGeometry(0.115,16,12)), M.skin, 0,1.42,0);
-  // Beard (a small box on chin)
   addPart(g, G('k_beard', ()=>new THREE.BoxGeometry(0.10,0.08,0.06)), M.hair, 0,1.35,0.09);
-  // Eyes
   addPart(g, G('k_eye1', ()=>new THREE.SphereGeometry(0.012,6,4)), M.cloth, 0.04,1.45,0.10);
   addPart(g, G('k_eye2', ()=>new THREE.SphereGeometry(0.012,6,4)), M.cloth, -0.04,1.45,0.10);
-  // Crown — tall, ornate, gold with jewels
   addPart(g, G('k_crest_band', ()=>new THREE.CylinderGeometry(0.13,0.12,0.09,16)), M.trim, 0,1.53,0);
-  for (let i = 0; i < 10; i++) {
-    const a = i/10 * Math.PI * 2;
-    const h = (i % 2 === 0) ? 0.18 : 0.11;
+  for (let i = 0; i < 10; i++) { const a = i/10 * Math.PI * 2; const h = (i % 2 === 0) ? 0.18 : 0.11;
     addPart(g, G('k_crest'+i, ()=>new THREE.ConeGeometry(0.028, h, 5)), M.trim, Math.cos(a)*0.115, 1.60 + h*0.5, Math.sin(a)*0.115);
-    addPart(g, G('k_gem'+i, ()=>new THREE.SphereGeometry(0.02,8,6)), M.cloth, Math.cos(a)*0.115, 1.63 + h, Math.sin(a)*0.115);
-  }
-  // Crown cross top
+    addPart(g, G('k_gem'+i, ()=>new THREE.SphereGeometry(0.02,8,6)), M.cloth, Math.cos(a)*0.115, 1.63 + h, Math.sin(a)*0.115); }
   addPart(g, G('k_cross_v', ()=>new THREE.BoxGeometry(0.025,0.10,0.025)), M.trim, 0,1.83,0);
   addPart(g, G('k_cross_h', ()=>new THREE.BoxGeometry(0.08,0.025,0.025)), M.trim, 0,1.86,0);
-  // Royal cape (red)
   const cape = addPart(g, G('k_cape', ()=>new THREE.ConeGeometry(0.34,0.80,18,1,true,0,Math.PI)), M.cloth, 0,0.80,-0.14);
-  cape.material = M.cloth.clone();
-  cape.material.side = THREE.DoubleSide;
-  // Cape clasp
+  cape.material = M.cloth.clone(); cape.material.side = THREE.DoubleSide;
   addPart(g, G('k_clasp', ()=>new THREE.TorusGeometry(0.06,0.02,6,14)), M.trim, 0.13,1.24,0.14, 0,0,0);
   addPart(g, G('k_clasp2', ()=>new THREE.TorusGeometry(0.06,0.02,6,14)), M.trim, -0.13,1.24,0.14, 0,0,0);
+  decorateStyle(g, M);
   return g;
 }
-
 const BUILDERS = { [P]:buildSoldier, [N]:buildHorseman, [B]:buildPriest, [R]:buildTower, [Q]:buildQueen, [K]:buildKing };
-function createPieceObj(type, kingdom, skinName){
-  const M = getSkinMaterials(skinName || pEquippedSkin, kingdom);
+
+function createPieceObj(type, kingdom, setName){
+  const M = getPieceMaterials(setName || pEquippedSkin, kingdom);
   const g = BUILDERS[type](M);
   g.rotation.y = kingdom === WHITE ? 0 : Math.PI;
   g.userData.baseRotY = g.rotation.y;
   g.userData.pieceType = type;
   g.userData.kingdom = kingdom;
   g.userData.idlePhase = Math.random() * Math.PI * 2;
+  const ringColor = KINGDOM_RING[kingdom] || 0x80b8ff;
+  const ringColor2 = KINGDOM_RING2[kingdom] || 0xffffff;
+  const ringGeo = G('kingdom_ring', () => new THREE.RingGeometry(0.30, 0.44, 32));
+  const ringMat = new THREE.MeshBasicMaterial({ color: ringColor, transparent:true, opacity:0.85, side:THREE.DoubleSide, depthWrite:false, blending: THREE.AdditiveBlending });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = -Math.PI/2; ring.position.y = -0.01; ring.renderOrder = 2; g.add(ring);
+  const innerGeo = G('kingdom_ring_inner', () => new THREE.RingGeometry(0.26, 0.30, 32));
+  const innerMat = new THREE.MeshBasicMaterial({ color: ringColor2, transparent:true, opacity:0.55, side:THREE.DoubleSide, depthWrite:false, blending: THREE.AdditiveBlending });
+  const inner = new THREE.Mesh(innerGeo, innerMat);
+  inner.rotation.x = -Math.PI/2; inner.position.y = 0.005; inner.renderOrder = 2; g.add(inner);
   return g;
 }
 
@@ -1910,9 +1951,7 @@ let lastResult = null;
 /* TWEENS */
 const tweens = [];
 function addTween(dur, update, done){
-  return new Promise(res => {
-    tweens.push({ t:0, dur, update, done:()=>{ if(done) done(); res(); } });
-  });
+  return new Promise(res => { tweens.push({ t:0, dur, update, done:()=>{ if(done) done(); res(); } }); });
 }
 const easeOutCubic  = p => 1 - Math.pow(1-p, 3);
 const easeInOutQuad = p => p < 0.5 ? 2*p*p : 1 - Math.pow(-2*p+2, 2)/2;
@@ -1937,15 +1976,13 @@ function sfx(kind){
     };
     if (kind === 'move'){ o.type='sine'; o.frequency.setValueAtTime(400,t); o.frequency.exponentialRampToValueAtTime(170,t+0.09); g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.11); o.start(t); o.stop(t+0.12); }
     else if (kind === 'select'){ o.type='sine'; o.frequency.setValueAtTime(720,t); g.gain.setValueAtTime(0.045,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.06); o.start(t); o.stop(t+0.07); }
-    else if (kind === 'swing'){ const n=noise(0.18); const ng=actx.createGain(); n.connect(ng); ng.connect(actx.destination); ng.gain.setValueAtTime(0.07,t); ng.gain.exponentialRampToValueAtTime(0.001,t+0.18); n.start(t); }
+    else if (kind === 'swing'){ const n=noise(0.22); const ng=actx.createGain(); n.connect(ng); ng.connect(actx.destination); ng.gain.setValueAtTime(0.07,t); ng.gain.exponentialRampToValueAtTime(0.001,t+0.22); n.start(t); }
     else if (kind === 'clang'){ o.type='triangle'; o.frequency.setValueAtTime(2400,t); o.frequency.exponentialRampToValueAtTime(800,t+0.14); g.gain.setValueAtTime(0.09,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.16); o.start(t); o.stop(t+0.17); }
     else if (kind === 'impact'){ const n=noise(0.35); const ng=actx.createGain(); n.connect(ng); ng.connect(actx.destination); ng.gain.setValueAtTime(0.18,t); ng.gain.exponentialRampToValueAtTime(0.001,t+0.35); n.start(t); o.type='triangle'; o.frequency.setValueAtTime(140,t); o.frequency.exponentialRampToValueAtTime(44,t+0.24); g.gain.setValueAtTime(0.18,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.28); o.start(t); o.stop(t+0.30); }
     else if (kind === 'check'){ o.type='square'; o.frequency.setValueAtTime(920,t); o.frequency.setValueAtTime(680,t+0.09); g.gain.setValueAtTime(0.07,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.3); o.start(t); o.stop(t+0.32); }
-    else if (kind === 'mate'){ o.type='sawtooth'; o.frequency.setValueAtTime(180,t); o.frequency.exponentialRampToValueAtTime(48,t+1.3); g.gain.setValueAtTime(0.16,t); g.gain.exponentialRampToValueAtTime(0.001,t+1.4); o.start(t); o.stop(t+1.45); }
     else if (kind === 'clue'){ o.type='triangle'; o.frequency.setValueAtTime(880,t); o.frequency.setValueAtTime(1320,t+0.08); o.frequency.setValueAtTime(1760,t+0.16); g.gain.setValueAtTime(0.09,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.4); o.start(t); o.stop(t+0.42); }
     else if (kind === 'coin'){ o.type='sine'; o.frequency.setValueAtTime(1200,t); o.frequency.setValueAtTime(1800,t+0.06); g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.2); o.start(t); o.stop(t+0.22); }
     else if (kind === 'battlecry'){ o.type='sawtooth'; o.frequency.setValueAtTime(180,t); o.frequency.exponentialRampToValueAtTime(420,t+0.3); g.gain.setValueAtTime(0.14,t); g.gain.exponentialRampToValueAtTime(0.001,t+1.0); o.start(t); o.stop(t+1.05); }
-    else if (kind === 'death'){ o.type='sawtooth'; o.frequency.setValueAtTime(220,t); o.frequency.exponentialRampToValueAtTime(40,t+1.6); g.gain.setValueAtTime(0.15,t); g.gain.exponentialRampToValueAtTime(0.001,t+1.7); o.start(t); o.stop(t+1.75); }
     else if (kind === 'victory'){ o.type='sine'; o.frequency.setValueAtTime(440,t); o.frequency.setValueAtTime(660,t+0.15); o.frequency.setValueAtTime(880,t+0.3); g.gain.setValueAtTime(0.10,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.9); o.start(t); o.stop(t+1.0); }
     else if (kind === 'rumble'){ const n=noise(1.0); const ng=actx.createGain(); n.connect(ng); ng.connect(actx.destination); ng.gain.setValueAtTime(0.18,t); ng.gain.exponentialRampToValueAtTime(0.001,t+1.0); n.start(t); o.type='sawtooth'; o.frequency.setValueAtTime(80,t); o.frequency.exponentialRampToValueAtTime(30,t+0.9); g.gain.setValueAtTime(0.10,t); g.gain.exponentialRampToValueAtTime(0.001,t+1.0); o.start(t); o.stop(t+1.05); }
     else if (kind === 'soul'){ o.type='sine'; o.frequency.setValueAtTime(320,t); o.frequency.exponentialRampToValueAtTime(660,t+1.2); o.frequency.exponentialRampToValueAtTime(440,t+2.4); g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.001,t+2.6); o.start(t); o.stop(t+2.7); }
@@ -1958,7 +1995,6 @@ function sfx(kind){
 const dustGeo = new THREE.IcosahedronGeometry(0.045, 0);
 const sparkGeo = new THREE.TetrahedronGeometry(0.06, 0);
 function squarePos(i){ return new THREE.Vector3((i&7)-3.5, BOARD_TOP, (i>>3)-3.5); }
-
 function shockwave(pos, color, maxR=3, dur=0.75, yOff=0.02){
   const mat = new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0.95, side:THREE.DoubleSide, depthWrite:false, blending:THREE.AdditiveBlending });
   const m = new THREE.Mesh(new THREE.RingGeometry(0.22, 0.32, 42), mat);
@@ -1970,8 +2006,7 @@ function dustBurst(pos, count=20, color=0xe0c89a, power=1){
   for (let i = 0; i < count; i++) {
     const mat = new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0.9 });
     const m = new THREE.Mesh(dustGeo, mat);
-    m.position.copy(pos); m.position.y += 0.1;
-    m.scale.setScalar(0.7 + Math.random()*1.1); scene.add(m);
+    m.position.copy(pos); m.position.y += 0.1; m.scale.setScalar(0.7 + Math.random()*1.1); scene.add(m);
     const dir = new THREE.Vector3(Math.random()-0.5, Math.random()*0.9+0.15, Math.random()-0.5).normalize();
     const spd = (1.6 + Math.random()*2.8)*power; const life = 0.5 + Math.random()*0.55;
     addTween(life, p => { const d = spd*p*life;
@@ -2005,7 +2040,6 @@ function bloodBurst(pos, count, power=1){
     }, () => { scene.remove(m); mat.dispose(); });
   }
 }
-/* Fading piece — enemy dies and their body dissolves */
 function fadePiece(obj, dur=0.95){
   if (!obj) return Promise.resolve();
   const faded = [];
@@ -2021,17 +2055,12 @@ function fadePiece(obj, dur=0.95){
   const baseRotY = obj.rotation.y;
   return addTween(dur, p => {
     const e = easeOutCubic(p);
-    for (const mat of faded) {
-      mat.opacity = mat.originalOpacity * (1 - e);
-    }
+    for (const mat of faded) { mat.opacity = mat.originalOpacity * (1 - e); }
     obj.position.y = startY - e * 0.10;
     obj.rotation.y = baseRotY + e * 0.5;
     obj.scale.setScalar(1 - e * 0.15);
-  }, () => {
-    scene.remove(obj);
-  });
+  }, () => { scene.remove(obj); });
 }
-
 function energyBurst(pos, color, dur=2.2){
   const pillarMat = new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
   const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.2, 24, 1, true), pillarMat);
@@ -2110,7 +2139,6 @@ function showMoveMarkers(moves){
     marker.visible = true; marker.scale.setScalar(m.promo ? 1.35 : 1);
   }
 }
-
 function clearPieceMeshes(){ for (let i = 0; i < 64; i++) if (meshAt[i]){ scene.remove(meshAt[i]); meshAt[i] = null; } }
 function buildPieceMeshes(){
   clearPieceMeshes();
@@ -2147,8 +2175,6 @@ function toSAN(st, move, legal){
   if (move.promo) s += '=' + ' PNBRQK'[move.promo];
   return s;
 }
-
-/* DETECTION */
 function attackedSquares(b, from){
   const p = b[from]; if (!p) return [];
   const us = Math.sign(p), t = Math.abs(p);
@@ -2254,7 +2280,6 @@ function updateStatus(){
   if (gameMode === 'checkthrice') { const youChecks = checksGiven[playerColor] || 0; const oppChecks = checksGiven[aiColor] || 0; subEl.innerHTML += `<br><span style="color:var(--gold);">Checks: You ${youChecks}/3 · Enemy ${oppChecks}/3</span>`; }
   updateUndoButton();
 }
-
 function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function setAdvisorIdentity(bot){ advisorAvatar.textContent = bot.avatar || '🧙'; advisorName.textContent = bot.name; advisorRank.textContent = bot.rank || 'Voice of the Ancients'; advisorMood.textContent = bot.mood || '😐'; }
 function showAdvisor(type, text, mood){
@@ -2316,397 +2341,263 @@ async function animateWalk(obj, from, to, move){
   const start = squarePos(from), end = squarePos(to);
   const baseRotY = obj.userData.baseRotY ?? obj.rotation.y;
   const dist = start.distanceTo(end);
-  const dur = 0.35 + Math.min(dist, 3)*0.05;
+  const dur = 0.42 + Math.min(dist, 3)*0.06;
   const isKnight = Math.abs(move.piece) === N;
   const spin = isKnight ? Math.PI*0.5 : 0;
   await addTween(dur, p => {
     const e = easeInOutQuad(p);
     obj.position.x = start.x + (end.x - start.x)*e;
     obj.position.z = start.z + (end.z - start.z)*e;
-    obj.position.y = start.y + (end.y - start.y)*e + Math.sin(p*Math.PI)*(0.28 + dist*0.08);
+    obj.position.y = start.y + (end.y - start.y)*e + Math.sin(p*Math.PI)*(0.32 + dist*0.09);
     if (spin) obj.rotation.y = baseRotY + Math.sin(p*Math.PI)*spin;
   }, async () => {
     obj.position.copy(end); obj.rotation.y = baseRotY;
     dustBurst(end, 8, 0xb89868, 0.6);
-    await addTween(0.15, q => {
+    await addTween(0.18, q => {
       const s = 1 + Math.sin(q*Math.PI)*0.06;
       obj.scale.set(1 + (1-s)*0.5, s, 1 + (1-s)*0.5);
     }, () => obj.scale.setScalar(1));
   });
 }
 
-/* ============================================================
-   PER-PIECE CAPTURE ANIMATIONS — the attacker kills the enemy and takes the square
-   ============================================================ */
 async function captureAnimPawn(attacker, victim, from, to){
   const start = squarePos(from), end = squarePos(to);
   const baseRotY = attacker.userData.baseRotY ?? 0;
   const dx = end.x - start.x, dz = end.z - start.z;
   const faceAngle = Math.atan2(dx, dz);
-
-  // Face the victim
-  await addTween(0.32, p => {
-    const e = easeOutCubic(p);
-    attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e;
-  });
-
-  // Wind-up: raise sword high
+  await addTween(0.32, p => { const e = easeOutCubic(p); attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e; });
   sfx('swing');
-  await addTween(0.22, p => {
-    const e = easeOutCubic(p);
-    attacker.rotation.x = -0.28 * e;   // lean back
-    attacker.position.y = BOARD_TOP + 0.06 * e;
-  });
-
-  // Short hop forward with a slash
-  const windupPos = attacker.position.clone();
-  const hop = new THREE.Vector3(start.x + dx*0.55, BOARD_TOP + 0.18, start.z + dz*0.55);
-  await addTween(0.20, p => {
-    const e = easeInQuad(p);
-    attacker.position.lerpVectors(windupPos, hop, e);
-    attacker.rotation.x = -0.28 + e * 0.55;  // slash down
-    attacker.rotation.y = faceAngle + e * 0.25;
-  });
-
-  // IMPACT — sword hits victim
+  const retreatPos = new THREE.Vector3(start.x - dx*0.15, BOARD_TOP, start.z - dz*0.15);
+  const backPos = attacker.position.clone();
+  await addTween(0.42, p => { const e = easeOutCubic(p); attacker.position.lerpVectors(backPos, retreatPos, e); attacker.rotation.x = -0.30 * e; attacker.position.y = BOARD_TOP + 0.08 * e; });
+  const lungePos = new THREE.Vector3(start.x + dx*0.55, BOARD_TOP + 0.10, start.z + dz*0.55);
+  const stepFrom = attacker.position.clone();
+  await addTween(0.36, p => { const e = easeInQuad(p); attacker.position.lerpVectors(stepFrom, lungePos, e); attacker.rotation.x = -0.30 + e * 0.55; attacker.rotation.y = faceAngle + e * 0.15; });
   sfx('impact'); sfx('clang');
-  const impactPos = new THREE.Vector3(end.x - dx*0.18, BOARD_TOP + 0.35, end.z - dz*0.18);
-  sparkBurst(impactPos, 24, 0xffe08a, 1.4);
-  dustBurst(impactPos, 14, 0xd9b894, 1.0);
-  screenFlash('rgba(255,240,180,.28)', 0.25, 0.6);
-  shake(0.28, 0.35);
-  bloodBurst(impactPos.clone().setY(impactPos.y - 0.1), 10, 1.0);
-
-  // Victim dissolves away
-  await fadePiece(victim, 0.85);
-
-  // Attacker settles into the victim's square
-  await addTween(0.24, p => {
-    const e = easeOutCubic(p);
-    attacker.position.lerpVectors(hop, end, e);
-    attacker.rotation.x = 0.27 * (1-e);
-    attacker.rotation.y = faceAngle + 0.25*(1-e);
-  }, () => {
-    attacker.position.copy(end);
-    attacker.rotation.set(0, faceAngle, 0);
-    dustBurst(end, 6, 0xd9bd8a, 0.4);
-  });
+  const thrustImpact = new THREE.Vector3(end.x - dx*0.22, BOARD_TOP + 0.45, end.z - dz*0.22);
+  sparkBurst(thrustImpact, 22, 0xffe08a, 1.3);
+  bloodBurst(thrustImpact.clone().setY(thrustImpact.y - 0.1), 8, 1.0);
+  screenFlash('rgba(255,240,180,.22)', 0.22, 0.55);
+  shake(0.22, 0.28);
+  const recoverPos = new THREE.Vector3(start.x + dx*0.30, BOARD_TOP + 0.06, start.z + dz*0.30);
+  const recoverFrom = attacker.position.clone();
+  await addTween(0.30, p => { const e = easeOutCubic(p); attacker.position.lerpVectors(recoverFrom, recoverPos, e); attacker.rotation.x = 0.25 - 0.25 * e; attacker.rotation.y = faceAngle - 0.10 * e; });
+  sfx('swing');
+  await addTween(0.22, p => { const e = easeOutCubic(p); attacker.rotation.x = -0.10 * e; });
+  const bashTarget = new THREE.Vector3(start.x + dx*0.70, BOARD_TOP + 0.14, start.z + dz*0.70);
+  const bashFrom = attacker.position.clone();
+  await addTween(0.32, p => { const e = easeInQuad(p); attacker.position.lerpVectors(bashFrom, bashTarget, e); attacker.rotation.x = -0.10 + e*0.20; });
+  sfx('impact');
+  const bashImpact = new THREE.Vector3(end.x, BOARD_TOP + 0.55, end.z);
+  dustBurst(bashImpact, 22, 0xd9b894, 1.3);
+  sparkBurst(bashImpact, 18, 0xfff0c0, 1.2);
+  screenFlash('rgba(255,220,180,.28)', 0.28, 0.65);
+  shake(0.30, 0.32);
+  bloodBurst(bashImpact.clone().setY(bashImpact.y - 0.15), 10, 1.1);
+  await addTween(0.28, p => { const e = easeOutCubic(p); attacker.rotation.x = 0.10 - 0.55 * e; attacker.position.y = BOARD_TOP + 0.14 + 0.06 * e; });
+  sfx('swing');
+  const chopFrom = attacker.position.clone();
+  const chopEnd = new THREE.Vector3(end.x, BOARD_TOP + 0.06, end.z);
+  await addTween(0.34, p => { const e = easeInQuad(p); attacker.position.lerpVectors(chopFrom, chopEnd, e); attacker.rotation.x = -0.45 + e * 0.95; });
+  sfx('impact'); sfx('rumble');
+  const chopImpact = new THREE.Vector3(end.x, BOARD_TOP + 0.35, end.z);
+  sparkBurst(chopImpact, 30, 0xffd070, 1.5);
+  dustBurst(chopImpact, 24, 0xb89868, 1.4);
+  shockwave(end, 0xffd070, 2.6, 0.65);
+  screenFlash('rgba(255,180,80,.4)', 0.35, 0.75);
+  shake(0.42, 0.45);
+  await fadePiece(victim, 0.95);
+  await addTween(0.26, p => { const e = easeOutCubic(p); attacker.rotation.x = 0.5 * (1-e); attacker.rotation.y = faceAngle + 0.18*(1-e); },
+    () => { attacker.position.copy(end); attacker.rotation.set(0, faceAngle, 0); dustBurst(end, 6, 0xd9bd8a, 0.4); });
 }
-
 async function captureAnimKnight(attacker, victim, from, to){
   const start = squarePos(from), end = squarePos(to);
   const baseRotY = attacker.userData.baseRotY ?? 0;
   const dx = end.x - start.x, dz = end.z - start.z;
   const faceAngle = Math.atan2(dx, dz);
-
-  // Face the victim
-  await addTween(0.28, p => {
-    const e = easeOutCubic(p);
-    attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e;
-  });
-
-  // Rear back (knight raises lance)
+  await addTween(0.30, p => { const e = easeOutCubic(p); attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e; });
+  sfx('battlecry');
+  await addTween(0.55, p => { const e = easeOutCubic(p); attacker.position.y = BOARD_TOP + Math.sin(p*Math.PI) * 0.22; attacker.rotation.x = -0.35 * e; attacker.rotation.y = faceAngle - 0.10 * e; });
+  sparkBurst(attacker.position.clone().setY(BOARD_TOP+0.8), 12, 0xffe0a0, 0.8);
   sfx('swing');
-  await addTween(0.24, p => {
-    const e = easeOutCubic(p);
-    attacker.rotation.x = -0.20 * e;
-    attacker.position.y = BOARD_TOP + 0.04 * e;
-  });
-
-  // Charge forward with the lance
-  const windupPos = attacker.position.clone();
-  await addTween(0.34, p => {
-    const e = easeInQuad(p);
-    attacker.position.lerpVectors(windupPos, end, e);
-    attacker.position.y += Math.sin(p*Math.PI)*0.22;
-    attacker.rotation.x = -0.20 + e*0.20;
-  });
-
-  // IMPACT — lance pierces
-  sfx('impact'); sfx('clang');
-  const impactPos = end.clone().setY(BOARD_TOP + 0.6);
-  sparkBurst(impactPos, 34, 0xffe08a, 1.6);
-  dustBurst(impactPos, 26, 0xd9b894, 1.4);
-  shockwave(end, 0xffd98a, 2.6, 0.65);
-  screenFlash('rgba(255,220,150,.4)', 0.35, 0.75);
-  shake(0.42, 0.5);
-  bloodBurst(impactPos.clone().setY(impactPos.y - 0.15), 16, 1.3);
-  beam(new THREE.Vector3(attacker.position.x, BOARD_TOP + 0.9, attacker.position.z), impactPos, 0xffe08a, 0.5, 0.05);
-
-  // Victim dissolves
-  await fadePiece(victim, 0.85);
-
-  // Knight settles
-  await addTween(0.20, p => {
-    const e = easeOutCubic(p);
-    attacker.position.y = end.y + 0.10 * (1-e);
-    attacker.rotation.x = 0 * (1-e);
-  }, () => {
-    attacker.position.copy(end);
-    attacker.rotation.set(0, faceAngle, 0);
-    dustBurst(end, 8, 0xd9bd8a, 0.5);
-  });
+  const chargeFrom = attacker.position.clone();
+  const chargeTo = new THREE.Vector3(end.x, BOARD_TOP + 0.10, end.z);
+  await addTween(0.65, p => { const e = easeInQuad(p); attacker.position.lerpVectors(chargeFrom, chargeTo, e); attacker.position.y = BOARD_TOP + Math.sin(p*Math.PI*2)*0.09; attacker.rotation.x = -0.35 + e*0.25; });
+  sfx('impact'); sfx('clang'); sfx('rumble');
+  const impactPos = end.clone().setY(BOARD_TOP + 0.65);
+  sparkBurst(impactPos, 55, 0xffe08a, 2.0);
+  dustBurst(impactPos, 40, 0xd9b894, 1.8);
+  shockwave(end, 0xffd98a, 3.6, 0.75);
+  setTimeout(() => shockwave(end, 0xff8040, 5.0, 0.9), 120);
+  screenFlash('rgba(255,220,150,.5)', 0.4, 0.85);
+  shake(0.55, 0.55);
+  bloodBurst(impactPos.clone().setY(impactPos.y - 0.15), 22, 1.5);
+  beam(new THREE.Vector3(attacker.position.x, BOARD_TOP + 1.0, attacker.position.z), impactPos, 0xffe08a, 0.55, 0.06);
+  await addTween(0.28, p => { const e = easeOutCubic(p); attacker.position.y = BOARD_TOP + 0.14 * Math.sin(p*Math.PI); attacker.rotation.x = 0.10 * e; });
+  sfx('impact');
+  const stompPos = new THREE.Vector3(end.x, BOARD_TOP + 0.15, end.z);
+  dustBurst(stompPos, 34, 0xb89868, 1.7);
+  sparkBurst(stompPos, 18, 0xffb060, 1.2);
+  shockwave(end, 0xff9a5a, 3.0, 0.7);
+  screenFlash('rgba(255,140,60,.35)', 0.32, 0.7);
+  shake(0.35, 0.4);
+  await fadePiece(victim, 0.95);
+  await addTween(0.28, p => { const e = easeOutCubic(p); attacker.position.y = end.y + 0.14 * (1-e); attacker.rotation.x = 0.10 * (1-e); },
+    () => { attacker.position.copy(end); attacker.rotation.set(0, faceAngle, 0); dustBurst(end, 10, 0xd9bd8a, 0.5); });
 }
-
 async function captureAnimBishop(attacker, victim, from, to){
   const start = squarePos(from), end = squarePos(to);
   const baseRotY = attacker.userData.baseRotY ?? 0;
   const dx = end.x - start.x, dz = end.z - start.z;
   const faceAngle = Math.atan2(dx, dz);
-
-  // Face the victim
-  await addTween(0.30, p => {
-    const e = easeOutCubic(p);
-    attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e;
-  });
-
-  // Raise the staff
+  await addTween(0.32, p => { const e = easeOutCubic(p); attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e; });
   sfx('swing');
-  await addTween(0.30, p => {
-    const e = easeOutCubic(p);
-    attacker.rotation.x = -0.32 * e;
-    attacker.position.y = BOARD_TOP + 0.08 * e;
-  });
-
-  // Step forward, slam staff down
-  const windupPos = attacker.position.clone();
-  await addTween(0.22, p => {
-    const e = easeInQuad(p);
-    attacker.position.lerpVectors(windupPos, end, e * 0.75);
-    attacker.rotation.x = -0.32 + e*0.7;
-  });
-
-  // SMITE — staff slams on victim
-  sfx('impact');
-  const impactPos = new THREE.Vector3(end.x, BOARD_TOP + 0.7, end.z);
-  // Holy light beam from above
-  const holyBeam = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.22, 0.42, 3.5, 12, 1, true),
-    new THREE.MeshBasicMaterial({ color: 0xfff0c0, transparent:true, opacity:0.65, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide })
-  );
-  holyBeam.position.set(end.x, BOARD_TOP + 1.85, end.z);
-  scene.add(holyBeam);
-  sparkBurst(impactPos, 40, 0xfff0c0, 1.6);
-  dustBurst(end, 30, 0xe6cf9e, 1.4);
-  shockwave(end, 0xfff0c0, 3.4, 0.9);
-  screenFlash('rgba(255,240,200,.5)', 0.4, 0.9);
-  shake(0.36, 0.5);
-  bloodBurst(impactPos.clone().setY(impactPos.y - 0.3), 12, 1.0);
-  addTween(0.7, p => { holyBeam.material.opacity = 0.65*(1-p); holyBeam.scale.x = 1+p*0.8; holyBeam.scale.z = 1+p*0.8; },
+  await addTween(0.55, p => { const e = easeOutCubic(p); attacker.position.y = BOARD_TOP + 0.14 * e; attacker.rotation.x = -0.35 * e; });
+  const orbPos = new THREE.Vector3(attacker.position.x - 0.24*Math.cos(faceAngle), BOARD_TOP + 1.55, attacker.position.z - 0.24*Math.sin(faceAngle));
+  glowSphere(orbPos, 0xfff0c0, 1.4, 0.32);
+  await addTween(0.5, p => { attacker.rotation.z = Math.sin(p*Math.PI*2)*0.15; }, () => { attacker.rotation.z = 0; });
+  const slamFrom = attacker.position.clone();
+  const slamMid = new THREE.Vector3(start.x + dx*0.55, BOARD_TOP + 0.18, start.z + dz*0.55);
+  await addTween(0.36, p => { const e = easeInQuad(p); attacker.position.lerpVectors(slamFrom, slamMid, e); attacker.rotation.x = -0.35 + e * 0.75; });
+  sfx('impact'); sfx('rumble');
+  const holyImpact = new THREE.Vector3(end.x, BOARD_TOP + 0.75, end.z);
+  const holyBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.55, 4.0, 14, 1, true),
+    new THREE.MeshBasicMaterial({ color: 0xfff0c0, transparent:true, opacity:0.72, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide }));
+  holyBeam.position.set(end.x, BOARD_TOP + 2.1, end.z); scene.add(holyBeam);
+  sparkBurst(holyImpact, 60, 0xfff0c0, 1.9);
+  dustBurst(end, 42, 0xe6cf9e, 1.7);
+  shockwave(end, 0xfff0c0, 4.4, 1.05);
+  setTimeout(() => shockwave(end, 0xffd070, 6.5, 1.2), 160);
+  screenFlash('rgba(255,240,200,.6)', 0.45, 0.95);
+  shake(0.55, 0.6);
+  bloodBurst(holyImpact.clone().setY(holyImpact.y - 0.35), 20, 1.2);
+  addTween(1.0, p => { holyBeam.material.opacity = 0.72*(1-p); holyBeam.scale.x = 1+p*1.1; holyBeam.scale.z = 1+p*1.1; },
     () => { scene.remove(holyBeam); holyBeam.geometry.dispose(); holyBeam.material.dispose(); });
-
-  // Victim dissolves under holy light
-  await fadePiece(victim, 0.9);
-
-  // Bishop glides into square
-  await addTween(0.26, p => {
-    const e = easeOutCubic(p);
-    attacker.position.lerpVectors(attacker.position.clone(), end, e);
-    attacker.rotation.x = 0.38 * (1-e);
-  }, () => {
-    attacker.position.copy(end);
-    attacker.rotation.set(0, faceAngle, 0);
-    dustBurst(end, 8, 0xd9bd8a, 0.5);
-  });
+  await new Promise(r => setTimeout(r, 260));
+  sfx('impact');
+  sparkBurst(end.clone().setY(BOARD_TOP+0.15), 30, 0xfff8d0, 1.4);
+  screenFlash('rgba(255,240,200,.35)', 0.3, 0.7);
+  await fadePiece(victim, 1.05);
+  const glideFrom = attacker.position.clone();
+  await addTween(0.32, p => { const e = easeOutCubic(p); attacker.position.lerpVectors(glideFrom, end, e); attacker.rotation.x = 0.40 * (1-e); },
+    () => { attacker.position.copy(end); attacker.rotation.set(0, faceAngle, 0); dustBurst(end, 10, 0xd9bd8a, 0.55); });
 }
-
 async function captureAnimRook(attacker, victim, from, to){
   const start = squarePos(from), end = squarePos(to);
   const baseRotY = attacker.userData.baseRotY ?? 0;
   const dx = end.x - start.x, dz = end.z - start.z;
   const faceAngle = Math.atan2(dx, dz);
-
-  // Face the victim
-  await addTween(0.35, p => {
-    const e = easeOutCubic(p);
-    attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e;
-  });
-
-  // Heavy wind-up (mace raised)
+  await addTween(0.42, p => { const e = easeOutCubic(p); attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e; });
   sfx('swing');
-  await addTween(0.32, p => {
-    const e = easeOutCubic(p);
-    attacker.rotation.x = -0.42 * e;
-    attacker.position.y = BOARD_TOP + 0.10 * e;
-  });
-
-  // Big stomp forward (tower moves with weight)
-  const windupPos = attacker.position.clone();
-  await addTween(0.26, p => {
-    const e = easeInQuad(p);
-    attacker.position.lerpVectors(windupPos, end, e * 0.85);
-    attacker.position.y = BOARD_TOP + Math.sin(p*Math.PI) * 0.22;
-    attacker.rotation.x = -0.42 + e * 0.85;
-  });
-
-  // DEVASTATING IMPACT — mace smashes down
-  sfx('impact'); sfx('rumble');
-  const impactPos = new THREE.Vector3(end.x, BOARD_TOP + 0.25, end.z);
-  dustBurst(impactPos, 45, 0xb89868, 2.0);
-  sparkBurst(impactPos, 40, 0xffcf7a, 1.8);
-  shockwave(end, 0xff7a4a, 5.2, 1.1);
-  setTimeout(() => shockwave(end, 0xffb060, 7.5, 1.3), 160);
-  screenFlash('rgba(255,150,80,.55)', 0.5, 0.95);
-  shake(0.9, 0.9);
-  bloodBurst(impactPos.clone().setY(impactPos.y + 0.2), 26, 1.8);
-
-  // Victim violently dissolves
-  await fadePiece(victim, 0.75);
-
-  // Board shakes for a moment after
-  await addTween(0.4, p => {
-    attacker.position.lerpVectors(attacker.position.clone(), end, easeOutCubic(p));
-    attacker.rotation.x = 0.43 * (1-p);
-  }, () => {
-    attacker.position.copy(end);
-    attacker.rotation.set(0, faceAngle, 0);
-    // Small ember remnant
-    dustBurst(end, 10, 0xd9bd8a, 0.6);
-  });
+  await addTween(0.55, p => { const e = easeOutCubic(p); attacker.rotation.x = -0.50 * e; attacker.position.y = BOARD_TOP + 0.14 * e; attacker.rotation.z = Math.sin(p*Math.PI) * 0.06; }, () => { attacker.rotation.z = 0; });
+  const stompFrom = attacker.position.clone();
+  const stompMid = new THREE.Vector3(start.x + dx*0.55, BOARD_TOP + 0.10, start.z + dz*0.55);
+  await addTween(0.38, p => { const e = easeInQuad(p); attacker.position.lerpVectors(stompFrom, stompMid, e); attacker.position.y = BOARD_TOP + Math.abs(Math.sin(p*Math.PI*2)) * 0.12; attacker.rotation.x = -0.50 + e * 0.70; });
+  dustBurst(stompMid, 20, 0xb89868, 1.2);
+  sfx('impact'); shake(0.28, 0.22);
+  const slamFrom = attacker.position.clone();
+  const slamTo = new THREE.Vector3(end.x, BOARD_TOP + 0.05, end.z);
+  await addTween(0.36, p => { const e = easeInQuad(p); attacker.position.lerpVectors(slamFrom, slamTo, e); attacker.rotation.x = 0.20 + e * 0.30; });
+  sfx('impact'); sfx('rumble'); sfx('rumble');
+  const impactPos = new THREE.Vector3(end.x, BOARD_TOP + 0.30, end.z);
+  dustBurst(impactPos, 55, 0xb89868, 2.4);
+  sparkBurst(impactPos, 55, 0xffcf7a, 2.2);
+  shockwave(end, 0xff7a4a, 6.0, 1.25);
+  setTimeout(() => shockwave(end, 0xffb060, 8.5, 1.45), 180);
+  setTimeout(() => shockwave(end, 0xffe08a, 10.5, 1.55), 380);
+  screenFlash('rgba(255,150,80,.62)', 0.55, 1.0);
+  shake(1.1, 1.05);
+  bloodBurst(impactPos.clone().setY(impactPos.y + 0.2), 34, 2.0);
+  await new Promise(r => setTimeout(r, 200));
+  sfx('rumble'); shake(0.55, 0.55);
+  dustBurst(impactPos, 22, 0x8a6a48, 1.3);
+  await fadePiece(victim, 0.85);
+  const settleFrom = attacker.position.clone();
+  await addTween(0.36, p => { const e = easeOutCubic(p); attacker.position.lerpVectors(settleFrom, end, e); attacker.rotation.x = 0.50 * (1-e); },
+    () => { attacker.position.copy(end); attacker.rotation.set(0, faceAngle, 0); dustBurst(end, 12, 0xd9bd8a, 0.7); });
 }
-
 async function captureAnimQueen(attacker, victim, from, to){
   const start = squarePos(from), end = squarePos(to);
   const baseRotY = attacker.userData.baseRotY ?? 0;
   const dx = end.x - start.x, dz = end.z - start.z;
   const faceAngle = Math.atan2(dx, dz);
-
-  // Face the victim, graceful turn
-  await addTween(0.28, p => {
-    const e = easeInOutQuad(p);
-    attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e;
-  });
-
-  // Elegant spin/curtsy before strike
+  await addTween(0.32, p => { const e = easeInOutQuad(p); attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e; });
   sfx('swing');
-  await addTween(0.35, p => {
-    const e = easeInOutQuad(p);
-    attacker.rotation.y = faceAngle - Math.sin(p*Math.PI) * 0.7;  // brief twirl
-    attacker.position.y = BOARD_TOP + Math.sin(p*Math.PI) * 0.14;
-    attacker.rotation.z = Math.sin(p*Math.PI) * 0.10;
-  });
-
-  // Gliding slash forward
-  const windupPos = attacker.position.clone();
-  await addTween(0.22, p => {
-    const e = easeInQuad(p);
-    attacker.position.lerpVectors(windupPos, end, e);
-    attacker.rotation.y = faceAngle + e * 0.35;
-  });
-
-  // ELEGANT IMPACT — scepter sweep
-  sfx('impact'); sfx('clang');
-  const impactPos = new THREE.Vector3(end.x, BOARD_TOP + 0.55, end.z);
-  // Radiant aura
-  const aura = new THREE.Mesh(
-    new THREE.SphereGeometry(0.6, 16, 12),
-    new THREE.MeshBasicMaterial({ color: 0xffe0a0, transparent:true, opacity:0.35, blending:THREE.AdditiveBlending, depthWrite:false })
-  );
-  aura.position.copy(impactPos);
-  scene.add(aura);
-  addTween(0.85, p => { aura.scale.setScalar(1 + p*1.5); aura.material.opacity = 0.35*(1-p); }, () => { scene.remove(aura); aura.geometry.dispose(); aura.material.dispose(); });
-  sparkBurst(impactPos, 42, 0xffe9b0, 1.6);
-  dustBurst(impactPos, 26, 0xe6cf9e, 1.3);
-  shockwave(end, 0xffd98a, 3.8, 0.8);
-  screenFlash('rgba(255,225,160,.4)', 0.35, 0.85);
-  shake(0.38, 0.5);
-  bloodBurst(impactPos.clone().setY(impactPos.y - 0.15), 14, 1.2);
-
-  // Victim fades
-  await fadePiece(victim, 0.9);
-
-  // Queen settles gracefully
-  await addTween(0.28, p => {
-    const e = easeOutCubic(p);
-    attacker.position.y = end.y + 0.10 * Math.abs(Math.sin(p*Math.PI));
-    attacker.rotation.z = 0;
-    attacker.rotation.y = faceAngle + 0.35*(1-e);
-  }, () => {
-    attacker.position.copy(end);
-    attacker.rotation.set(0, faceAngle, 0);
-    dustBurst(end, 6, 0xd9bd8a, 0.4);
-  });
+  await addTween(0.62, p => { const e = easeInOutQuad(p); attacker.rotation.y = faceAngle - Math.sin(p*Math.PI) * 0.85; attacker.position.y = BOARD_TOP + Math.sin(p*Math.PI) * 0.16; attacker.rotation.z = Math.sin(p*Math.PI*2) * 0.08; }, () => { attacker.rotation.z = 0; });
+  sparkBurst(attacker.position.clone().setY(BOARD_TOP + 1.0), 16, 0xffe0a0, 0.9);
+  const sweepFrom = attacker.position.clone();
+  const sweepMid = new THREE.Vector3(start.x + dx*0.42, BOARD_TOP + 0.14, start.z + dz*0.42);
+  await addTween(0.32, p => { const e = easeOutCubic(p); attacker.position.lerpVectors(sweepFrom, sweepMid, e); attacker.rotation.y = faceAngle + e * 0.45; attacker.rotation.x = -0.20 * e; });
+  sfx('clang');
+  sparkBurst(sweepMid.clone().setY(BOARD_TOP + 0.75), 24, 0xffe9b0, 1.3);
+  shake(0.22, 0.24);
+  const pierceFrom = attacker.position.clone();
+  const pierceTo = new THREE.Vector3(end.x, BOARD_TOP + 0.08, end.z);
+  await addTween(0.42, p => { const e = easeInQuad(p); attacker.position.lerpVectors(pierceFrom, pierceTo, e); attacker.rotation.y = faceAngle + 0.45 - e * 0.45; attacker.rotation.x = -0.20 + e * 0.55; });
+  sfx('impact'); sfx('clang'); sfx('rumble');
+  const impactPos = new THREE.Vector3(end.x, BOARD_TOP + 0.60, end.z);
+  const aura = new THREE.Mesh(new THREE.SphereGeometry(0.65, 18, 14),
+    new THREE.MeshBasicMaterial({ color: 0xffe0a0, transparent:true, opacity:0.38, blending:THREE.AdditiveBlending, depthWrite:false }));
+  aura.position.copy(impactPos); scene.add(aura);
+  addTween(1.0, p => { aura.scale.setScalar(1 + p*2.0); aura.material.opacity = 0.38*(1-p); }, () => { scene.remove(aura); aura.geometry.dispose(); aura.material.dispose(); });
+  sparkBurst(impactPos, 62, 0xffe9b0, 1.9);
+  dustBurst(impactPos, 40, 0xe6cf9e, 1.7);
+  shockwave(end, 0xffd98a, 4.8, 1.0);
+  setTimeout(() => shockwave(end, 0xffb060, 6.5, 1.15), 160);
+  screenFlash('rgba(255,225,160,.5)', 0.4, 0.9);
+  shake(0.55, 0.55);
+  bloodBurst(impactPos.clone().setY(impactPos.y - 0.15), 22, 1.5);
+  await new Promise(r => setTimeout(r, 240));
+  sparkBurst(end.clone().setY(BOARD_TOP + 0.9), 36, 0xfff0c0, 1.5);
+  glowSphere(end.clone().setY(BOARD_TOP + 0.75), 0xffe0a0, 0.9, 0.5);
+  await fadePiece(victim, 1.05);
+  await addTween(0.34, p => { const e = easeOutCubic(p); attacker.position.y = end.y + 0.14 * Math.abs(Math.sin(p*Math.PI)); attacker.rotation.z = 0; attacker.rotation.y = faceAngle + 0.35*(1-e); attacker.rotation.x = 0.35*(1-e); },
+    () => { attacker.position.copy(end); attacker.rotation.set(0, faceAngle, 0); dustBurst(end, 8, 0xd9bd8a, 0.5); });
 }
-
 async function captureAnimKing(attacker, victim, from, to){
   const start = squarePos(from), end = squarePos(to);
   const baseRotY = attacker.userData.baseRotY ?? 0;
   const dx = end.x - start.x, dz = end.z - start.z;
   const faceAngle = Math.atan2(dx, dz);
-
-  // Face the victim
-  await addTween(0.34, p => {
-    const e = easeOutCubic(p);
-    attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e;
-  });
-
-  // Raise the royal sword with both hands
-  sfx('swing');
-  await addTween(0.34, p => {
-    const e = easeOutCubic(p);
-    attacker.rotation.x = -0.45 * e;
-    attacker.position.y = BOARD_TOP + 0.12 * e;
-  });
-
-  // Powerful stride forward
-  const windupPos = attacker.position.clone();
-  await addTween(0.28, p => {
-    const e = easeInQuad(p);
-    attacker.position.lerpVectors(windupPos, end, e * 0.9);
-    attacker.position.y = BOARD_TOP + Math.sin(p*Math.PI) * 0.18;
-    attacker.rotation.x = -0.45 + e * 1.0;
-  });
-
-  // ROYAL IMPACT — overhead strike
+  await addTween(0.40, p => { const e = easeOutCubic(p); attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e; });
+  sfx('swing'); sfx('battlecry');
+  await addTween(0.60, p => { const e = easeOutCubic(p); attacker.rotation.x = -0.55 * e; attacker.position.y = BOARD_TOP + 0.18 * e; });
+  await new Promise(r => setTimeout(r, 320));
+  glowSphere(attacker.position.clone().setY(BOARD_TOP + 1.5), 0xffe08a, 1.0, 0.4);
+  const strideFrom = attacker.position.clone();
+  const strideMid = new THREE.Vector3(start.x + dx*0.55, BOARD_TOP + 0.14, start.z + dz*0.55);
+  await addTween(0.42, p => { const e = easeInQuad(p); attacker.position.lerpVectors(strideFrom, strideMid, e); attacker.position.y = BOARD_TOP + Math.abs(Math.sin(p*Math.PI*2)) * 0.10; attacker.rotation.x = -0.55 + e * 0.75; });
+  dustBurst(strideMid, 18, 0xb89868, 1.1);
+  sfx('impact'); shake(0.25, 0.20);
+  const execFrom = attacker.position.clone();
+  const execTo = new THREE.Vector3(end.x, BOARD_TOP + 0.05, end.z);
+  await addTween(0.42, p => { const e = easeInQuad(p); attacker.position.lerpVectors(execFrom, execTo, e); attacker.rotation.x = 0.20 + e * 0.55; });
   sfx('impact'); sfx('clang'); sfx('rumble');
-  const impactPos = new THREE.Vector3(end.x, BOARD_TOP + 0.55, end.z);
-  sparkBurst(impactPos, 55, 0xffe08a, 1.8);
-  dustBurst(impactPos, 40, 0xb89868, 1.8);
-  shockwave(end, 0xffd98a, 4.4, 1.0);
-  setTimeout(() => shockwave(end, 0xff8040, 6.5, 1.2), 180);
-  screenFlash('rgba(255,180,80,.55)', 0.5, 0.95);
-  shake(0.7, 0.7);
-  bloodBurst(impactPos.clone().setY(impactPos.y - 0.2), 20, 1.5);
-
-  // Victim dissolves with finality
-  await fadePiece(victim, 0.95);
-
-  // King strides onto the square
-  await addTween(0.30, p => {
-    const e = easeOutCubic(p);
-    attacker.position.lerpVectors(attacker.position.clone(), end, e);
-    attacker.rotation.x = 0.55 * (1-e);
-  }, () => {
-    attacker.position.copy(end);
-    attacker.rotation.set(0, faceAngle, 0);
-    dustBurst(end, 10, 0xd9bd8a, 0.6);
-  });
+  const impactPos = new THREE.Vector3(end.x, BOARD_TOP + 0.65, end.z);
+  sparkBurst(impactPos, 75, 0xffe08a, 2.2);
+  dustBurst(impactPos, 55, 0xb89868, 2.1);
+  shockwave(end, 0xffd98a, 5.4, 1.15);
+  setTimeout(() => shockwave(end, 0xff8040, 7.5, 1.35), 180);
+  setTimeout(() => shockwave(end, 0xffe08a, 9.0, 1.5), 380);
+  screenFlash('rgba(255,180,80,.65)', 0.55, 1.0);
+  shake(0.85, 0.85);
+  bloodBurst(impactPos.clone().setY(impactPos.y - 0.2), 30, 1.8);
+  beam(attacker.position.clone().setY(BOARD_TOP+1.3), impactPos, 0xffe08a, 0.6, 0.07);
+  await new Promise(r => setTimeout(r, 240));
+  sfx('rumble'); shake(0.65, 0.6);
+  sparkBurst(end.clone().setY(BOARD_TOP+0.2), 34, 0xffb060, 1.5);
+  await fadePiece(victim, 1.15);
+  const settleFrom = attacker.position.clone();
+  await addTween(0.38, p => { const e = easeOutCubic(p); attacker.position.lerpVectors(settleFrom, end, e); attacker.rotation.x = 0.70 * (1-e); },
+    () => { attacker.position.copy(end); attacker.rotation.set(0, faceAngle, 0); dustBurst(end, 14, 0xd9bd8a, 0.7); });
 }
+const CAPTURE_ANIMS = { [P]: captureAnimPawn, [N]: captureAnimKnight, [B]: captureAnimBishop, [R]: captureAnimRook, [Q]: captureAnimQueen, [K]: captureAnimKing };
 
-const CAPTURE_ANIMS = {
-  [P]: captureAnimPawn,
-  [N]: captureAnimKnight,
-  [B]: captureAnimBishop,
-  [R]: captureAnimRook,
-  [Q]: captureAnimQueen,
-  [K]: captureAnimKing
-};
-
-function fxCheck(kingSq){
-  const p = squarePos(kingSq);
-  shockwave(p, 0xff2a18, 4.4, 1.0, 0.02);
-  setTimeout(() => shockwave(p, 0xff5522, 5.8, 1.2, 0.02), 140);
-  sparkBurst(p.clone().setY(p.y + 0.7), 30, 0xff5533, 1.4);
-  screenFlash('rgba(255,60,30,.55)', 0.55, 0.85);
-  shake(0.44, 0.55); sfx('check');
-}
-
-/* CINEMATIC (checkmate only) */
+/* CINEMATICS */
 const cinemaEl = document.getElementById('cinema');
 const cinemaBarsTop = document.getElementById('cinemaBarsTop');
 const cinemaBarsBot = document.getElementById('cinemaBarsBot');
 const speechEl = document.getElementById('speechBubble');
-
 function showSpeech(speaker, text, worldPos, dark){
   const sp = worldToScreen(worldPos);
   const x = Math.max(20, Math.min(window.innerWidth - 340, sp.x - 140));
@@ -2735,52 +2626,41 @@ function computeRatingPreview(winnerColor){
   else if (winnerColor === aiColor) { title = 'Defeat'; icon = '💀'; desc = 'Your king has fallen in battle.'; }
   return { oldR, newR, delta, coinGain, title, icon, desc, botRating: oppRating };
 }
-
 async function playCheckmateCinematic(loserColor){
   cinematicActive = true;
   const winnerColor = -loserColor;
   const preview = computeRatingPreview(winnerColor);
-
   cinemaEl.classList.add('on'); cinemaBarsTop.classList.add('on'); cinemaBarsBot.classList.add('on');
   controls.enabled = false;
-
   const winnerKingSq = gameState.kings[winnerColor === WHITE ? 0 : 1];
   const loserKingSq = gameState.kings[loserColor === WHITE ? 0 : 1];
   const loserKingMesh = meshAt[loserKingSq];
   const wPos = squarePos(winnerKingSq);
   const lPos = squarePos(loserKingSq);
-
   const midX = (wPos.x + lPos.x)/2, midZ = (wPos.z + lPos.z)/2;
   const camStart = camera.position.clone();
   const camWide = new THREE.Vector3(midX + 6, 7, midZ + 6.5);
   const targetStart = controls.target.clone();
   const targetWide = new THREE.Vector3(midX, 0.8, midZ);
   await addTween(1.4, p => { const e = easeInOutQuad(p);
-    camera.position.lerpVectors(camStart, camWide, e); controls.target.lerpVectors(targetStart, targetWide, e);
-    camera.lookAt(controls.target); });
-
+    camera.position.lerpVectors(camStart, camWide, e); controls.target.lerpVectors(targetStart, targetWide, e); camera.lookAt(controls.target); });
   const winnerPos = new THREE.Vector3(wPos.x, wPos.y + 2.1, wPos.z);
   const loserPos  = new THREE.Vector3(lPos.x, lPos.y + 2.1, lPos.z);
   const winnerSpeaker = winnerColor === WHITE ? 'White King' : 'Black King';
   const loserSpeaker  = loserColor === WHITE ? 'White King' : 'Black King';
-
   showSpeech(winnerSpeaker, '"Surrender, king. The kingdom is ours now."', winnerPos, false);
   sfx('battlecry');
   await new Promise(r => setTimeout(r, 2200));
   hideSpeech(); await new Promise(r => setTimeout(r, 200));
-
   showSpeech(loserSpeaker, '"Look at your cowardly king! Can\'t tell his army to kill me!"', loserPos, false);
   await new Promise(r => setTimeout(r, 2600));
   hideSpeech(); await new Promise(r => setTimeout(r, 200));
-
   showSpeech(winnerSpeaker, '"I can tell that! You want it?"', winnerPos, false);
   await new Promise(r => setTimeout(r, 2000));
   hideSpeech(); await new Promise(r => setTimeout(r, 200));
-
   showSpeech(loserSpeaker, '"Do it if you can, loser!"', loserPos, false);
   await new Promise(r => setTimeout(r, 2000));
   hideSpeech(); await new Promise(r => setTimeout(r, 350));
-
   let attackerSq = winnerKingSq, bestD = Infinity;
   for (let i = 0; i < 64; i++) {
     if (meshAt[i] && Math.sign(gameState.board[i]) === winnerColor) {
@@ -2790,48 +2670,30 @@ async function playCheckmateCinematic(loserColor){
   }
   const attacker = meshAt[attackerSq];
   const atkPos = attacker ? attacker.position.clone() : wPos;
-
   const camStrike = new THREE.Vector3((atkPos.x + lPos.x)/2 + 3.5, 3.6, (atkPos.z + lPos.z)/2 + 4);
   const camStrikeStart = camera.position.clone();
   const targetStrikeStart = controls.target.clone();
   const targetStrike = new THREE.Vector3((atkPos.x + lPos.x)/2, 0.9, (atkPos.z + lPos.z)/2);
   await addTween(1.0, p => { const e = easeInOutQuad(p);
-    camera.position.lerpVectors(camStrikeStart, camStrike, e); controls.target.lerpVectors(targetStrikeStart, targetStrike, e);
-    camera.lookAt(controls.target); });
-
+    camera.position.lerpVectors(camStrikeStart, camStrike, e); controls.target.lerpVectors(targetStrikeStart, targetStrike, e); camera.lookAt(controls.target); });
   if (attacker && loserKingMesh) {
     const startPos = attacker.position.clone();
     const endPos = new THREE.Vector3(lPos.x, lPos.y + 0.4, lPos.z);
     const dir = new THREE.Vector3().subVectors(new THREE.Vector3(lPos.x, 0, lPos.z), new THREE.Vector3(startPos.x, 0, startPos.z)).normalize();
     const baseRotY = attacker.userData.baseRotY ?? 0;
     const faceAngle = Math.atan2(dir.x, dir.z);
-
-    await addTween(0.5, p => { const e = easeOutCubic(p);
-      attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e; });
-
-    // Walk toward the king
+    await addTween(0.5, p => { const e = easeOutCubic(p); attacker.rotation.y = baseRotY + (faceAngle - baseRotY)*e; });
     const walkStart = attacker.position.clone();
     const walkTarget = new THREE.Vector3().lerpVectors(walkStart, endPos, 0.72);
     const walkDist = walkStart.distanceTo(walkTarget);
     const walkDur = 1.2 + walkDist * 0.1;
-    await addTween(walkDur, p => { const e = easeInOutQuad(p);
-      attacker.position.lerpVectors(walkStart, walkTarget, e);
-      attacker.position.y = walkStart.y + Math.sin(p * Math.PI * 5) * 0.03;
-    });
-
+    await addTween(walkDur, p => { const e = easeInOutQuad(p); attacker.position.lerpVectors(walkStart, walkTarget, e); attacker.position.y = walkStart.y + Math.sin(p * Math.PI * 5) * 0.03; });
     await new Promise(r => setTimeout(r, 220));
-
-    // Final strike
     timeScale = 0.55;
     sfx('swing');
     const stepStart = attacker.position.clone();
-    await addTween(0.32, p => {
-      const e = easeInQuad(p);
-      attacker.rotation.x = -0.5 + e * 0.9;
-      attacker.position.lerpVectors(stepStart, endPos, e * 0.9);
-    });
+    await addTween(0.32, p => { const e = easeInQuad(p); attacker.rotation.x = -0.5 + e * 0.9; attacker.position.lerpVectors(stepStart, endPos, e * 0.9); });
     timeScale = 1.0;
-
     sfx('impact'); sfx('rumble');
     screenFlash('rgba(255,40,20,.9)', 0.7, 1.0);
     shake(1.4, 1.0);
@@ -2841,17 +2703,13 @@ async function playCheckmateCinematic(loserColor){
     bloodBurst(kingImpact, 50, 2.2);
     shockwave(kingImpact, 0xff1e0a, 8, 1.4);
     setTimeout(() => shockwave(kingImpact, 0xff8040, 11, 1.6), 200);
-
     const lBaseY = loserKingMesh.position.y;
     await addTween(1.0, p => { const e = easeInOutQuad(p);
-      loserKingMesh.rotation.z = e*Math.PI*0.55; loserKingMesh.rotation.x = e*0.35;
-      loserKingMesh.position.y = lBaseY - e*0.25; });
+      loserKingMesh.rotation.z = e*Math.PI*0.55; loserKingMesh.rotation.x = e*0.35; loserKingMesh.position.y = lBaseY - e*0.25; });
     await new Promise(r => setTimeout(r, 300));
     await fadePiece(loserKingMesh, 1.2);
     meshAt[loserKingSq] = null;
   }
-
-  // Losing pieces fade out
   const lossSquares = [];
   for (let i = 0; i < 64; i++) if (meshAt[i] && Math.sign(gameState.board[i]) === loserColor) lossSquares.push(i);
   for (const sq of lossSquares) { if (meshAt[sq]) fadePiece(meshAt[sq], 1.4); }
@@ -2859,8 +2717,6 @@ async function playCheckmateCinematic(loserColor){
   screenFlash('rgba(120,40,20,.4)', 0.9, 0.6);
   dustBurst(new THREE.Vector3(0, 0.2, 0), 55, 0xa88868, 1.8);
   await new Promise(r => setTimeout(r, 900));
-
-  // Soul rises
   sfx('soul');
   const soulOrigin = new THREE.Vector3(lPos.x, lPos.y + 0.4, lPos.z);
   const soulGroup = new THREE.Group();
@@ -2870,15 +2726,12 @@ async function playCheckmateCinematic(loserColor){
   const soulCrown = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.35, 8), soulMat);
   soulCrown.position.y = 0.65; soulGroup.add(soulCrown);
   soulGroup.position.copy(soulOrigin); scene.add(soulGroup);
-
   const camSoulStart = camera.position.clone();
   const camSoul = new THREE.Vector3(soulOrigin.x + 3.2, 4.5, soulOrigin.z + 4.2);
   const targetSoulStart = controls.target.clone();
   const targetSoul = new THREE.Vector3(soulOrigin.x, soulOrigin.y + 1.5, soulOrigin.z);
   const camPromise = addTween(1.8, p => { const e = easeInOutQuad(p);
-    camera.position.lerpVectors(camSoulStart, camSoul, e); controls.target.lerpVectors(targetSoulStart, targetSoul, e);
-    camera.lookAt(controls.target); });
-
+    camera.position.lerpVectors(camSoulStart, camSoul, e); controls.target.lerpVectors(targetSoulStart, targetSoul, e); camera.lookAt(controls.target); });
   const bloodInterval = setInterval(() => bloodBurst(soulGroup.position.clone(), 4, 1.2), 180);
   const riseStart = soulGroup.position.clone();
   await addTween(2.4, p => { const e = easeOutCubic(p);
@@ -2886,8 +2739,6 @@ async function playCheckmateCinematic(loserColor){
   clearInterval(bloodInterval);
   await camPromise;
   await new Promise(r => setTimeout(r, 350));
-
-  // Billboard
   const canvas = document.createElement('canvas');
   canvas.width = 1024; canvas.height = 560;
   const ctx = canvas.getContext('2d');
@@ -2909,66 +2760,110 @@ async function playCheckmateCinematic(loserColor){
   ctx.font = '32px "Cinzel", Georgia, serif'; ctx.fillStyle = '#e0b464';
   ctx.fillText(`◆  ${preview.coinGain} Coins  ◆`, 512, 445);
   ctx.font = 'italic 22px "Spectral", Georgia, serif'; ctx.fillStyle = '#bda684'; ctx.fillText(preview.desc, 512, 500);
-
   const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace;
   const billboardMat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0, side: THREE.DoubleSide });
   const billboard = new THREE.Mesh(new THREE.PlaneGeometry(9, 4.9), billboardMat);
   billboard.position.copy(soulGroup.position); scene.add(billboard); billboardMesh = billboard;
-
   await addTween(1.0, p => { const e = easeOutCubic(p);
     soulGroup.scale.setScalar(1 - e*0.95); soulMat.opacity = 0.75*(1-e); billboardMat.opacity = e; billboard.scale.setScalar(0.3 + e*0.7);
   }, () => { scene.remove(soulGroup); soulGroup.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); });
-
   const camBillStart = camera.position.clone();
   const camBill = new THREE.Vector3(soulOrigin.x + 0.5, soulOrigin.y + 5.5, soulOrigin.z + 6.5);
   const targetBillStart = controls.target.clone();
   const targetBill = new THREE.Vector3(soulOrigin.x, billboard.position.y, soulOrigin.z);
   await addTween(1.3, p => { const e = easeInOutQuad(p);
-    camera.position.lerpVectors(camBillStart, camBill, e); controls.target.lerpVectors(targetBillStart, targetBill, e);
-    camera.lookAt(controls.target); });
-
+    camera.position.lerpVectors(camBillStart, camBill, e); controls.target.lerpVectors(targetBillStart, targetBill, e); camera.lookAt(controls.target); });
   await new Promise(r => setTimeout(r, 2400));
   await addTween(0.9, p => { billboardMat.opacity = 1 - p; }, () => {
     scene.remove(billboard); billboard.geometry.dispose(); billboard.material.dispose();
-    if (billboardMesh === billboard) billboardMesh = null;
-  });
-
+    if (billboardMesh === billboard) billboardMesh = null; });
   cinemaEl.classList.remove('on'); cinemaBarsTop.classList.remove('on'); cinemaBarsBot.classList.remove('on');
   controls.enabled = true; cinematicActive = false; timeScale = 1.0;
 }
-
-async function playVictoryEnergy(winnerColor, reason){
-  cinematicActive = true; controls.enabled = false;
-  const kingSq = gameState.kings[winnerColor === WHITE ? 0 : 1];
-  const kp = squarePos(kingSq);
-  const color = winnerColor === WHITE ? 0xffe08a : 0xff9a5a;
-
+async function playVictoryCinematic(winnerColor, reason){
+  cinematicActive = true;
+  cinemaEl.classList.add('on'); cinemaBarsTop.classList.add('on'); cinemaBarsBot.classList.add('on');
+  controls.enabled = false;
+  const isDraw = winnerColor === 0;
+  const focusSq = isDraw ? 27 : gameState.kings[winnerColor === WHITE ? 0 : 1];
+  const fp = squarePos(focusSq);
+  const color = isDraw ? 0xc0d0e0 : (winnerColor === WHITE ? 0x9ec8ff : 0xff6a4a);
+  const gold = 0xffe08a;
   const camStart = camera.position.clone();
-  const camEnd = new THREE.Vector3(kp.x + 2.4, 4.2, kp.z + 3.6);
+  const camEnd = new THREE.Vector3(fp.x + 2.6, 4.6, fp.z + 3.9);
   const targetStart = controls.target.clone();
-  const targetEnd = new THREE.Vector3(kp.x, kp.y + 0.6, kp.z);
-  addTween(1.6, p => { const e = easeInOutQuad(p);
-    camera.position.lerpVectors(camStart, camEnd, e); controls.target.lerpVectors(targetStart, targetEnd, e);
-    camera.lookAt(controls.target); });
-
-  sfx('energy'); sfx('rumble'); sfx('victory');
-  shake(1.8, 1.8);
-  screenFlash(winnerColor === WHITE ? 'rgba(255,220,150,.75)' : 'rgba(255,150,80,.75)', 0.9, 0.95);
-  energyBurst(kp, color, 2.4);
-  for (let i = 0; i < 7; i++) setTimeout(() => shockwave(kp, color, 7 + i * 2, 1.6, 0.02), i * 150);
-  sparkBurst(kp.clone().setY(kp.y + 1), 100, color, 2.6);
-  dustBurst(kp, 80, 0xe6cf9e, 2.6);
-  setTimeout(() => { const center = new THREE.Vector3(0, BOARD_TOP, 0); sparkBurst(center.clone().setY(center.y + 0.6), 60, color, 2.2); shockwave(center, color, 12, 1.8, 0.02); shake(2.0, 1.6); }, 400);
-  for (let i = 0; i < 4; i++) setTimeout(() => {
+  const targetEnd = new THREE.Vector3(fp.x, fp.y + 0.7, fp.z);
+  await addTween(1.6, p => { const e = easeInOutQuad(p);
+    camera.position.lerpVectors(camStart, camEnd, e); controls.target.lerpVectors(targetStart, targetEnd, e); camera.lookAt(controls.target); });
+  const winnerName = isDraw ? 'The Realm' : (winnerColor === WHITE ? 'Ivory Kingdom' : 'Obsidian Kingdom');
+  let line = '';
+  if (reason === 'throne') line = '"The throne is OURS! The kingdom kneels before me!"';
+  else if (reason === 'hill') line = '"The high ground is claimed! I stand victorious!"';
+  else if (reason === 'checkthrice') line = '"Thrice I struck your king — thrice you failed to defend him!"';
+  else if (reason === 'resign' || reason === 'resign-remote') line = '"Wisely done, warrior. The field is ours."';
+  else if (reason === 'stalemate' || reason === 'fifty') line = '"Neither blade falls. This day belongs to no one."';
+  else line = '"The field is ours!"';
+  const speechPos = new THREE.Vector3(fp.x, fp.y + 2.0, fp.z);
+  showSpeech(winnerName, line, speechPos, false);
+  sfx('battlecry');
+  await new Promise(r => setTimeout(r, 2400));
+  hideSpeech();
+  await new Promise(r => setTimeout(r, 250));
+  sfx('energy'); sfx('victory'); sfx('rumble');
+  shake(1.6, 1.6);
+  screenFlash(isDraw ? 'rgba(180,200,230,.5)' : (winnerColor === WHITE ? 'rgba(180,210,255,.7)' : 'rgba(255,150,80,.7)'), 0.85, 0.9);
+  energyBurst(fp, color, 2.2);
+  for (let i = 0; i < 5; i++) setTimeout(() => shockwave(fp, color, 6 + i*2, 1.5, 0.02), i * 150);
+  sparkBurst(fp.clone().setY(fp.y + 1), 80, gold, 2.3);
+  dustBurst(fp, 65, 0xe6cf9e, 2.2);
+  setTimeout(() => { const centre = new THREE.Vector3(0, BOARD_TOP, 0);
+    sparkBurst(centre.clone().setY(centre.y + 0.6), 50, color, 2.0);
+    shockwave(centre, color, 10.5, 1.6, 0.02); shake(1.8, 1.4); }, 420);
+  for (let i = 0; i < 3; i++) setTimeout(() => {
     const ringMat = new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0.85, side:THREE.DoubleSide, depthWrite:false, blending:THREE.AdditiveBlending });
     const ring = new THREE.Mesh(new THREE.RingGeometry(0.4, 0.55, 44), ringMat);
-    ring.rotation.x = -Math.PI/2; ring.position.copy(kp); ring.position.y = BOARD_TOP + 0.02; ring.renderOrder = 8; scene.add(ring);
-    addTween(1.6, p => { const e = easeOutCubic(p); ring.scale.setScalar(1 + e * (10 + i*2)); ring.position.y = BOARD_TOP + 0.02 + e * 1.2; ringMat.opacity = 0.85 * (1 - p); },
+    ring.rotation.x = -Math.PI/2; ring.position.copy(fp); ring.position.y = BOARD_TOP + 0.02; ring.renderOrder = 8; scene.add(ring);
+    addTween(1.5, p => { const e = easeOutCubic(p); ring.scale.setScalar(1 + e * (9 + i*2)); ring.position.y = BOARD_TOP + 0.02 + e * 1.1; ringMat.opacity = 0.85 * (1 - p); },
       () => { scene.remove(ring); ring.geometry.dispose(); ringMat.dispose(); });
-  }, 200 + i * 180);
-
-  await new Promise(r => setTimeout(r, 2600));
-  controls.enabled = true; cinematicActive = false;
+  }, 200 + i * 200);
+  const canvas = document.createElement('canvas');
+  canvas.width = 900; canvas.height = 380;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, 0, 380);
+  grad.addColorStop(0, 'rgba(40, 26, 14, 0.96)'); grad.addColorStop(1, 'rgba(14, 8, 4, 0.98)');
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, 900, 380);
+  ctx.strokeStyle = '#e0b464'; ctx.lineWidth = 8; ctx.strokeRect(20, 20, 860, 340);
+  ctx.strokeStyle = '#a8834a'; ctx.lineWidth = 2; ctx.strokeRect(36, 36, 828, 308);
+  const preview = computeRatingPreview(isDraw ? 0 : winnerColor);
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 62px "Cinzel", Georgia, serif'; ctx.fillStyle = '#ffe7ae';
+  ctx.fillText(preview.icon, 450, 110);
+  ctx.font = 'bold 46px "Cinzel", Georgia, serif'; ctx.fillStyle = '#ffe7ae';
+  ctx.fillText(preview.title.toUpperCase(), 450, 180);
+  ctx.strokeStyle = 'rgba(224,180,100,.4)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(180, 205); ctx.lineTo(720, 205); ctx.stroke();
+  ctx.font = 'italic 26px "Spectral", Georgia, serif'; ctx.fillStyle = '#bda684';
+  ctx.fillText(preview.desc, 450, 260);
+  ctx.font = 'bold 34px "Cinzel", Georgia, serif';
+  ctx.fillStyle = preview.delta > 0 ? '#7fd48a' : preview.delta < 0 ? '#e8664a' : '#bda684';
+  ctx.fillText(`${preview.delta > 0 ? '+' : ''}${preview.delta} Rating  ·  +${preview.coinGain} 🪙`, 450, 320);
+  const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace;
+  const billMat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0, side: THREE.DoubleSide });
+  const billboard = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 3.04), billMat);
+  billboard.position.set(fp.x, fp.y + 3.5, fp.z); scene.add(billboard); billboardMesh = billboard;
+  const camBillStart = camera.position.clone();
+  const camBill = new THREE.Vector3(fp.x + 0.4, fp.y + 4.2, fp.z + 5.6);
+  const targetBillStart = controls.target.clone();
+  const targetBill = new THREE.Vector3(fp.x, billboard.position.y, fp.z);
+  await addTween(1.1, p => { const e = easeInOutQuad(p);
+    camera.position.lerpVectors(camBillStart, camBill, e); controls.target.lerpVectors(targetBillStart, targetBill, e); camera.lookAt(controls.target);
+    billMat.opacity = e; billboard.scale.setScalar(0.55 + e*0.45); });
+  await new Promise(r => setTimeout(r, 2200));
+  await addTween(0.85, p => { billMat.opacity = 1 - p; }, () => {
+    scene.remove(billboard); billboard.geometry.dispose(); billboard.material.dispose();
+    if (billboardMesh === billboard) billboardMesh = null; });
+  cinemaEl.classList.remove('on'); cinemaBarsTop.classList.remove('on'); cinemaBarsBot.classList.remove('on');
+  controls.enabled = true; cinematicActive = false; timeScale = 1.0;
 }
 
 /* GAME RESULT */
@@ -2977,7 +2872,6 @@ function finalizeGameResult(winnerColor, reason){
   gameEnded = true; gameOver = true; busy = false;
   thinkingEl.classList.remove('on');
   clearSelection(); clearMarkers(); refreshHighlights(); updateStatus();
-
   const oppRating = isMultiplayer ? (Storage.getProfile(mp.opponent) ? Storage.getProfile(mp.opponent).rating : 1000) : BOT_LEVELS[currentBotIdx].rating;
   let score = 0.5, icon = '🤝', title = 'Draw', desc = '', coinGain = 0;
   if (winnerColor === playerColor) {
@@ -3037,15 +2931,12 @@ async function performMove(move, fromRemote){
   const preLegal = legalMoves(st);
   let san = toSAN(st, move, preLegal);
   const preSnapshot = us === playerColor ? snapshotState(st) : null;
-
   moveSnapshot.push({ state: snapshotState(st), move, san });
-
   makeMove(st, move);
   allMoves.push(move);
   meshAt[from] = null;
   if (epSq >= 0) meshAt[epSq] = null;
   meshAt[to] = movingObj;
-
   if (move.castle) {
     const rank = us === WHITE ? 7 : 0;
     const rf = move.castle === 'K' ? rank*8+7 : rank*8+0;
@@ -3053,8 +2944,6 @@ async function performMove(move, fromRemote){
     const rookObj = meshAt[rf]; meshAt[rf] = null; meshAt[rt] = rookObj;
     if (rookObj) animateWalk(rookObj, rf, rt, { piece: R });
   }
-
-  /* Animate the move — either a capture (per-piece kill) or a normal walk */
   const pieceType = Math.abs(move.piece);
   if (victimObj && movingObj) {
     const captureFn = CAPTURE_ANIMS[pieceType] || captureAnimPawn;
@@ -3063,17 +2952,15 @@ async function performMove(move, fromRemote){
     await animateWalk(movingObj, from, to, move);
     sfx('move');
   }
-
   if (move.promo && meshAt[to]) {
     const old = meshAt[to]; scene.remove(old);
     const np = createPieceObj(move.promo, us, pEquippedSkin);
     np.position.copy(squarePos(to)); np.scale.setScalar(0.15);
     scene.add(np); meshAt[to] = np;
-    glowSphere(squarePos(to).setY(BOARD_TOP + 0.6), us === WHITE ? 0xffe08a : 0xff9a5a, 0.8, 0.45);
+    glowSphere(squarePos(to).setY(BOARD_TOP + 0.6), 0xffe08a, 0.8, 0.45);
     await addTween(0.35, p => { const e = easeOutBack(p); np.scale.setScalar(0.15 + 0.85*e); }, () => np.scale.setScalar(1));
   }
   lastMove = { from, to };
-
   const givingCheck = inCheck(st, st.turn);
   const forkTargets = detectFork(st.board, to, us);
   const pinInfo = findPins(st.board, to, -us);
@@ -3081,34 +2968,26 @@ async function performMove(move, fromRemote){
   const isMate = oppMoves.length === 0 && givingCheck;
   if (isMate) san += '#'; else if (givingCheck) san += '+';
   sanList.push(san); renderMoveList();
-
   let checkMilestone = 0;
   if (givingCheck && !isMate) { checksGiven[us] = (checksGiven[us] || 0) + 1; checkMilestone = checksGiven[us]; }
-
   refreshHighlights(); updateStatus();
-
   let modeWin = null;
   if (gameMode === 'throne') { const enemyThrone = us === WHITE ? THRONE_BLACK : THRONE_WHITE; const occ = st.board[enemyThrone];
     if (occ !== 0 && Math.sign(occ) === us && Math.abs(occ) !== K) modeWin = { winner: us, reason: 'throne' }; }
   else if (gameMode === 'hill') { for (const sq of CENTRE_SQUARES) { const p = st.board[sq]; if (p !== 0 && Math.abs(p) === K) { modeWin = { winner: Math.sign(p), reason: 'hill' }; break; } } }
   else if (gameMode === 'checkthrice') { if (checksGiven[us] >= 3) modeWin = { winner: us, reason: 'checkthrice' };
     else if (checkMilestone > 0) { const who = us === playerColor ? 'You' : 'Enemy'; setTimeout(() => showClue(`CHECK ${checkMilestone}/3`, who + ' delivered a check!'), 900); } }
-
   if (isMultiplayer && !fromRemote && mp.active) {
     publishToMatch(mp.gameId, { type: 'move', by: currentUsername, from, to, promo: move.promo || null, castle: move.castle || null, ep: move.ep || false, double: move.double || false });
   }
-
   if (isMate) { finalizeGameResult(st.turn === WHITE ? BLACK : WHITE, 'checkmate'); await playCheckmateCinematic(st.turn); showEndResultModal(); return; }
-  if (modeWin) { finalizeGameResult(modeWin.winner, modeWin.reason); await playVictoryEnergy(modeWin.winner, modeWin.reason); showEndResultModal(); return; }
-  if (oppMoves.length === 0) { finalizeGameResult(0, 'stalemate'); showEndResultModal(); return; }
-  if (st.halfmove >= 100) { finalizeGameResult(0, 'fifty'); showEndResultModal(); return; }
-
+  if (modeWin) { finalizeGameResult(modeWin.winner, modeWin.reason); await playVictoryCinematic(modeWin.winner, modeWin.reason); showEndResultModal(); return; }
+  if (oppMoves.length === 0) { finalizeGameResult(0, 'stalemate'); await playVictoryCinematic(0, 'stalemate'); showEndResultModal(); return; }
+  if (st.halfmove >= 100) { finalizeGameResult(0, 'fifty'); await playVictoryCinematic(0, 'fifty'); showEndResultModal(); return; }
   if (us === playerColor) { checkForClues(st, move, us); if (preSnapshot) analyzeMoveAsync(preSnapshot, move, preLegal); }
-
   busy = false;
   if (!isMultiplayer && st.turn === aiColor) scheduleAI();
 }
-
 function applyRemoteMove(msg){
   const move = { from: msg.from, to: msg.to, piece: gameState.board[msg.from],
     captured: msg.ep ? -gameState.turn * P : (gameState.board[msg.to] || 0),
@@ -3116,7 +2995,6 @@ function applyRemoteMove(msg){
     ep: msg.ep || false, double: msg.double || false };
   performMove(move, true);
 }
-
 function scheduleAI(){
   if (isMultiplayer) return;
   busy = true; thinkingEl.classList.add('on'); refreshHighlights();
@@ -3171,7 +3049,6 @@ renderer.domElement.addEventListener('pointerdown', async ev => {
   }
   clearSelection(); refreshHighlights();
 });
-
 const PROMO_GLYPHS = { [Q]:'♛', [R]:'♜', [B]:'♝', [N]:'♞' };
 function askPromotion(){
   return new Promise(resolve => {
@@ -3214,17 +3091,78 @@ function openLogin(mode){
 }
 document.getElementById('loginToggle').onclick = () => openLogin(loginMode === 'signin' ? 'signup' : 'signin');
 document.getElementById('loginCancel').onclick = () => { showScreen('screen-cover'); refreshCoverUser(); };
-document.getElementById('loginSubmit').onclick = () => {
-  const u = document.getElementById('loginUser').value.trim(); const p = document.getElementById('loginPass').value; const msg = document.getElementById('loginMsg');
+
+/* ---- Login with cross-device profile sync ---- */
+document.getElementById('loginSubmit').onclick = async () => {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const msg = document.getElementById('loginMsg');
+  const btn = document.getElementById('loginSubmit');
   if (!u || u.length < 3) { msg.textContent = 'Username must be at least 3 characters.'; return; }
   if (!p || p.length < 3) { msg.textContent = 'Password must be at least 3 characters.'; return; }
-  if (loginMode === 'signup') { const res = Storage.createProfile(u, p); if (res.error) { msg.textContent = res.error; return; } loadProfileIntoMemory(u); }
-  else { const res = Storage.login(u, p); if (res.error) { msg.textContent = res.error; return; } loadProfileIntoMemory(u); }
+
+  let existing = Storage.getProfile(u);
+
+  if (!existing) {
+    // Give MQTT a chance to connect first
+    if (!mqttReady && mqttConnecting) {
+      msg.style.color = 'var(--dim)';
+      msg.textContent = 'Connecting to the realm…';
+      btn.disabled = true;
+      const waitConnectStart = Date.now();
+      while (!mqttReady && Date.now() - waitConnectStart < 4000) {
+        await new Promise(r => setTimeout(r, 100));
+      }
+      btn.disabled = false;
+    }
+    if (mqttReady) {
+      msg.style.color = 'var(--dim)';
+      msg.textContent = 'Searching the realm for that warrior…';
+      btn.disabled = true;
+      await networkWaitForProfile(u, 4000);
+      existing = Storage.getProfile(u);
+      btn.disabled = false;
+    }
+    msg.style.color = 'var(--bad)';
+    msg.textContent = '';
+  }
+
+  const wasAlready = !!existing;
+  const prevVer = wasAlready ? (existing.schemaVersion || 0) : 0;
+
+  if (loginMode === 'signup') {
+    if (wasAlready) { msg.textContent = 'Username already taken by another warrior.'; return; }
+    const res = Storage.createProfile(u, p);
+    if (res.error) { msg.textContent = res.error; return; }
+    loadProfileIntoMemory(u);
+  } else {
+    if (!existing) {
+      msg.textContent = mqttReady
+        ? 'No such warrior in the realm. Have they signed in recently? Try again in a moment, or create an account.'
+        : 'Offline — no such warrior saved on this device.';
+      return;
+    }
+    const res = Storage.login(u, p);
+    if (res.error) { msg.textContent = res.error; return; }
+    loadProfileIntoMemory(u);
+  }
+
+  if (wasAlready && prevVer < 3) {
+    setTimeout(() => showToast('Legacy purchases cleared — all other progress kept', 'good'), 900);
+  }
   afterAuth();
+  schedulePublishMyProfile(100);
 };
-function afterAuth(){ refreshCoverUser(); renderOnlineUsers();
+function afterAuth(){
+  refreshCoverUser(); renderOnlineUsers();
   if (!mqttClient) initMQTT(); else subscribeToMyChallengeChannel();
-  broadcastPresence(); saveMemoryToProfile(); showScreen('screen-cover'); }
+  broadcastPresence();
+  // Explicitly publish own profile now (in case MQTT was already connected)
+  if (mqttReady) { publishMyProfile(true); broadcastHello(); }
+  else schedulePublishMyProfile(1500);
+  saveMemoryToProfile();
+  showScreen('screen-cover');
+}
 
 function openProfile(username, readonly){
   if (!username) return;
@@ -3236,7 +3174,6 @@ function openProfile(username, readonly){
   if (prof.rating >= 2000) rank = 'Legend of the Realm'; else if (prof.rating >= 1800) rank = 'Grand Duke';
   else if (prof.rating >= 1600) rank = 'Duke'; else if (prof.rating >= 1400) rank = 'Baron';
   else if (prof.rating >= 1200) rank = 'Knight'; else if (prof.rating >= 1000) rank = 'Squire'; else if (prof.rating >= 800) rank = 'Footman';
-
   const hist = history.slice().reverse();
   let histHtml = '';
   if (hist.length === 0) histHtml = '<div style="padding:12px;color:var(--dim);font-size:12px;text-align:center;">No games played yet.</div>';
@@ -3298,10 +3235,14 @@ function openSearch(mode){
   if (titleEl) titleEl.textContent = searchMode === 'multiplayer' ? 'Find an Opponent' : 'Search Warriors';
   if (subEl2) subEl2.textContent = searchMode === 'multiplayer' ? 'Type a name — click to challenge if online' : 'Find any warrior by name — online or offline';
   document.getElementById('searchInput').value = ''; renderSearchResults('');
+  // trigger a hello broadcast to fill cache faster
+  broadcastHello();
   showScreen('screen-search'); setTimeout(() => document.getElementById('searchInput').focus(), 100);
 }
 function renderSearchResults(q){
   const box = document.getElementById('searchResults');
+  const statusLine = document.getElementById('searchStatusLine');
+  if (statusLine) statusLine.textContent = mqttReady ? '' : 'Offline — only locally saved warriors shown';
   if (searchMode === 'multiplayer' && !q) {
     const onlineList = [...onlineUsers.keys()].filter(u => u !== currentUsername).sort();
     if (onlineList.length === 0) { box.innerHTML = '<div style="padding:14px;color:var(--dim);font-size:12px;text-align:center;">No one else is online right now. Type a name to search.</div>'; return; }
@@ -3311,7 +3252,17 @@ function renderSearchResults(q){
   }
   if (!q) { box.innerHTML = '<div style="padding:14px;color:var(--dim);font-size:12px;text-align:center;">Start typing to search.</div>'; return; }
   const results = Storage.searchUsers(q);
-  if (results.length === 0) { box.innerHTML = '<div style="padding:14px;color:var(--dim);font-size:12px;text-align:center;">No warriors found.</div>'; return; }
+  if (results.length === 0) {
+    const extra = mqttReady ? ' (still searching the realm…)' : '';
+    box.innerHTML = `<div style="padding:14px;color:var(--dim);font-size:12px;text-align:center;">No warriors found${extra}</div>`;
+    // also fire a network request for this exact name
+    if (mqttReady && q.length >= 3) {
+      networkWaitForProfile(q, 3000).then(found => {
+        if (found) renderSearchResults(q);
+      });
+    }
+    return;
+  }
   box.innerHTML = results.map(r => { const online = onlineUsers.has(r.username); const isSelf = r.username === currentUsername;
     return `<div class="searchResult" data-user="${escapeAttr(r.username)}" data-online="${online ? 1 : 0}"><span class="av">${r.avatar}</span>
       <span class="nm">${escapeHtml(r.username)}${isSelf ? ' <span style="color:var(--dim);font-size:10px;">(you)</span>' : ''}${online ? ' <span style="color:var(--online);font-size:10px;">● online</span>' : ''}</span>
@@ -3324,21 +3275,38 @@ function renderSearchResults(q){
 document.getElementById('searchInput').addEventListener('input', e => renderSearchResults(e.target.value));
 document.getElementById('searchBack').onclick = () => { showScreen('screen-cover'); refreshCoverUser(); };
 
+/* ARMORY */
 function openShop(){
   if (!currentUsername) return;
   document.getElementById('shopMoneyVal').textContent = pCoins;
   const grid = document.getElementById('shopGrid'); grid.innerHTML = '';
-  for (const key of Object.keys(SKINS)) { const skin = SKINS[key];
-    const owned = pUnlockedSkins.includes(key); const equipped = pEquippedSkin === key;
-    const card = document.createElement('div'); card.className = 'skinCard' + (equipped ? ' equipped' : '');
-    card.innerHTML = `<div class="skinPreview" style="color:#${skin.body.toString(16).padStart(6,'0')};text-shadow:0 0 20px #${skin.trim.toString(16).padStart(6,'0')}">♛</div><div class="skinName">${skin.name}</div><div class="skinDesc">${skin.desc}</div>`;
-    if (!owned) { const price = document.createElement('div'); price.className = 'skinPrice'; price.textContent = `🪙 ${skin.price}`; card.appendChild(price);
-      const btn = document.createElement('button'); btn.className = 'skinBtn'; btn.textContent = pCoins >= skin.price ? 'Unlock' : 'Not Enough'; btn.disabled = pCoins < skin.price;
-      btn.onclick = () => { if (pCoins < skin.price) return; pCoins -= skin.price; pUnlockedSkins.push(key); saveMemoryToProfile(); sfx('coin'); showToast('Unlocked ' + skin.name, 'good'); openShop(); };
-      card.appendChild(btn); }
-    else if (equipped) { const btn = document.createElement('button'); btn.className = 'skinBtn'; btn.textContent = '✓ Equipped'; btn.disabled = true; card.appendChild(btn); }
-    else { const btn = document.createElement('button'); btn.className = 'skinBtn'; btn.textContent = 'Equip'; btn.onclick = () => { pEquippedSkin = key; saveMemoryToProfile(); sfx('select'); openShop(); }; card.appendChild(btn); }
-    grid.appendChild(card); }
+  for (const key of Object.keys(PIECE_SETS)) {
+    const set = PIECE_SETS[key];
+    const owned = pUnlockedSkins.includes(key);
+    const equipped = pEquippedSkin === key;
+    const card = document.createElement('div');
+    card.className = 'skinCard' + (equipped ? ' equipped' : '');
+    card.innerHTML = `<div class="skinPreview">${set.icon}</div>
+      <div class="skinName">${set.name}</div>
+      <div class="skinDesc">${set.desc}</div>`;
+    if (!owned) {
+      const price = document.createElement('div'); price.className = 'skinPrice'; price.textContent = `🪙 ${set.price}`; card.appendChild(price);
+      const btn = document.createElement('button'); btn.className = 'skinBtn';
+      btn.textContent = pCoins >= set.price ? 'Unlock' : 'Not Enough'; btn.disabled = pCoins < set.price;
+      btn.onclick = () => { if (pCoins < set.price) return; pCoins -= set.price; pUnlockedSkins.push(key); pEquippedSkin = key; saveMemoryToProfile(); sfx('coin');
+        showToast('Unlocked ' + set.name + ' — equipped', 'good'); openShop();
+        if (hudEl.classList.contains('on')) buildPieceMeshes(); };
+      card.appendChild(btn);
+    } else if (equipped) {
+      const btn = document.createElement('button'); btn.className = 'skinBtn'; btn.textContent = '✓ Equipped'; btn.disabled = true; card.appendChild(btn);
+    } else {
+      const btn = document.createElement('button'); btn.className = 'skinBtn'; btn.textContent = 'Equip';
+      btn.onclick = () => { pEquippedSkin = key; saveMemoryToProfile(); sfx('select'); openShop();
+        if (hudEl.classList.contains('on')) buildPieceMeshes(); };
+      card.appendChild(btn);
+    }
+    grid.appendChild(card);
+  }
   showScreen('screen-shop');
 }
 document.getElementById('shopBack').onclick = () => { saveMemoryToProfile(); showScreen('screen-cover'); refreshCoverUser(); };
@@ -3360,24 +3328,34 @@ function openModePicker(){
 document.getElementById('modesBack').onclick = () => { showScreen('screen-cover'); refreshCoverUser(); };
 
 function requestSinglePlayerBattle(){
-  const env = pickRandomEnv(currentEnvId);
+  const defaultEnvId = currentEnvId || 'kingdom';
   const defaultBotIdx = Math.min(19, Math.max(0, Math.floor((pRating - 400)/120)));
   const envLines = { kingdom: 'The banner armies clash in the temple courtyard.', desert: 'Sandstorms howl at the desert oasis.',
     himalaya: 'Amidst frozen peaks, battle for the high passes begins.', tomb: 'Beneath ancient tombs, torches flicker.',
     cave: 'Crystals light a deadly ambush in the deep caves.', waterfall: 'The roar of the waterfall drowns out the marching.',
     city: 'In the ancient marketplace, war erupts between rival houses.' };
   document.getElementById('soloTitle').textContent = `An Enemy Approaches — ${labelGameType(gameMode)}`;
-  document.getElementById('soloBody').innerHTML = `${envLines[env.id]}<br><br>Choose the rank of your challenger.`;
-  document.getElementById('soloEnv').textContent = '⚜ ' + env.name + ' ⚜';
+  document.getElementById('soloBody').innerHTML = `Choose your battlefield realm and the rank of your challenger.`;
+  document.getElementById('soloEnv').textContent = '';
   const sel = document.getElementById('soloBotLevel');
   sel.innerHTML = BOT_LEVELS.map((b, i) => `<option value="${i}">${b.name} · Rating ${b.rating}</option>`).join('');
   sel.value = String(defaultBotIdx);
+  const envSel = document.getElementById('soloEnvSelect');
+  envSel.innerHTML = ENVIRONMENTS.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+  envSel.value = defaultEnvId;
+  const updateEnvLine = () => { const eid = envSel.value; document.getElementById('soloEnv').textContent = '⚜ ' + (envLines[eid] || '') + ' ⚜'; };
+  envSel.onchange = updateEnvLine; updateEnvLine();
   openModal('soloBattleModal');
-  document.getElementById('soloAccept').onclick = () => { const chosenIdx = parseInt(sel.value, 10); const botIdx = isNaN(chosenIdx) ? defaultBotIdx : chosenIdx;
-    closeModal('soloBattleModal'); currentEnvId = env.id; currentBotIdx = botIdx; applyEnvironment(env.id); startSinglePlayerGame(); };
+  document.getElementById('soloAccept').onclick = () => {
+    const chosenIdx = parseInt(sel.value, 10);
+    const botIdx = isNaN(chosenIdx) ? defaultBotIdx : chosenIdx;
+    const chosenEnv = envSel.value || defaultEnvId;
+    closeModal('soloBattleModal');
+    currentEnvId = chosenEnv; currentBotIdx = botIdx;
+    applyEnvironment(chosenEnv); startSinglePlayerGame();
+  };
   document.getElementById('soloDecline').onclick = () => { closeModal('soloBattleModal'); showScreen('screen-cover'); };
 }
-function pickRandomEnv(exclude){ const opts = ENVIRONMENTS.filter(e => e.id !== exclude); return opts[Math.floor(Math.random()*opts.length)]; }
 function labelGameType(t){ return t === 'normal' ? 'Normal Chess' : t === 'throne' ? 'Capture the Throne' : t === 'hill' ? 'King of the Hill' : t === 'checkthrice' ? 'Check Thrice' : t; }
 
 function startSinglePlayerGame(){
@@ -3390,22 +3368,27 @@ function startSinglePlayerGame(){
     showAdvisor('taunt', `<strong>${bot.name} speaks:</strong> <em>"${pick(bot.taunt)}"</em>`, bot.mood); }, 700);
   announceRules(gameMode); updateRatingUI();
 }
-
 function openMultiplayerMenu(){ openSearch('multiplayer'); }
 
 function openChallengeSetup(username){
   const prof = Storage.getProfile(username); if (!prof) { showAdvisor('bad', `Unknown warrior: ${escapeHtml(username)}`, '🤷'); return; }
   if (!onlineUsers.has(username)) { showAdvisor('bad', `<strong>${escapeHtml(username)}</strong> is offline.`, '😐'); return; }
   document.getElementById('chSetupTo').innerHTML = `To: <strong>${escapeHtml(username)}</strong> (rating ${prof.rating})`;
-  document.getElementById('chSetupType').value = 'normal'; document.getElementById('chSetupColor').value = 'white';
+  document.getElementById('chSetupType').value = 'normal';
+  document.getElementById('chSetupColor').value = 'white';
+  const envSel = document.getElementById('chSetupEnv');
+  envSel.innerHTML = ENVIRONMENTS.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+  envSel.value = currentEnvId || 'kingdom';
   openModal('challengeSetupModal');
   document.getElementById('chSetupSend').onclick = () => {
-    const gameType = document.getElementById('chSetupType').value; const colorChoice = document.getElementById('chSetupColor').value;
+    const gameType = document.getElementById('chSetupType').value;
+    const colorChoice = document.getElementById('chSetupColor').value;
+    const envId = envSel.value || 'kingdom';
     let challengerColor = WHITE; if (colorChoice === 'black') challengerColor = BLACK; else if (colorChoice === 'random') challengerColor = Math.random() < 0.5 ? WHITE : BLACK;
     const gameId = 'g_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,7);
-    const challengeMsg = { type:'challenge', from: currentUsername, to: username, gameId, gameType, challengerColor, ts: Date.now() };
+    const challengeMsg = { type:'challenge', from: currentUsername, to: username, gameId, gameType, envId, challengerColor, ts: Date.now() };
     if (!publishChallenge(username, challengeMsg)) { showAdvisor('bad', 'Could not reach the network.', '😕'); return; }
-    mp.outgoingChallenge = { gameId, opponent: username, gameType, myColor: challengerColor };
+    mp.outgoingChallenge = { gameId, opponent: username, gameType, myColor: challengerColor, envId };
     closeModal('challengeSetupModal');
     document.getElementById('waitTitle').textContent = 'Challenge Sent';
     const colorLabel = challengerColor === WHITE ? 'White' : 'Black';
@@ -3418,7 +3401,6 @@ function openChallengeSetup(username){
   };
   document.getElementById('chSetupCancel').onclick = () => closeModal('challengeSetupModal');
 }
-
 let pendingChallenge = null;
 function showIncomingChallenge(msg){
   if (mp.active) { publishChallenge(msg.from, { type:'challenge_response', from: currentUsername, to: msg.from, gameId: msg.gameId, accept: false, ts: Date.now() }); return; }
@@ -3427,31 +3409,31 @@ function showIncomingChallenge(msg){
   const gt = labelGameType(msg.gameType);
   const theirColor = msg.challengerColor === BLACK ? 'Black' : 'White';
   const yourColor = msg.challengerColor === BLACK ? 'White' : 'Black';
-  document.getElementById('incBody').innerHTML = `<strong>${escapeHtml(msg.from)}</strong> challenges you to a <em>${gt}</em> duel!<br><br>They play <em>${theirColor}</em> — you play <em>${yourColor}</em>.`;
+  const envName = (ENVIRONMENTS.find(e => e.id === (msg.envId || 'kingdom')) || ENVIRONMENTS[0]).name;
+  document.getElementById('incBody').innerHTML = `<strong>${escapeHtml(msg.from)}</strong> challenges you to a <em>${gt}</em> duel in <em>${envName}</em>!<br><br>They play <em>${theirColor}</em> — you play <em>${yourColor}</em>.`;
   document.getElementById('incMuted').textContent = 'Accepting starts the game immediately.';
   openModal('incomingChallengeModal');
 }
 document.getElementById('incAccept').onclick = () => { if (!pendingChallenge) return; const msg = pendingChallenge; pendingChallenge = null; closeModal('incomingChallengeModal');
   publishChallenge(msg.from, { type:'challenge_response', from: currentUsername, to: msg.from, gameId: msg.gameId, accept: true, ts: Date.now() });
   const myColor = msg.challengerColor === BLACK ? WHITE : BLACK;
-  startMultiplayerGame({ gameId: msg.gameId, opponent: msg.from, myColor: myColor, gameType: msg.gameType }); };
+  startMultiplayerGame({ gameId: msg.gameId, opponent: msg.from, myColor: myColor, gameType: msg.gameType, envId: msg.envId }); };
 document.getElementById('incDecline').onclick = () => { if (!pendingChallenge) return; const msg = pendingChallenge; pendingChallenge = null; closeModal('incomingChallengeModal');
   publishChallenge(msg.from, { type:'challenge_response', from: currentUsername, to: msg.from, gameId: msg.gameId, accept: false, ts: Date.now() }); };
-
 function handleChallengeResponse(msg){
   const ch = mp.outgoingChallenge; mp.outgoingChallenge = null; closeModal('waitingModal');
   if (!ch) return;
-  if (msg.accept) startMultiplayerGame({ gameId: ch.gameId, opponent: ch.opponent, myColor: ch.myColor, gameType: ch.gameType });
+  if (msg.accept) startMultiplayerGame({ gameId: ch.gameId, opponent: ch.opponent, myColor: ch.myColor, gameType: ch.gameType, envId: ch.envId });
   else { showAdvisor('bad', `<strong>${escapeHtml(ch.opponent)}</strong> declined your challenge.`, '😐'); showScreen('screen-cover'); refreshCoverUser(); }
 }
-
-function startMultiplayerGame({ gameId, opponent, myColor, gameType }){
+function startMultiplayerGame({ gameId, opponent, myColor, gameType, envId }){
   if (mp.active) return;
   isMultiplayer = true; mp.active = true; mp.gameId = gameId; mp.opponent = opponent; mp.myColor = myColor;
   mp.undoRequestedByMe = false; mp.undoPending = null; mpOpponent = opponent;
   playerColor = myColor; aiColor = -myColor; gameMode = gameType;
   subscribeToMatch(gameId);
-  const env = pickRandomEnv(currentEnvId); currentEnvId = env.id; applyEnvironment(env.id);
+  const chosenEnv = envId || currentEnvId || 'kingdom';
+  currentEnvId = chosenEnv; applyEnvironment(chosenEnv);
   hideAllScreens(); hudEl.classList.add('on');
   if (modeLabelEl) { const colorLabel = myColor === WHITE ? 'White' : 'Black';
     modeLabelEl.textContent = '🌐 Online · ' + labelGameType(gameType) + ' · You are ' + colorLabel; modeLabelEl.style.display = 'block'; }
@@ -3460,7 +3442,6 @@ function startMultiplayerGame({ gameId, opponent, myColor, gameType }){
     showAdvisor('speech', `<strong>Online Match!</strong><br>You are <em>${colorLabel}</em> vs <em>${escapeHtml(opponent)}</em><br><br><strong>Rules:</strong> ${rulesFor(gameType)}`, '🌐'); }, 700);
   updateRatingUI();
 }
-
 function newGame(){
   tweens.length = 0; advisorComputeToken++; timeScale = 1.0;
   clearMarkers(); clearPieceMeshes();
@@ -3480,7 +3461,6 @@ function newGame(){
   addTween(1.2, p => { const e = easeOutCubic(p); camera.position.lerpVectors(start, end, e); camera.lookAt(controls.target); },
     () => { controls.enabled = true; controls.update(); });
 }
-
 function undoMoveLocal(){
   if (moveSnapshot.length === 0) return;
   const last = moveSnapshot.pop();
@@ -3493,7 +3473,6 @@ function undoMoveLocal(){
   renderMoveList(); clearPieceMeshes(); buildPieceMeshes(); refreshHighlights(); updateStatus();
   gameOver = false;
 }
-
 document.getElementById('btnUndo').onclick = () => { if (busy || gameOver || !canPlayerMove()) return; if (moveSnapshot.length === 0) return;
   if (isMultiplayer) { if (mp.undoRequestedByMe) return; mp.undoRequestedByMe = true;
     publishToMatch(mp.gameId, { type: 'undo_request', by: currentUsername }); showAdvisor('speech', 'Undo request sent…', '⏳'); updateUndoButton(); }
@@ -3502,7 +3481,6 @@ document.getElementById('undoReqAccept').onclick = () => { if (!mp.undoPending) 
   publishToMatch(mp.gameId, { type: 'undo_response', by: currentUsername, accept: true }); undoMoveLocal(); mp.undoPending = null; closeModal('undoRequestModal'); };
 document.getElementById('undoReqDecline').onclick = () => { if (!mp.undoPending) return;
   publishToMatch(mp.gameId, { type: 'undo_response', by: currentUsername, accept: false }); mp.undoPending = null; closeModal('undoRequestModal'); };
-
 document.getElementById('btnHint').onclick = async () => { if (busy || gameOver || !canPlayerMove()) return;
   const mv = await workerFindMove(gameState, { depth: 4, timeMs: 700, blunder: 0 });
   if (mv) { const legal = legalMoves(gameState); const san = toSAN(gameState, mv, legal);
@@ -3510,9 +3488,11 @@ document.getElementById('btnHint').onclick = async () => { if (busy || gameOver 
 document.getElementById('btnView').onclick = () => { const start = camera.position.clone(); const end = getCamHome(); controls.enabled = false;
   addTween(0.8, p => { const e = easeInOutQuad(p); camera.position.lerpVectors(start, end, e); controls.target.lerp(new THREE.Vector3(0, 0.5, 0), 0.16); camera.lookAt(controls.target); },
     () => { controls.enabled = true; controls.update(); }); };
-document.getElementById('btnResign').onclick = () => { if (gameOver || !hudEl.classList.contains('on')) return;
-  if (isMultiplayer && mp.active) publishToMatch(mp.gameId, { type: 'resign', by: currentUsername }); endGame(aiColor, 'resign'); };
-
+document.getElementById('btnResign').onclick = async () => { if (gameOver || !hudEl.classList.contains('on')) return;
+  if (isMultiplayer && mp.active) publishToMatch(mp.gameId, { type: 'resign', by: currentUsername });
+  finalizeGameResult(aiColor, 'resign');
+  await playVictoryCinematic(aiColor, 'resign');
+  showEndResultModal(); };
 function returnToHomeScreen(){
   if (autoReturnTimer) { clearTimeout(autoReturnTimer); autoReturnTimer = null; }
   saveMemoryToProfile();
@@ -3527,7 +3507,6 @@ function returnToHomeScreen(){
 document.getElementById('endAgain').onclick = () => { returnToHomeScreen(); };
 document.getElementById('endProfile').onclick = () => { if (autoReturnTimer) { clearTimeout(autoReturnTimer); autoReturnTimer = null; }
   endModal.classList.remove('show'); hudEl.classList.remove('on'); isMultiplayer = false; mp.active = false; openProfile(currentUsername, false); };
-
 document.getElementById('covPlay').onclick = () => { if (!currentUsername) { openLogin('signup'); return; } openModePicker(); };
 document.getElementById('covShop').onclick = () => { if (!currentUsername) { openLogin('signup'); return; } openShop(); };
 document.getElementById('covProfile').onclick = () => { if (!currentUsername) { openLogin('signup'); return; } openProfile(currentUsername, false); };
@@ -3573,14 +3552,18 @@ applyEnvironment('kingdom');
   if (!localStorageAvailable) { setTimeout(() => showToast('Storage blocked — progress will not persist', 'bad'), 1500); return; }
   if (Storage.wasRecovered()) setTimeout(() => showToast('Progress recovered from backup', 'good'), 1500);
   else if (Storage.wasTampered()) setTimeout(() => showToast('Profile data was tampered — restored', 'bad'), 1500);
+  else if (Storage.wasMigrated()) setTimeout(() => showToast('Old shop purchases cleared — other progress kept', 'good'), 1500);
 })();
 const savedUser = Storage.getCurrent();
 if (savedUser) { if (Storage.getProfile(savedUser)) loadProfileIntoMemory(savedUser); else { Storage.setCurrent(''); } }
 refreshCoverUser(); renderOnlineUsers(); initMQTT(); startPresenceLoop();
 newGame(); animate();
 setInterval(() => { if (currentUsername) saveMemoryToProfile(); }, 5000);
-window.addEventListener('beforeunload', () => { if (currentUsername) saveMemoryToProfile(); });
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && currentUsername) saveMemoryToProfile(); });
+window.addEventListener('beforeunload', () => { if (currentUsername) { saveMemoryToProfile(); publishMyProfile(); } });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && currentUsername) { saveMemoryToProfile(); publishMyProfile(); }
+  else if (document.visibilityState === 'visible' && currentUsername && mqttReady) { broadcastHello(); broadcastPresence(); }
+});
 setTimeout(() => { const l = document.getElementById('loading'); if (l) { l.classList.add('gone'); setTimeout(() => l.style.display = 'none', 900); } }, 900);
 setInterval(() => { for (let i = 0; i < 64; i++) if (meshAt[i]) meshAt[i].userData.sq = i; }, 150);
 </script>
